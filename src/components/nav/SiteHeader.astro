@@ -62,7 +62,7 @@ const currentPath = Astro.url.pathname;
 
     <details class="shrink-0 md:hidden">
       <summary class="eyebrow-tag cursor-pointer list-none text-brand">Menu</summary>
-      <nav aria-label="Primary mobile" class="absolute left-0 right-0 flex flex-col gap-1 border-b-2 border-brand-accent bg-white px-6 pb-4">
+      <nav aria-label="Primary mobile" class="absolute left-0 right-0 top-full flex flex-col gap-1 border-b-2 border-brand-accent bg-white px-6 pb-4">
         {
           navLinks.map((link, index) => (
             <a href={link.href} class="flex items-center gap-2 py-2 text-sm font-medium text-slate-600 hover:text-brand-accent">
