@@ -5,24 +5,28 @@ import logoFullColor from '../../assets/logo-full-color.svg';
 
 const navLinks = [
   { label: 'Home', href: withBase('/') },
-  { label: 'Apps', href: withBase('apps/') },
-  { label: 'Projects', href: withBase('projects/') },
-  { label: 'Blog & Resources', href: withBase('blog/') },
-  { label: 'Contact', href: withBase('contact/') },
+  { label: 'What We Do', href: withBase('what-we-do/') },
+  { label: 'Programs & Events', href: withBase('programs-events/') },
+  { label: 'News', href: withBase('news/') },
+  { label: 'Get Involved', href: withBase('get-involved/') },
+  { label: 'About', href: withBase('about/') },
 ];
+
+// TODO: replace with the real Team Portal URL once that system exists.
+const teamPortalUrl = '#';
 
 const currentPath = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-40 border-b-2 border-brand-accent bg-white/95 backdrop-blur">
-  <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
     <a href={withBase('/')} class="shrink-0">
       <Image src={logoFullColor} alt="The REFINERY" class="h-9 w-auto" />
     </a>
 
-    <div class="hidden h-8 w-px bg-slate-200 md:block" aria-hidden="true"></div>
+    <div class="hidden h-8 w-px bg-slate-200 lg:block" aria-hidden="true"></div>
 
-    <nav aria-label="Primary" class="hidden flex-1 items-stretch gap-1 md:flex">
+    <nav aria-label="Primary" class="hidden flex-1 items-stretch gap-0.5 lg:flex">
       {
         navLinks.map((link, index) => {
           const isActive = currentPath === link.href;
@@ -30,14 +34,14 @@ const currentPath = Astro.url.pathname;
             <a
               href={link.href}
               class:list={[
-                'group flex flex-col items-start justify-center gap-0.5 px-3 py-1.5 transition-colors',
+                'group flex flex-col items-start justify-center gap-0.5 px-2.5 py-1.5 transition-colors',
                 isActive ? 'text-brand-accent' : 'text-slate-600 hover:text-brand',
               ]}
             >
               <span class="font-mono text-[0.65rem] text-slate-400 group-hover:text-brand-accent-light">
                 {String(index + 1).padStart(2, '0')}
               </span>
-              <span class="flex items-center gap-1 text-sm font-semibold">
+              <span class="flex items-center gap-1 whitespace-nowrap text-sm font-semibold">
                 {link.label}
                 <span
                   class:list={[
@@ -53,14 +57,19 @@ const currentPath = Astro.url.pathname;
       }
     </nav>
 
-    <a
-      href={withBase('get-involved/')}
-      class="hidden shrink-0 rounded-sm border-2 border-brand-accent bg-brand-accent px-4 py-2 text-sm font-semibold text-brand-light transition hover:bg-white hover:text-brand-accent md:inline-block"
-    >
-      Get Involved
-    </a>
+    <div class="hidden shrink-0 items-center gap-4 lg:flex">
+      <a href={teamPortalUrl} class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-brand">
+        Team Portal
+      </a>
+      <a
+        href={withBase('donate/')}
+        class="rounded-sm border-2 border-brand-accent bg-brand-accent px-4 py-2 text-sm font-semibold text-brand-light transition hover:bg-white hover:text-brand-accent"
+      >
+        Donate
+      </a>
+    </div>
 
-    <details class="shrink-0 md:hidden">
+    <details class="shrink-0 lg:hidden">
       <summary class="eyebrow-tag cursor-pointer list-none text-brand">Menu</summary>
       <nav aria-label="Primary mobile" class="absolute left-0 right-0 top-full flex flex-col gap-1 border-b-2 border-brand-accent bg-white px-6 pb-4">
         {
@@ -71,8 +80,11 @@ const currentPath = Astro.url.pathname;
             </a>
           ))
         }
-        <a href={withBase('get-involved/')} class="py-2 text-sm font-semibold text-brand-accent">
-          Get Involved
+        <a href={teamPortalUrl} class="py-2 text-sm font-medium text-slate-600 hover:text-brand-accent">
+          Team Portal
+        </a>
+        <a href={withBase('donate/')} class="py-2 text-sm font-semibold text-brand-accent">
+          Donate
         </a>
       </nav>
     </details>

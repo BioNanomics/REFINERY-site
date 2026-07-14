@@ -1,0 +1,77 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import NewsCard from '../cards/NewsCard.astro';
+
+interface Props {
+  posts: CollectionEntry<'news'>[];
+}
+
+const { posts } = Astro.props;
+
+const categories = [
+  { value: 'all', label: 'All' },
+  { value: 'refinery', label: 'The REFINERY' },
+  { value: 'teams', label: 'Teams' },
+  { value: 'regional', label: 'Regional News' },
+  { value: 'partnerships', label: 'Partnerships' },
+  { value: 'first-community', label: 'FIRST Community' },
+];
+---
+
+{
+  posts.length > 0 ? (
+    <div class="news-grid">
+      <div class="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter news by category">
+        {categories.map((c, i) => (
+          <button
+            type="button"
+            data-filter={c.value}
+            class:list={[
+              'news-filter-btn border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wide transition-colors',
+              i === 0 ? 'border-brand bg-brand text-brand-light' : 'border-slate-300 text-slate-600 hover:border-brand',
+            ]}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <div data-category={post.data.category}>
+            <NewsCard post={post} />
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <p class="text-sm text-slate-500">No news published yet — check back soon.</p>
+  )
+}
+
+<script>
+  const grid = document.querySelector('.news-grid');
+  if (grid) {
+    const buttons = grid.querySelectorAll<HTMLButtonElement>('.news-filter-btn');
+    const items = grid.querySelectorAll<HTMLElement>('[data-category]');
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+
+        buttons.forEach((b) => {
+          const isActive = b === btn;
+          b.classList.toggle('bg-brand', isActive);
+          b.classList.toggle('text-brand-light', isActive);
+          b.classList.toggle('border-brand', isActive);
+          b.classList.toggle('text-slate-600', !isActive);
+          b.classList.toggle('border-slate-300', !isActive);
+        });
+
+        items.forEach((item) => {
+          const matches = filter === 'all' || item.dataset.category === filter;
+          item.classList.toggle('hidden', !matches);
+        });
+      });
+    });
+  }
+</script>

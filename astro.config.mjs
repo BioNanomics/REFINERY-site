@@ -19,7 +19,7 @@ export default defineConfig({
 
   integrations: [
     starlight({
-      title: 'The REFINERY Resources',
+      title: 'The REFINERY Documentation',
       favicon: '/favicon.png',
       logo: {
         light: './src/assets/logo-full-color.svg',

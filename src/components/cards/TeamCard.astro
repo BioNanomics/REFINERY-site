@@ -1,0 +1,39 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  team: CollectionEntry<'teams'>;
+}
+
+const { team } = Astro.props;
+const { number, name, program, school, community, logo, description, highlight, links } = team.data;
+---
+
+<div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+  <span class="corner-bl" aria-hidden="true"></span>
+  <span class="corner-br" aria-hidden="true"></span>
+  <div class="flex items-center gap-3">
+    {logo && <Image src={logo} alt="" class="h-10 w-10 rounded-sm object-cover" width={40} height={40} />}
+    <div>
+      <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">{program} {number}</p>
+      <h3 class="font-heading text-base font-bold text-slate-900">{name}</h3>
+    </div>
+  </div>
+  <p class="mt-2 text-xs text-slate-500">{school} &middot; {community}</p>
+  <p class="mt-2 text-sm text-slate-600">{description}</p>
+  {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
+  {
+    links.length > 0 && (
+      <ul class="mt-4 flex flex-wrap gap-3">
+        {links.map((link) => (
+          <li>
+            <a href={link.url} target="_blank" rel="noopener noreferrer" class="font-mono text-xs font-semibold text-brand-accent hover:underline">
+              {link.label} &nearr;
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>

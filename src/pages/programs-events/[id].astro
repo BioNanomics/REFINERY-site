@@ -1,0 +1,28 @@
+---
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import CTAButton from '../../components/marketing/CTAButton.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const events = await getCollection('events', ({ data }) => data.featured);
+  return events.map((event) => ({
+    params: { id: event.id },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props;
+const { title, summary, dateStart, location, registrationUrl, draft } = event.data;
+const { Content } = await render(event);
+---
+
+<ArticleLayout title={title} summary={summary} pubDate={dateStart} author={location} isDraft={draft}>
+  <Content />
+  {
+    registrationUrl && (
+      <div class="not-prose mt-8">
+        <CTAButton href={registrationUrl}>Register</CTAButton>
+      </div>
+    )
+  }
+</ArticleLayout>

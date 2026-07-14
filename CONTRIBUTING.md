@@ -1,8 +1,9 @@
 # Contributing to The REFINERY website
 
 This site is built with [Astro](https://astro.build), [Starlight](https://starlight.astro.build)
-(for `/resources`), and [Tailwind CSS](https://tailwindcss.com). Content lives in Markdown/MDX
-files under `src/content/`, so most updates don't require touching any code.
+(for `/resources`, the Documentation section), and [Tailwind CSS](https://tailwindcss.com).
+Content lives in Markdown/MDX files under `src/content/`, so most updates don't require
+touching any code.
 
 ## Local development
 
@@ -20,18 +21,116 @@ Every content type below is a folder of Markdown/MDX files under `src/content/`.
 file, fill in the frontmatter fields (schemas enforced in `src/content.config.ts`), and it
 appears on the site automatically — no code changes needed.
 
-### Blog post — `src/content/blog/*.mdx`
+### News post — `src/content/news/*.mdx`
 
 ```md
 ---
 title: "Post title"
-summary: "One or two sentences, shown on the blog index card."
+summary: "One or two sentences, shown on the news index card."
 pubDate: 2026-08-01
 author: "The REFINERY"        # optional, defaults to "The REFINERY"
-heroImage: ../../assets/blog/my-post.svg   # optional
+heroImage: ../../assets/news/my-post.svg   # optional
 heroImageAlt: "Alt text"                    # required if heroImage is set
-tags: [event, announcement, deep-dive, github-repo, update]
+category: refinery   # refinery | teams | regional | partnerships | first-community
+teamRefs: ["1501"]            # optional, team numbers this story is about
+sourceUrl: "https://..."      # optional — if set, the card links straight to this URL
+                               # instead of getting an internal detail page (use for
+                               # curated external/regional coverage)
 draft: false                  # set true to hide from the live site until ready
+---
+
+Body content in Markdown/MDX. Omit the body entirely for sourceUrl entries.
+```
+
+### Team — `src/content/teams/*.mdx`
+
+```md
+---
+number: "1501"
+name: "Team name"
+program: FRC          # FRC | FTC
+school: "School or host organization"
+community: "City, State"
+logo: ../../assets/teams/1501.svg   # optional
+description: "One or two sentences about the team."
+highlight: "2026 Regional Finalist"  # optional recent highlight
+links:
+  - label: "Team Website"
+    url: "https://..."
+draft: false
+---
+```
+
+### Program — `src/content/programs/*.mdx`
+
+```md
+---
+title: "Program name"
+summary: "One or two sentences."
+audience: [students, mentors]   # students | mentors | teams | volunteers | public
+draft: false
+---
+```
+
+### Event — `src/content/events/*.mdx`
+
+```md
+---
+title: "Event name"
+summary: "One or two sentences."
+dateStart: 2026-09-12
+dateEnd: 2026-09-13             # optional
+location: "The REFINERY, Fort Wayne, IN"
+audience: [students, teams]
+featured: false                 # set true to give this event its own detail page
+registrationUrl: "https://..."  # optional, only shown on featured event pages
+draft: false
+---
+
+Body content in Markdown/MDX — only used if `featured: true`.
+```
+
+### Partner — `src/content/partners/*.mdx`
+
+```md
+---
+name: "Partner name"
+logo: ../../assets/partners/example.svg
+url: "https://..."       # optional
+description: "One sentence."  # optional
+draft: false
+---
+```
+
+### Person (staff/leadership) — `src/content/people/*.mdx`
+
+```md
+---
+name: "Full name"
+role: "Title"
+photo: ../../assets/people/example.jpg   # optional
+bio: "One or two sentences."
+order: 1        # lower numbers sort first
+draft: false
+---
+```
+
+### Project — `src/content/projects/*.mdx`
+
+```md
+---
+title: "Project title"
+summary: "One or two sentences, shown on the projects index card."
+pubDate: 2026-08-01
+image: ../../assets/projects/my-project.svg   # required
+imageAlt: "Alt text"                          # required
+tags: [FRC, manufacturing]
+status: completed   # completed | in-progress | archived
+featured: false      # featured projects sort first
+links:
+  - label: "GitHub repo"
+    url: "https://github.com/..."
+draft: false
 ---
 
 Body content in Markdown/MDX.
@@ -108,6 +207,9 @@ use the `withBase()` helper from `src/utils/base.ts` instead.
 
 ## Draft content
 
-Set `draft: true` on a blog post or project to keep it out of production listings while you
-work on it. It stays fully accessible if you know the direct URL, so it's safe to preview
-before flipping `draft` to `false`.
+Set `draft: true` on any content entry to keep it out of production listings while you work on
+it. Entries with their own detail page (news, featured events, projects) stay fully accessible
+if you know the direct URL, so it's safe to preview before flipping `draft` to `false`. This
+site currently ships with several example entries (a team, a partner, staff bios, programs,
+events) marked `draft: true` as placeholders — replace them with real content and un-draft
+when ready, or delete them if not needed.

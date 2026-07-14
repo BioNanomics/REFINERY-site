@@ -1,0 +1,254 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import SectionHeading from '../components/marketing/SectionHeading.astro';
+import SectionNav from '../components/marketing/SectionNav.astro';
+import CTAButton from '../components/marketing/CTAButton.astro';
+import { withBase } from '../utils/base';
+
+const sections = [
+  { id: 'team-launch', label: 'Team Launch & Org Support' },
+  { id: 'funding', label: 'Funding & Financial Infrastructure' },
+  { id: 'parts-inventory', label: 'Parts & Inventory' },
+  { id: 'tools-fabrication', label: 'Tools & Fabrication' },
+  { id: 'facilities', label: 'Facilities & Field Access' },
+  { id: 'training', label: 'Training & Technical Support' },
+  { id: 'community', label: 'Community & Student Experience' },
+  { id: 'beyond-northeast-indiana', label: 'Beyond Northeast Indiana' },
+];
+---
+
+<MarketingLayout
+  title="What We Do"
+  description="How The REFINERY supports robotics teams — team launch, funding, parts, tools, facilities, training, community, and our contributions to the wider FIRST community."
+>
+  <section class="mx-auto max-w-6xl px-6 py-16">
+    <SectionHeading eyebrow="What We Do" title="The full picture of how we support teams" align="left" />
+  </section>
+
+  <SectionNav sections={sections} />
+
+  <section id="team-launch" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">01</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Team Launch & Organizational Support</h2>
+    <p class="mt-4 text-slate-600">The REFINERY helps organizations:</p>
+    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {
+        [
+          'Launch new teams',
+          'Select appropriate FIRST programs',
+          'Establish leadership and mentor structures',
+          'Develop team procedures',
+          'Plan budgets and purchasing',
+          'Onboard students and mentors',
+          'Prepare for competition seasons',
+          'Build institutional continuity',
+        ].map((item) => (
+          <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+        ))
+      }
+    </ul>
+    <div class="mt-6">
+      <CTAButton href={withBase('get-involved/#start-or-host-a-team')} variant="secondary">
+        Talk With Us About Starting a Team
+      </CTAButton>
+    </div>
+  </section>
+
+  <section id="funding" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">02</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Funding & Financial Infrastructure</h2>
+    <p class="mt-4 text-slate-600">The REFINERY provides funding directly to teams, gives teams a platform to raise funds, maintains optional team subaccounts, allows teams to pursue external grants through the REFINERY, administers designated and restricted funds, and supports team purchasing.</p>
+    <h3 class="mt-6 font-heading text-lg font-bold text-slate-900">Three spending pathways</h3>
+    <ol class="mt-3 flex flex-col gap-2">
+      {
+        [
+          "Transfer funds to the team's school or primary financial organization.",
+          'Purchase items from REFINERY inventory.',
+          'Have the REFINERY purchase outside products selected by the team.',
+        ].map((item, i) => (
+          <li class="flex gap-3 text-sm text-slate-600">
+            <span class="font-mono font-bold text-brand-accent">{i + 1}.</span>
+            {item}
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section id="parts-inventory" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">03</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Parts & Inventory</h2>
+    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {
+        [
+          'Shared robot-parts inventory',
+          'Electrical components',
+          'Hardware and fasteners',
+          'Materials and consumables',
+          'Build-season emergency availability',
+          'Centralized purchasing efficiencies',
+        ].map((item) => (
+          <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+        ))
+      }
+    </ul>
+    <p class="mt-4 text-sm text-slate-500">Live inventory is managed through <a href="https://tims.bionanomics.com" target="_blank" rel="noopener noreferrer" class="text-brand-accent hover:underline">TIMS</a>.</p>
+  </section>
+
+  <section id="tools-fabrication" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">04</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Tools & Fabrication</h2>
+    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {
+        [
+          'CNC routing',
+          '3D printing',
+          'Mechanical fabrication',
+          'Electrical work',
+          'Printing and apparel production',
+          'Specialized tool access',
+          'Custom robot-part production',
+        ].map((item) => (
+          <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section id="facilities" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">05</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Facilities & Field Access</h2>
+    <p class="mt-4 text-slate-600">Our physical space supports:</p>
+    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {
+        [
+          'Robot construction',
+          'Team meetings',
+          'Collaboration',
+          'Technical training',
+          'Practice',
+          'Field access',
+          'Scrimmages',
+          'Parts distribution',
+          'Community events',
+        ].map((item) => (
+          <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section id="training" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">06</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Training & Technical Support</h2>
+    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {
+        [
+          'Programming, CAD, mechanical, and electrical systems',
+          'CNC design and 3D printing',
+          'Robot tuning and competition preparation',
+          'Mentor development and technical troubleshooting',
+        ].map((item) => (
+          <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+        ))
+      }
+    </ul>
+    <p class="mt-4 text-sm text-slate-500">
+      Detailed guides and workshop materials live in our
+      <a href={withBase('resources/')} class="text-brand-accent hover:underline"> Documentation</a>.
+    </p>
+  </section>
+
+  <section id="community" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">
+    <p class="eyebrow-tag text-brand-accent">07</p>
+    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Community & Student Experience</h2>
+    <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {
+        [
+          'Mentor Meetups',
+          'Cross-team collaboration',
+          'From Pits to Prom',
+          'Student social activities',
+          'Team culture and engagement efforts',
+          'Shared build projects',
+          'Outreach and demonstrations',
+        ].map((item) => (
+          <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section id="beyond-northeast-indiana" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
+    <div class="mx-auto max-w-4xl px-6">
+      <p class="eyebrow-tag text-brand-accent">08</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Beyond Northeast Indiana: Contributions to the FIRST Community</h2>
+      <p class="mt-4 text-slate-600">
+        While the REFINERY is rooted in Northeast Indiana, many of the systems, projects, and
+        resources we develop are intended to support the broader FIRST community. We share what
+        we build, document what we learn, and partner with other organizations to solve
+        challenges teams face everywhere.
+      </p>
+
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+          <span class="corner-bl" aria-hidden="true"></span>
+          <span class="corner-br" aria-hidden="true"></span>
+          <h3 class="font-heading text-base font-bold text-slate-900">Robot in 3 Days</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            The REFINERY designs and builds a robot immediately following the annual FRC game
+            reveal, documenting the design process, prototypes, decisions, failures, and final
+            robot for teams to learn from.
+          </p>
+        </div>
+        <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+          <span class="corner-bl" aria-hidden="true"></span>
+          <span class="corner-br" aria-hidden="true"></span>
+          <h3 class="font-heading text-base font-bold text-slate-900">KitBot in 3 Days</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            A rapid, documented KitBot build focused on helping developing teams understand how
+            to assemble, program, troubleshoot, and begin iterating on the official FRC KitBot.
+          </p>
+        </div>
+        <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+          <span class="corner-bl" aria-hidden="true"></span>
+          <span class="corner-br" aria-hidden="true"></span>
+          <h3 class="font-heading text-base font-bold text-slate-900">TIMS</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            Inventory and tool-management software developed for the REFINERY and made available
+            to any FIRST team that wants to use it.
+          </p>
+          <a href="https://tims.bionanomics.com" target="_blank" rel="noopener noreferrer" class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline">
+            Open TIMS &rarr;
+          </a>
+        </div>
+        <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+          <span class="corner-bl" aria-hidden="true"></span>
+          <span class="corner-br" aria-hidden="true"></span>
+          <h3 class="font-heading text-base font-bold text-slate-900">Event Parts Support</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            Partnerships with FIRST Indiana Robotics and MentorBridge to provide live parts
+            inventory at events, helping teams identify and access components when technical
+            issues occur.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="mt-10 font-heading text-lg font-bold text-slate-900">Sharing what we learn</h3>
+      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {
+          [
+            'Open Alliance participation',
+            'Public documentation',
+            'Templates and team-development systems',
+            'Software and digital tools',
+            'Workshop materials',
+            'Other open or reusable projects',
+          ].map((item) => (
+            <li class="border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</MarketingLayout>

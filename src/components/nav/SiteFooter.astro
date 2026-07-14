@@ -11,7 +11,7 @@ const currentYear = new Date().getFullYear();
     <div>
       <Image src={logoFullColor} alt="The REFINERY" class="h-8 w-auto" />
       <p class="mt-2 text-sm text-slate-600">
-        A robotics-focused makerspace, affiliated with BioNanomics.
+        Shared infrastructure for stronger robotics teams across Northeast Indiana.
       </p>
     </div>
 
@@ -20,7 +20,13 @@ const currentYear = new Date().getFullYear();
         refinery@bionanomics.com
       </a>
       <a href={withBase('resources/')} class="hover:text-brand-accent">
-        Mentor Resources
+        Documentation
+      </a>
+      <a href="https://tims.bionanomics.com" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">
+        TIMS
+      </a>
+      <a href={withBase('contact/')} class="hover:text-brand-accent">
+        Contact
       </a>
       <p>&copy; {currentYear} The REFINERY. All rights reserved.</p>
     </div>

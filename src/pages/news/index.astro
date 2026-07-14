@@ -1,0 +1,26 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import SectionHeading from '../../components/marketing/SectionHeading.astro';
+import NewsGrid from '../../components/grids/NewsGrid.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('news', ({ data }) => !data.draft);
+const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<MarketingLayout
+  title="News"
+  description="Updates from The REFINERY, our teams, and the broader Northeast Indiana robotics community."
+>
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading
+      eyebrow="News"
+      title="Updates from The REFINERY and the region"
+      description="REFINERY news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
+      align="left"
+    />
+    <div class="mt-10">
+      <NewsGrid posts={posts} />
+    </div>
+  </section>
+</MarketingLayout>

@@ -34,7 +34,11 @@ const {
         {title}
       </h1>
       <p class="max-w-md text-lg text-slate-600">{description}</p>
-      <CTAButton href={ctaHref}>{ctaLabel}</CTAButton>
+      <div class="flex flex-wrap items-center gap-3">
+        <CTAButton href={ctaHref}>{ctaLabel}</CTAButton>
+        <slot name="actions" />
+      </div>
+      <slot name="footnote" />
     </div>
 
     <div class="corner-brackets relative">

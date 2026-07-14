@@ -1,0 +1,40 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../../utils/base';
+
+interface Props {
+  event: CollectionEntry<'events'>;
+}
+
+const { event } = Astro.props;
+const { title, summary, dateStart, location, audience, featured } = event.data;
+const formattedDate = dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const href = featured ? withBase(`programs-events/${event.id}/`) : undefined;
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  href={href}
+  class:list={[
+    'corner-brackets rounded-sm border border-slate-200 bg-white p-5 transition',
+    href && 'hover:border-brand-accent',
+  ]}
+>
+  <span class="corner-bl" aria-hidden="true"></span>
+  <span class="corner-br" aria-hidden="true"></span>
+  <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
+    {formattedDate}
+  </time>
+  <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{title}</h3>
+  <p class="mt-1 text-xs text-slate-500">{location}</p>
+  <p class="mt-2 text-sm text-slate-600">{summary}</p>
+  {
+    audience.length > 0 && (
+      <ul class="mt-4 flex flex-wrap gap-1.5">
+        {audience.map((a) => (
+          <li class="border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase text-brand">{a}</li>
+        ))}
+      </ul>
+    )
+  }
+</Tag>

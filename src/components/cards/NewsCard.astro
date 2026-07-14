@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../../utils/base';
+
+interface Props {
+  post: CollectionEntry<'news'>;
+}
+
+const categoryLabels: Record<string, string> = {
+  refinery: 'The REFINERY',
+  teams: 'Teams',
+  regional: 'Regional',
+  partnerships: 'Partnerships',
+  'first-community': 'FIRST Community',
+};
+
+const { post } = Astro.props;
+const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl } = post.data;
+const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const href = sourceUrl ?? withBase(`news/${post.id}/`);
+const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<a
+  href={href}
+  {...linkProps}
+  class="corner-brackets group flex flex-col overflow-hidden rounded-sm border border-slate-200 bg-white transition hover:border-brand-accent"
+>
+  <span class="corner-bl" aria-hidden="true"></span>
+  <span class="corner-br" aria-hidden="true"></span>
+  {
+    heroImage && (
+      <div class="aspect-[16/9] overflow-hidden bg-slate-100">
+        <Image
+          src={heroImage}
+          alt={heroImageAlt ?? ''}
+          class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          widths={[400, 800]}
+          sizes="(min-width: 768px) 400px, 100vw"
+        />
+      </div>
+    )
+  }
+  <div class="flex flex-1 flex-col p-5">
+    <div class="flex items-center justify-between gap-2">
+      <time datetime={pubDate.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
+        {formattedDate}
+      </time>
+      <span class="border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wide text-brand">
+        {categoryLabels[category]}
+      </span>
+    </div>
+    <h3 class="mt-2 font-heading text-base font-bold text-slate-900">{title}</h3>
+    <p class="mt-2 flex-1 text-sm text-slate-600">{summary}</p>
+    {
+      sourceUrl && (
+        <span class="mt-4 font-mono text-xs font-semibold text-brand-accent">
+          Read at source &nearr;
+        </span>
+      )
+    }
+  </div>
+</a>

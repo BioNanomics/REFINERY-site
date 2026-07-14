@@ -3,91 +3,248 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import Hero from '../components/marketing/Hero.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import SummaryCard from '../components/marketing/SummaryCard.astro';
+import CTAButton from '../components/marketing/CTAButton.astro';
+import NewsCard from '../components/cards/NewsCard.astro';
+import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
 import heroImage from '../assets/refinery-shop-1.jpeg';
 
-const whatWeAre = [
+const whatWeProvide = [
   {
-    title: 'A robotics makerspace',
-    description:
-      'We build competition robots and mentor students year-round, with a fully equipped shop for machining, wiring, and CAD.',
+    title: 'Team Launch & Organizational Support',
+    description: 'Helping new and developing teams build the organizational foundation they need to last.',
+    href: withBase('what-we-do/#team-launch'),
   },
   {
-    title: 'Open Alliance builds',
-    description:
-      "We share our engineering openly — CAD, wiring, and manufacturing notes — in the spirit of FIRST's Open Alliance community.",
+    title: 'Funding & Financial Infrastructure',
+    description: 'Helping teams raise, receive, manage, and spend funds through the REFINERY.',
+    href: withBase('what-we-do/#funding'),
   },
   {
-    title: 'A mentor community',
-    description:
-      'We support FRC mentors with practical guides and technical references drawn from our own builds.',
+    title: 'Parts & Inventory',
+    description: 'Providing access to shared robot components, materials, hardware, and build-season essentials.',
+    href: withBase('what-we-do/#parts-inventory'),
+  },
+  {
+    title: 'Tools & Fabrication',
+    description: 'Giving teams access to specialized tools and production capabilities to turn designs into finished parts.',
+    href: withBase('what-we-do/#tools-fabrication'),
+  },
+  {
+    title: 'Facilities & Field Access',
+    description: 'Providing space to build, meet, collaborate, practice, and participate in robotics activities.',
+    href: withBase('what-we-do/#facilities'),
+  },
+  {
+    title: 'Training & Technical Support',
+    description: 'Providing students and mentors with practical instruction, resources, and troubleshooting assistance.',
+    href: withBase('what-we-do/#training'),
+  },
+  {
+    title: 'Community & Student Experience',
+    description: 'Creating opportunities for students and mentors to build relationships and community beyond their individual teams.',
+    href: withBase('what-we-do/#community'),
   },
 ];
+
+const beyondNortheastIndiana = [
+  {
+    title: 'Robot in 3 Days',
+    description: "A documented rapid-build immediately following each year's FRC game reveal.",
+    href: withBase('what-we-do/#beyond-northeast-indiana'),
+  },
+  {
+    title: 'KitBot in 3 Days',
+    description: 'A rapid, documented KitBot build to help developing teams assemble, program, and iterate.',
+    href: withBase('what-we-do/#beyond-northeast-indiana'),
+  },
+  {
+    title: 'TIMS',
+    description: 'Inventory and tool-management software built for the REFINERY, open to any FIRST team.',
+    href: withBase('apps/'),
+  },
+  {
+    title: 'Event Parts Support',
+    description: 'Live parts inventory at events, helping teams get back on the field when issues come up.',
+    href: withBase('what-we-do/#beyond-northeast-indiana'),
+  },
+];
+
+const impactMetrics = [
+  // DRAFT — placeholder figures pending real numbers from the client.
+  { label: 'Teams supported', value: 'XX' },
+  { label: 'Students reached', value: 'XXX' },
+  { label: 'New teams launched', value: 'X' },
+  { label: 'Funding provided', value: '$XX,XXX' },
+];
+
+const allNews = await getCollection('news', ({ data }) => !data.draft);
+const latestNews = allNews.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+const featuredStory = latestNews[0];
+
+const allEvents = await getCollection('events', ({ data }) => !data.draft);
+const upcomingEvents = allEvents
+  .sort((a, b) => a.data.dateStart.valueOf() - b.data.dateStart.valueOf())
+  .slice(0, 3);
 ---
 
 <MarketingLayout
   title="Home"
-  description="The REFINERY is a nonprofit robotics makerspace building competition robots and supporting the FRC mentor community."
+  description="The REFINERY provides funding, parts, tools, facilities, and training so robotics teams across Northeast Indiana can start, grow, and succeed."
 >
   <Hero
     eyebrow="The REFINERY"
-    title="A makerspace built for robotics"
-    description="We design, machine, and wire competition robots year-round — and share what we learn with the wider FRC community."
+    title="Shared infrastructure for stronger robotics teams"
+    description="The REFINERY helps Northeast Indiana robotics teams start, grow, and succeed by providing funding, parts, tools, facilities, training, and a regional community."
+    ctaLabel="Explore What We Do"
+    ctaHref={withBase('what-we-do/')}
     image={heroImage}
     imageAlt="A competition robot and shop equipment inside The REFINERY's makerspace"
-  />
+  >
+    <Fragment slot="actions">
+      <CTAButton href={withBase('get-involved/')} variant="secondary">Get Involved</CTAButton>
+      <CTAButton href={withBase('donate/')} variant="secondary">Donate</CTAButton>
+    </Fragment>
+    <p slot="footnote" class="mt-1 font-mono text-xs text-slate-500">
+      Already on a REFINERY team? <a href="#" class="underline hover:text-brand-accent">Visit the Team Portal &rarr;</a>
+    </p>
+  </Hero>
 
-  <section class="relative mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading eyebrow="Explore" title="Find your way around" align="left" />
-    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-5">
-      <a
-        href={withBase('blog/')}
-        class="corner-brackets group flex flex-col justify-between rounded-sm border border-slate-200 bg-white p-8 transition hover:border-brand-accent lg:col-span-3"
-      >
-        <span class="corner-bl" aria-hidden="true"></span>
-        <span class="corner-br" aria-hidden="true"></span>
-        <div>
-          <p class="eyebrow-tag text-brand-accent">Latest</p>
-          <h3 class="mt-2 font-heading text-2xl font-bold text-slate-900">Blog &amp; Resources</h3>
-          <p class="mt-3 max-w-md text-sm text-slate-600">
-            Updates, event announcements, and technical deep-dives from the shop.
-          </p>
-        </div>
-        <span class="mt-6 font-mono text-sm font-semibold text-brand-accent group-hover:underline">
-          Explore &rarr;
-        </span>
-      </a>
+  <!-- The Problem -->
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading
+      eyebrow="The Problem"
+      title="A robot takes more than a robot"
+      align="left"
+    />
+    <p class="mt-4 max-w-3xl text-slate-600">
+      Sustainable robotics teams need far more than a kit of parts. They need funding, tools,
+      workspace, technical knowledge, mentors, operational systems, and institutional continuity
+      — and many schools and communities can't independently build all of that infrastructure on
+      their own.
+    </p>
+    <ul class="mt-6 flex flex-wrap gap-2">
+      {
+        ['Funding', 'Parts', 'Tools', 'Workspace', 'Technical knowledge', 'Mentors', 'Operational systems', 'Institutional continuity'].map((need) => (
+          <li class="border border-brand/20 bg-brand/5 px-3 py-1 font-mono text-xs font-medium text-brand">
+            {need}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 
-      <div class="flex flex-col gap-6 lg:col-span-2">
-        <SummaryCard
-          title="Projects"
-          description="Robots, mechanisms, and makerspace builds — from concept to competition."
-          href={withBase('projects/')}
-        />
-        <SummaryCard
-          title="Apps"
-          description="Software tools built by and for the makerspace, like TIMS."
-          href={withBase('apps/')}
-        />
+  <!-- What the REFINERY Provides -->
+  <section class="angled-top relative overflow-hidden border-t border-slate-100 bg-slate-50 pb-20 pt-16">
+    <div class="grid-texture pointer-events-none absolute inset-0 text-brand/10" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-6">
+      <SectionHeading eyebrow="What We Provide" title="How the REFINERY helps teams" align="left" />
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {whatWeProvide.map((item) => <SummaryCard {...item} />)}
       </div>
     </div>
   </section>
 
-  <section class="angled-top relative overflow-hidden border-t border-slate-100 bg-slate-50 pb-20 pt-16">
-    <div class="grid-texture pointer-events-none absolute inset-0 text-brand/10" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-6xl px-6">
-      <SectionHeading eyebrow="About" title="What is The REFINERY?" align="left" />
-      <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
+  <!-- Beyond Northeast Indiana -->
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading
+      eyebrow="Beyond Northeast Indiana"
+      title="Built here. Shared with FIRST."
+      description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community — we share what we build, document what we learn, and partner to solve challenges teams face everywhere."
+      align="left"
+    />
+    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {beyondNortheastIndiana.map((item) => <SummaryCard {...item} />)}
+    </div>
+    <div class="mt-8">
+      <CTAButton href={withBase('what-we-do/#beyond-northeast-indiana')} variant="secondary">
+        See Our Contributions to the FIRST Community
+      </CTAButton>
+    </div>
+  </section>
+
+  <!-- Impact Snapshot -->
+  <section class="border-t border-slate-100 bg-slate-50 py-20">
+    <div class="mx-auto max-w-6xl px-6">
+      <SectionHeading eyebrow="Impact" title="Impact snapshot" align="left" />
+      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4">
         {
-          whatWeAre.map((item, index) => (
+          impactMetrics.map((metric) => (
             <div class="border-l-2 border-brand-accent pl-4">
-              <p class="font-mono text-xs font-bold text-brand-accent">{String(index + 1).padStart(2, '0')}</p>
-              <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{item.title}</h3>
-              <p class="mt-2 text-sm text-slate-600">{item.description}</p>
+              <p class="font-heading text-3xl font-extrabold text-slate-900">{metric.value}</p>
+              <p class="mt-1 text-sm text-slate-600">{metric.label}</p>
             </div>
           ))
         }
       </div>
+      {
+        featuredStory && (
+          <div class="mt-10 max-w-md">
+            <p class="eyebrow-tag mb-3 text-brand-accent">Featured Story</p>
+            <NewsCard post={featuredStory} />
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- Latest News -->
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading eyebrow="News" title="Latest from the REFINERY and the region" align="left" />
+    {
+      latestNews.length > 0 ? (
+        <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {latestNews.map((post) => <NewsCard post={post} />)}
+        </div>
+      ) : (
+        <p class="mt-8 text-sm text-slate-500">No news published yet — check back soon.</p>
+      )
+    }
+    <div class="mt-8">
+      <CTAButton href={withBase('news/')} variant="secondary">View All News</CTAButton>
+    </div>
+  </section>
+
+  <!-- Upcoming -->
+  <section class="border-t border-slate-100 bg-slate-50 py-20">
+    <div class="mx-auto max-w-6xl px-6">
+      <SectionHeading eyebrow="Upcoming" title="Upcoming programs and events" align="left" />
+      {
+        upcomingEvents.length > 0 ? (
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {upcomingEvents.map((event) => (
+              <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+                <span class="corner-bl" aria-hidden="true" />
+                <span class="corner-br" aria-hidden="true" />
+                <time class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
+                  {event.data.dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </time>
+                <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{event.data.title}</h3>
+                <p class="mt-2 text-sm text-slate-600">{event.data.summary}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="mt-8 text-sm text-slate-500">No upcoming events posted yet — check back soon.</p>
+        )
+      }
+      <div class="mt-8">
+        <CTAButton href={withBase('programs-events/')} variant="secondary">View Programs & Events</CTAButton>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="mx-auto max-w-6xl px-6 py-20 text-center">
+    <SectionHeading
+      eyebrow="Join Us"
+      title="Help build the infrastructure robotics teams can't build alone"
+      align="center"
+    />
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <CTAButton href={withBase('get-involved/#volunteer')}>Volunteer</CTAButton>
+      <CTAButton href={withBase('get-involved/#partner')} variant="secondary">Partner</CTAButton>
+      <CTAButton href={withBase('donate/')} variant="secondary">Donate</CTAButton>
     </div>
   </section>
 </MarketingLayout>

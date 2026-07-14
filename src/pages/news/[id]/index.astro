@@ -1,0 +1,39 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  // Only internally-authored stories get a detail page; entries with a
+  // sourceUrl link straight to the original publisher from the news grid.
+  const posts = await getCollection('news', ({ data }) => !data.sourceUrl);
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { title, summary, pubDate, author, category, heroImage, heroImageAlt, draft } = post.data;
+const { Content } = await render(post);
+
+const categoryLabels: Record<string, string> = {
+  refinery: 'The REFINERY',
+  teams: 'Teams',
+  regional: 'Regional',
+  partnerships: 'Partnerships',
+  'first-community': 'FIRST Community',
+};
+---
+
+<ArticleLayout
+  title={title}
+  summary={summary}
+  pubDate={pubDate}
+  author={author}
+  tags={[categoryLabels[category]]}
+  heroImage={heroImage}
+  heroImageAlt={heroImageAlt}
+  isDraft={draft}
+>
+  <Content />
+</ArticleLayout>

@@ -9,8 +9,8 @@ import { docsSchema } from '@astrojs/starlight/schema';
 // directly under src/content/docs/ (outside resources/) or it will leak a
 // route elsewhere on the site.
 
-const blog = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
+const news = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/news' }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -19,9 +19,82 @@ const blog = defineCollection({
       author: z.string().default('The REFINERY'),
       heroImage: image().optional(),
       heroImageAlt: z.string().optional(),
-      tags: z
-        .array(z.enum(['event', 'announcement', 'deep-dive', 'github-repo', 'update']))
-        .default([]),
+      category: z.enum(['refinery', 'teams', 'regional', 'partnerships', 'first-community']),
+      teamRefs: z.array(z.string()).default([]),
+      // External curated stories link straight to the original publisher
+      // instead of getting an internal detail page.
+      sourceUrl: z.string().url().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+const teams = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/teams' }),
+  schema: ({ image }) =>
+    z.object({
+      number: z.string(),
+      name: z.string(),
+      program: z.enum(['FRC', 'FTC']),
+      school: z.string(),
+      community: z.string(),
+      logo: image().optional(),
+      description: z.string(),
+      highlight: z.string().optional(),
+      links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
+      draft: z.boolean().default(false),
+    }),
+});
+
+const audienceEnum = z.enum(['students', 'mentors', 'teams', 'volunteers', 'public']);
+
+const programs = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/programs' }),
+  schema: () =>
+    z.object({
+      title: z.string(),
+      summary: z.string(),
+      audience: z.array(audienceEnum).default([]),
+      draft: z.boolean().default(false),
+    }),
+});
+
+const events = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  schema: () =>
+    z.object({
+      title: z.string(),
+      summary: z.string(),
+      dateStart: z.coerce.date(),
+      dateEnd: z.coerce.date().optional(),
+      location: z.string(),
+      audience: z.array(audienceEnum).default([]),
+      featured: z.boolean().default(false),
+      registrationUrl: z.string().url().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+const partners = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/partners' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      logo: image(),
+      url: z.string().url().optional(),
+      description: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+const people = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/people' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      role: z.string(),
+      photo: image().optional(),
+      bio: z.string(),
+      order: z.number().default(0),
       draft: z.boolean().default(false),
     }),
 });
@@ -58,4 +131,4 @@ const apps = defineCollection({
 
 const docs = defineCollection({ loader: docsLoader(), schema: docsSchema() });
 
-export const collections = { blog, projects, apps, docs };
+export const collections = { news, teams, programs, events, partners, people, projects, apps, docs };

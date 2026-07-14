@@ -1,0 +1,26 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  program: CollectionEntry<'programs'>;
+}
+
+const { program } = Astro.props;
+const { title, summary, audience } = program.data;
+---
+
+<div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
+  <span class="corner-bl" aria-hidden="true"></span>
+  <span class="corner-br" aria-hidden="true"></span>
+  <h3 class="font-heading text-base font-bold text-slate-900">{title}</h3>
+  <p class="mt-2 text-sm text-slate-600">{summary}</p>
+  {
+    audience.length > 0 && (
+      <ul class="mt-4 flex flex-wrap gap-1.5">
+        {audience.map((a) => (
+          <li class="border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase text-brand">{a}</li>
+        ))}
+      </ul>
+    )
+  }
+</div>
