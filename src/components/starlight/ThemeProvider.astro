@@ -1,0 +1,11 @@
+---
+// Overrides Starlight's default ThemeProvider to force light theme site-wide.
+// Paired with ThemeSelectEmpty.astro (which hides the light/dark toggle) so
+// /resources always matches the rest of the site's light theme — avoids a
+// light/dark variable mismatch (e.g. dark-mode text colors rendered against
+// our forced-light background).
+---
+
+<script is:inline>
+  document.documentElement.dataset.theme = 'light';
+</script>

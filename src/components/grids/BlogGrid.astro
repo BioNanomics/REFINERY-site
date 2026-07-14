@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BlogCard from '../cards/BlogCard.astro';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length > 0 ? (
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <BlogCard post={post} />
+      ))}
+    </div>
+  ) : (
+    <p class="text-sm text-slate-500">No posts published yet — check back soon.</p>
+  )
+}

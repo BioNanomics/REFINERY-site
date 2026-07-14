@@ -1,0 +1,64 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import SectionHeading from '../components/marketing/SectionHeading.astro';
+import CTAButton from '../components/marketing/CTAButton.astro';
+
+const ways = [
+  {
+    title: 'Mentor a team',
+    description:
+      'Share your engineering, programming, or business experience with students during build season and beyond.',
+  },
+  {
+    title: 'Sponsor the shop',
+    description:
+      'Financial and in-kind support keeps the makerspace stocked with materials, tools, and competition fees.',
+  },
+  {
+    title: 'Help at events',
+    description:
+      'Lend a hand at competitions, open houses, and community demos — no engineering background required.',
+  },
+];
+---
+
+<MarketingLayout
+  title="Get Involved"
+  description="Volunteer with The REFINERY — mentor a team, sponsor the shop, or help out at events."
+>
+  <section class="mx-auto max-w-3xl px-6 py-20 text-center">
+    <SectionHeading eyebrow="Get Involved" title="Volunteer with The REFINERY" align="center" />
+    <p class="mx-auto mt-4 max-w-2xl text-slate-600">
+      The REFINERY runs on volunteers — mentors, sponsors, and community members who give their
+      time so students can build. Whatever your background, there's a place for you in the shop.
+    </p>
+  </section>
+
+  <section class="border-t border-slate-100 bg-slate-50 py-20">
+    <div class="mx-auto max-w-6xl px-6">
+      <SectionHeading eyebrow="Ways to help" title="A few ways to get involved" align="left" />
+      <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
+        {
+          ways.map((way) => (
+            <div>
+              <h3 class="font-heading text-base font-bold text-slate-900">{way.title}</h3>
+              <p class="mt-2 text-sm text-slate-600">{way.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto flex max-w-2xl flex-col items-center px-6 py-20 text-center">
+    <SectionHeading eyebrow="Ask us anything" title="Interested in volunteering?" align="center" />
+    <p class="mt-4 text-slate-600">
+      Email us and let us know how you'd like to help — we'll follow up with next steps.
+    </p>
+    <div class="mt-8">
+      <CTAButton href="mailto:refinery@bionanomics.com?subject=Volunteering%20with%20The%20REFINERY">
+        refinery@bionanomics.com
+      </CTAButton>
+    </div>
+  </section>
+</MarketingLayout>

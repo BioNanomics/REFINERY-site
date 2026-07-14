@@ -1,0 +1,41 @@
+---
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import CTAButton from '../../../components/marketing/CTAButton.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { title, summary, pubDate, image, imageAlt, tags, links, draft } = project.data;
+const { Content } = await render(project);
+---
+
+<ArticleLayout
+  title={title}
+  summary={summary}
+  pubDate={pubDate}
+  tags={tags}
+  heroImage={image}
+  heroImageAlt={imageAlt}
+  isDraft={draft}
+>
+  <Content />
+
+  {
+    links.length > 0 && (
+      <div class="not-prose mt-10 flex flex-wrap gap-3">
+        {links.map((link) => (
+          <CTAButton href={link.url} variant="secondary">
+            {link.label}
+          </CTAButton>
+        ))}
+      </div>
+    )
+  }
+</ArticleLayout>

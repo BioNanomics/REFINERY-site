@@ -1,0 +1,101 @@
+/**
+ * Plain Tailwind stylesheet for all custom (non-Starlight) pages.
+ * Imported only by MarketingLayout.astro — isolated from Starlight's
+ * cascade so its reset/base styles never fight the doc pages under
+ * /resources (see global.css).
+ */
+@import 'tailwindcss';
+@import './tokens.css';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-brand: #134b70;
+  --color-brand-accent: #40a578;
+  --color-brand-light: #eeeeee;
+  --color-brand-accent-light: #a1d18b;
+  --color-surface-dark: #18181b;
+  --color-surface-card: #232326;
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/**
+ * Blueprint/industrial visual language — shared across marketing pages to
+ * feel distinct from the bionanomics.com structural benchmark: monospace
+ * technical labels, bordered "spec-sheet" cards with corner brackets,
+ * angled section edges, and a subtle grid texture.
+ */
+.eyebrow-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.eyebrow-tag::before {
+  content: '// ';
+}
+
+/* Four corner brackets — apply to a `position: relative` container. Color is
+   a dedicated variable (not currentColor) so it doesn't clash with the
+   container's own text color; defaults to brand navy, shifts to the accent
+   green on hover. */
+.corner-brackets {
+  position: relative;
+  --bracket-color: var(--color-brand);
+}
+.corner-brackets:hover {
+  --bracket-color: var(--color-brand-accent);
+}
+.corner-brackets::before,
+.corner-brackets::after,
+.corner-brackets > .corner-bl,
+.corner-brackets > .corner-br {
+  content: '';
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  pointer-events: none;
+  transition: border-color 0.15s ease;
+}
+.corner-brackets::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--bracket-color);
+  border-left: 2px solid var(--bracket-color);
+}
+.corner-brackets::after {
+  top: -1px;
+  right: -1px;
+  border-top: 2px solid var(--bracket-color);
+  border-right: 2px solid var(--bracket-color);
+}
+.corner-brackets > .corner-bl {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 2px solid var(--bracket-color);
+  border-left: 2px solid var(--bracket-color);
+}
+.corner-brackets > .corner-br {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--bracket-color);
+  border-right: 2px solid var(--bracket-color);
+}
+
+/* Angled section edges, used to break up straight horizontal dividers. */
+.angled-top {
+  clip-path: polygon(0 1.5rem, 100% 0, 100% 100%, 0 100%);
+}
+.angled-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.5rem), 0 100%);
+}
+
+/* Subtle blueprint grid texture background. */
+.grid-texture {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, currentColor 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, currentColor 8%, transparent) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}

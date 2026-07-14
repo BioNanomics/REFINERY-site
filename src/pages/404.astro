@@ -1,0 +1,17 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import CTAButton from '../components/marketing/CTAButton.astro';
+import { withBase } from '../utils/base';
+---
+
+<MarketingLayout title="Page not found" description="This page doesn't exist.">
+  <section class="mx-auto flex max-w-xl flex-col items-center px-6 py-32 text-center">
+    <p class="eyebrow-tag text-brand-accent">ERROR_404</p>
+    <p class="mt-2 font-heading text-6xl font-extrabold text-brand">404</p>
+    <h1 class="mt-4 font-heading text-2xl font-bold text-slate-900">Page not found</h1>
+    <p class="mt-3 text-slate-600">The page you're looking for doesn't exist or has moved.</p>
+    <div class="mt-8">
+      <CTAButton href={withBase('/')}>Back to home</CTAButton>
+    </div>
+  </section>
+</MarketingLayout>

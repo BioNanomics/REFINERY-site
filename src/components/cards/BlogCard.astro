@@ -1,0 +1,52 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../../utils/base';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, summary, pubDate, tags, heroImage, heroImageAlt } = post.data;
+const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+---
+
+<a
+  href={withBase(`blog/${post.id}/`)}
+  class="corner-brackets group flex flex-col overflow-hidden rounded-sm border border-slate-200 bg-white transition hover:border-brand-accent"
+>
+  <span class="corner-bl" aria-hidden="true"></span>
+  <span class="corner-br" aria-hidden="true"></span>
+  {
+    heroImage && (
+      <div class="aspect-[16/9] overflow-hidden bg-slate-100">
+        <Image
+          src={heroImage}
+          alt={heroImageAlt ?? ''}
+          class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          widths={[400, 800]}
+          sizes="(min-width: 768px) 400px, 100vw"
+        />
+      </div>
+    )
+  }
+  <div class="flex flex-1 flex-col p-5">
+    <time datetime={pubDate.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
+      {formattedDate}
+    </time>
+    <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{title}</h3>
+    <p class="mt-2 flex-1 text-sm text-slate-600">{summary}</p>
+    {
+      tags.length > 0 && (
+        <ul class="mt-4 flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <li class="border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.7rem] font-medium text-brand">
+              {tag}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</a>

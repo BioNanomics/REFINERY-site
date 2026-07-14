@@ -1,0 +1,21 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  cta?: string;
+}
+
+const { title, description, href, cta = 'Explore' } = Astro.props;
+---
+
+<a
+  href={href}
+  class="corner-brackets group flex flex-col rounded-sm border border-slate-200 bg-white p-6 transition hover:border-brand-accent"
+>
+  <span class="corner-bl" aria-hidden="true"></span>
+  <span class="corner-br" aria-hidden="true"></span>
+  <h3 class="font-heading text-lg font-bold text-slate-900">{title}</h3>
+  <p class="mt-2 flex-1 text-sm text-slate-600">{description}</p>
+  <span class="mt-4 font-mono text-sm font-semibold text-brand-accent group-hover:underline">{cta} &rarr;</span>
+</a>

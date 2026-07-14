@@ -1,0 +1,24 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import SectionHeading from '../../components/marketing/SectionHeading.astro';
+import ProjectGrid from '../../components/grids/ProjectGrid.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const projects = allProjects.sort((a, b) => {
+  if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+  return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
+---
+
+<MarketingLayout
+  title="Projects"
+  description="Hands-on engineering and robotics projects from The REFINERY, including FRC mechanisms and makerspace builds."
+>
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading eyebrow="Projects" title="What we've built" align="left" />
+    <div class="mt-10">
+      <ProjectGrid projects={projects} />
+    </div>
+  </section>
+</MarketingLayout>

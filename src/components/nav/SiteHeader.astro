@@ -1,0 +1,80 @@
+---
+import { Image } from 'astro:assets';
+import { withBase } from '../../utils/base';
+import logoFullColor from '../../assets/logo-full-color.svg';
+
+const navLinks = [
+  { label: 'Home', href: withBase('/') },
+  { label: 'Apps', href: withBase('apps/') },
+  { label: 'Projects', href: withBase('projects/') },
+  { label: 'Blog & Resources', href: withBase('blog/') },
+  { label: 'Contact', href: withBase('contact/') },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-40 border-b-2 border-brand-accent bg-white/95 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
+    <a href={withBase('/')} class="shrink-0">
+      <Image src={logoFullColor} alt="The REFINERY" class="h-9 w-auto" />
+    </a>
+
+    <div class="hidden h-8 w-px bg-slate-200 md:block" aria-hidden="true"></div>
+
+    <nav aria-label="Primary" class="hidden flex-1 items-stretch gap-1 md:flex">
+      {
+        navLinks.map((link, index) => {
+          const isActive = currentPath === link.href;
+          return (
+            <a
+              href={link.href}
+              class:list={[
+                'group flex flex-col items-start justify-center gap-0.5 px-3 py-1.5 transition-colors',
+                isActive ? 'text-brand-accent' : 'text-slate-600 hover:text-brand',
+              ]}
+            >
+              <span class="font-mono text-[0.65rem] text-slate-400 group-hover:text-brand-accent-light">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span class="flex items-center gap-1 text-sm font-semibold">
+                {link.label}
+                <span
+                  class:list={[
+                    'h-0.5 w-3 bg-brand-accent transition-transform',
+                    isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100',
+                  ]}
+                  aria-hidden="true"
+                />
+              </span>
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <a
+      href={withBase('get-involved/')}
+      class="hidden shrink-0 rounded-sm border-2 border-brand-accent bg-brand-accent px-4 py-2 text-sm font-semibold text-brand-light transition hover:bg-white hover:text-brand-accent md:inline-block"
+    >
+      Get Involved
+    </a>
+
+    <details class="ml-auto md:hidden">
+      <summary class="eyebrow-tag cursor-pointer list-none text-brand">Menu</summary>
+      <nav aria-label="Primary mobile" class="absolute left-0 right-0 flex flex-col gap-1 border-b-2 border-brand-accent bg-white px-6 pb-4">
+        {
+          navLinks.map((link, index) => (
+            <a href={link.href} class="flex items-center gap-2 py-2 text-sm font-medium text-slate-600 hover:text-brand-accent">
+              <span class="font-mono text-[0.65rem] text-slate-400">{String(index + 1).padStart(2, '0')}</span>
+              {link.label}
+            </a>
+          ))
+        }
+        <a href={withBase('get-involved/')} class="py-2 text-sm font-semibold text-brand-accent">
+          Get Involved
+        </a>
+      </nav>
+    </details>
+  </div>
+</header>

@@ -1,0 +1,40 @@
+name: Deploy Docs Subdomain
+
+# NOT yet wired to run automatically — see docs/SUBDOMAIN-SETUP.md.
+# Manual-only (workflow_dispatch) until the docs subdomain, target repo, and
+# DOCS_DEPLOY_TOKEN secret are set up. Once ready, add:
+#   on:
+#     push:
+#       branches: [main]
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build:docs
+
+      # TODO: replace `external_repository` with the actual docs repo
+      # (e.g. your-org/refinery-docs), and add a DOCS_DEPLOY_TOKEN secret to
+      # THIS repo — a GitHub personal access token (classic, `repo` scope)
+      # or fine-grained token with write access to the docs repo's contents.
+      - name: Publish dist-docs/resources to the docs repo's gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.DOCS_DEPLOY_TOKEN }}
+          external_repository: your-org/refinery-docs
+          publish_branch: gh-pages
+          publish_dir: ./dist-docs/resources
+          cname: docs.example.com

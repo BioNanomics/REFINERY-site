@@ -1,0 +1,36 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import SectionHeading from '../../components/marketing/SectionHeading.astro';
+import BlogGrid from '../../components/grids/BlogGrid.astro';
+import SummaryCard from '../../components/marketing/SummaryCard.astro';
+import { getCollection } from 'astro:content';
+import { withBase } from '../../utils/base';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<MarketingLayout
+  title="Blog & Resources"
+  description="Updates, event announcements, and technical deep-dives from The REFINERY, plus mentor resources for FRC teams."
+>
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading eyebrow="Blog" title="Updates from the shop" align="left" />
+    <div class="mt-10">
+      <BlogGrid posts={posts} />
+    </div>
+  </section>
+
+  <section class="border-t border-slate-100 bg-slate-50 py-16">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="max-w-md">
+        <SummaryCard
+          title="Mentor Resources"
+          description="Practical guides and technical references for FRC mentors, built from our own experience."
+          href={withBase('resources/')}
+          cta="Browse resources"
+        />
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

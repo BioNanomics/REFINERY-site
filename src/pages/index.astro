@@ -1,0 +1,93 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import Hero from '../components/marketing/Hero.astro';
+import SectionHeading from '../components/marketing/SectionHeading.astro';
+import SummaryCard from '../components/marketing/SummaryCard.astro';
+import { withBase } from '../utils/base';
+import heroImage from '../assets/refinery-shop-1.jpeg';
+
+const whatWeAre = [
+  {
+    title: 'A robotics makerspace',
+    description:
+      'We build competition robots and mentor students year-round, with a fully equipped shop for machining, wiring, and CAD.',
+  },
+  {
+    title: 'Open Alliance builds',
+    description:
+      "We share our engineering openly — CAD, wiring, and manufacturing notes — in the spirit of FIRST's Open Alliance community.",
+  },
+  {
+    title: 'A mentor community',
+    description:
+      'We support FRC mentors with practical guides and technical references drawn from our own builds.',
+  },
+];
+---
+
+<MarketingLayout
+  title="Home"
+  description="The REFINERY is a nonprofit robotics makerspace building competition robots and supporting the FRC mentor community."
+>
+  <Hero
+    eyebrow="The REFINERY"
+    title="A makerspace built for robotics"
+    description="We design, machine, and wire competition robots year-round — and share what we learn with the wider FRC community."
+    image={heroImage}
+    imageAlt="A competition robot and shop equipment inside The REFINERY's makerspace"
+  />
+
+  <section class="relative mx-auto max-w-6xl px-6 py-20">
+    <SectionHeading eyebrow="Explore" title="Find your way around" align="left" />
+    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-5">
+      <a
+        href={withBase('blog/')}
+        class="corner-brackets group flex flex-col justify-between rounded-sm border border-slate-200 bg-white p-8 transition hover:border-brand-accent lg:col-span-3"
+      >
+        <span class="corner-bl" aria-hidden="true"></span>
+        <span class="corner-br" aria-hidden="true"></span>
+        <div>
+          <p class="eyebrow-tag text-brand-accent">Latest</p>
+          <h3 class="mt-2 font-heading text-2xl font-bold text-slate-900">Blog &amp; Resources</h3>
+          <p class="mt-3 max-w-md text-sm text-slate-600">
+            Updates, event announcements, and technical deep-dives from the shop.
+          </p>
+        </div>
+        <span class="mt-6 font-mono text-sm font-semibold text-brand-accent group-hover:underline">
+          Explore &rarr;
+        </span>
+      </a>
+
+      <div class="flex flex-col gap-6 lg:col-span-2">
+        <SummaryCard
+          title="Projects"
+          description="Robots, mechanisms, and makerspace builds — from concept to competition."
+          href={withBase('projects/')}
+        />
+        <SummaryCard
+          title="Apps"
+          description="Software tools built by and for the makerspace, like TIMS."
+          href={withBase('apps/')}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="angled-top relative overflow-hidden border-t border-slate-100 bg-slate-50 pb-20 pt-16">
+    <div class="grid-texture pointer-events-none absolute inset-0 text-brand/10" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-6">
+      <SectionHeading eyebrow="About" title="What is The REFINERY?" align="left" />
+      <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
+        {
+          whatWeAre.map((item, index) => (
+            <div class="border-l-2 border-brand-accent pl-4">
+              <p class="font-mono text-xs font-bold text-brand-accent">{String(index + 1).padStart(2, '0')}</p>
+              <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{item.title}</h3>
+              <p class="mt-2 text-sm text-slate-600">{item.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</MarketingLayout>

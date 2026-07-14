@@ -1,0 +1,32 @@
+/**
+ * Brand design tokens — single source of truth.
+ *
+ * Original pair (#134b70 navy, #40a578 green): the brand's normal-context
+ * colors, used on light/white backgrounds (matches src/assets/logo-full-color.svg).
+ * Reversed pair (#eeeeee, #a1d18b): lighter counterparts used for text/accents
+ * that sit directly on the dark surface color below (matches
+ * src/assets/logo-reversed.svg).
+ *
+ * The header/footer/hero background is intentionally a neutral dark
+ * grey/black (--refinery-color-surface-dark), not the navy brand color —
+ * keeps the site reading as "dark mode" rather than "blue site".
+ *
+ * IMPORTANT: Tailwind v4's `@theme` block (in marketing.css) requires static
+ * literal values, it can't consume var() reliably for utility generation.
+ * If you change a value here, mirror it into:
+ *   - src/styles/marketing.css  (@theme block)
+ *   - src/styles/global.css    (:root --sl-* overrides)
+ */
+:root {
+  --refinery-color-primary: #134b70;
+  --refinery-color-accent: #40a578;
+  --refinery-color-primary-light: #eeeeee;
+  --refinery-color-accent-light: #a1d18b;
+  --refinery-color-bg: #ffffff;
+  --refinery-color-surface-dark: #18181b;
+  --refinery-color-surface-card: #232326;
+
+  --refinery-font-heading: 'Inter', system-ui, sans-serif;
+  --refinery-font-body: 'Inter', system-ui, sans-serif;
+  --refinery-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
