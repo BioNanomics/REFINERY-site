@@ -97,10 +97,20 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   <section id="impact" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
     <p class="eyebrow-tag text-brand-accent">05</p>
     <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Impact & Reports</h2>
-    <p class="mt-4 text-slate-600">
-      {/* DRAFT — placeholder pending real metrics, annual reports, and financial information. */}
-      Key metrics, annual reports, financial information, organizational milestones, and major
-      funding acknowledgments will be published here.
+    <div class="mt-6 flex flex-wrap gap-8">
+      <div class="border-l-2 border-brand-accent pl-4">
+        <p class="font-heading text-3xl font-extrabold text-slate-900">15</p>
+        <p class="mt-1 text-sm text-slate-600">Teams supported</p>
+      </div>
+      <div class="border-l-2 border-brand-accent pl-4">
+        <p class="font-heading text-3xl font-extrabold text-slate-900">5</p>
+        <p class="mt-1 text-sm text-slate-600">New teams launched</p>
+      </div>
+    </div>
+    <p class="mt-6 text-slate-600">
+      {/* DRAFT — placeholder pending real annual reports and financial information. */}
+      Annual reports, financial information, organizational milestones, and major funding
+      acknowledgments will be published here.
     </p>
   </section>
 
