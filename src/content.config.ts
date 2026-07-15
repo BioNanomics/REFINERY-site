@@ -24,6 +24,7 @@ const news = defineCollection({
       // External curated stories link straight to the original publisher
       // instead of getting an internal detail page.
       sourceUrl: z.string().url().optional(),
+      sourceName: z.string().optional(),
       draft: z.boolean().default(false),
     }),
 });

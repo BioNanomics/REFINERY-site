@@ -16,7 +16,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 const { post } = Astro.props;
-const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl } = post.data;
+const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, sourceName } = post.data;
 const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 const href = sourceUrl ?? withBase(`news/${post.id}/`);
 const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {};
@@ -56,7 +56,7 @@ const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } :
     {
       sourceUrl && (
         <span class="mt-4 font-mono text-xs font-semibold text-brand-accent">
-          Read at source &nearr;
+          {sourceName ? `via ${sourceName}` : 'Read at source'} &nearr;
         </span>
       )
     }

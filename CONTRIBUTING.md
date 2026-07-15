@@ -36,11 +36,35 @@ teamRefs: ["1501"]            # optional, team numbers this story is about
 sourceUrl: "https://..."      # optional — if set, the card links straight to this URL
                                # instead of getting an internal detail page (use for
                                # curated external/regional coverage)
+sourceName: "The Example Gazette"  # optional, shown on the card as "via {sourceName}"
+                                     # when sourceUrl is set
 draft: false                  # set true to hide from the live site until ready
 ---
 
 Body content in Markdown/MDX. Omit the body entirely for sourceUrl entries.
 ```
+
+#### Featuring an external story
+
+To feature a story from somewhere else (local press, FIRST Indiana, a partner's blog, etc.)
+without writing your own write-up, create a news entry with `sourceUrl` set and no body. The
+card automatically becomes an outbound link — clicking it sends readers straight to the
+original article in a new tab instead of an internal REFINERY page, and it never generates its
+own `/news/<slug>/` page. This is the minimal version:
+
+```md
+---
+title: "Headline as it should appear on the card"
+summary: "One or two sentences describing the story."
+pubDate: 2026-08-01
+category: regional   # refinery | teams | regional | partnerships | first-community
+sourceUrl: "https://example.com/the-actual-article"
+sourceName: "Publisher Name"   # shown on the card as "via Publisher Name"
+draft: false
+---
+```
+
+See `src/content/news/example-external-story.mdx` for a working (draft) example.
 
 ### Team — `src/content/teams/*.mdx`
 
