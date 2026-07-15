@@ -27,6 +27,19 @@ npm run dev       # http://localhost:4321
 | `npm run astro check` | Type-check the project                                |
 | `npm run build:docs`  | Build the `/resources` docs for a separate subdomain deploy — see [`docs/SUBDOMAIN-SETUP.md`](./docs/SUBDOMAIN-SETUP.md) |
 
+## Updating the impact stats
+
+The "Teams supported / Students reached / New teams launched / Funding provided" numbers shown
+on the homepage and on the About page's Impact & Reports section aren't pulled from anywhere —
+they're plain numbers typed directly into the page code, so update both places by hand when the
+figures change:
+
+- **Homepage**: `src/pages/index.astro`, the `impactMetrics` array near the top of the file.
+- **About page**: `src/pages/about.astro`, the stat tiles inside the `id="impact"` section.
+
+Just edit the `value` (or the number in each stat tile on About) and redeploy — no other code
+changes needed.
+
 ## Deployment
 
 Deploys to GitHub Pages automatically via `.github/workflows/deploy.yml` on every push to
