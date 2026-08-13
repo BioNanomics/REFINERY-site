@@ -15,13 +15,9 @@ const Tag = href ? 'a' : 'div';
 
 <Tag
   href={href}
-  class:list={[
-    'corner-brackets rounded-sm border border-slate-200 bg-white p-5 transition',
-    href && 'hover:border-brand-accent',
-  ]}
+  class:list={['card card-pad', href && 'card-link']}
+  data-reveal
 >
-  <span class="corner-bl" aria-hidden="true"></span>
-  <span class="corner-br" aria-hidden="true"></span>
   <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
     {formattedDate}
   </time>

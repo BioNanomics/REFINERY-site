@@ -20,43 +20,47 @@ const outcomes = [
   title="Donate"
   description="Give to The REFINERY and help fund the infrastructure robotics teams across Northeast Indiana can't build alone."
 >
-  <section class="mx-auto max-w-3xl px-6 py-16 text-center">
-    <SectionHeading eyebrow="Donate" title="Your gift builds infrastructure teams share" align="center" />
-    <p class="mx-auto mt-4 max-w-2xl text-slate-600">
-      Every gift to The REFINERY goes toward the funding, parts, tools, facilities, and training
-      that keep robotics teams across Northeast Indiana running — and helps us launch new teams
-      that couldn't otherwise get started.
-    </p>
+  <section class="section-tight section text-center">
+    <div class="section-inner section-inner-narrow">
+      <SectionHeading eyebrow="Donate" title="Your gift builds infrastructure teams share" align="center" />
+      <p class="mx-auto mt-4 max-w-2xl text-slate-600" data-reveal>
+        Every gift to The REFINERY goes toward the funding, parts, tools, facilities, and training
+        that keep robotics teams across Northeast Indiana running — and helps us launch new teams
+        that couldn't otherwise get started.
+      </p>
+    </div>
   </section>
 
-  <section class="border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-4xl px-6">
+  <section class="band section">
+    <div class="section-inner section-inner-narrow">
       <SectionHeading eyebrow="Where it goes" title="What your gift can support" align="left" />
-      <ul class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <ul class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3" data-reveal-group>
         {
           outcomes.map((outcome) => (
-            <li class="border-l-2 border-brand-accent bg-white py-2 pl-4 text-sm text-slate-700">{outcome}</li>
+            <li class="card rounded-r-control border-l-2 border-l-brand-accent py-2 pl-4 text-sm text-slate-700" data-reveal>{outcome}</li>
           ))
         }
       </ul>
-      <p class="mt-6 text-sm text-slate-500">
+      <p class="mt-6 text-sm text-slate-500" data-reveal>
         Want your gift directed to a specific team? Let us know when you give and we'll make
         sure it gets there.
       </p>
     </div>
   </section>
 
-  <section class="mx-auto flex max-w-2xl flex-col items-center px-6 py-16 text-center">
-    <SectionHeading eyebrow="Give Today" title="Ready to give?" align="center" />
-    {/* TODO: swap this placeholder for the client's real donation processor link once one is connected. */}
-    <p class="mt-4 text-sm text-slate-500">
-      Online giving isn't connected yet — email us and we'll walk you through how to give in the
-      meantime.
-    </p>
-    <div class="mt-6">
-      <CTAButton href="mailto:refinery@bionanomics.com?subject=Donating%20to%20The%20REFINERY">
-        Contact Us to Give
-      </CTAButton>
+  <section class="section-loose section flex flex-col items-center text-center">
+    <div class="section-inner section-inner-narrow flex flex-col items-center">
+      <SectionHeading eyebrow="Give Today" title="Ready to give?" align="center" />
+      {/* TODO: swap this placeholder for the client's real donation processor link once one is connected. */}
+      <p class="mt-4 text-sm text-slate-500" data-reveal>
+        Online giving isn't connected yet — email us and we'll walk you through how to give in the
+        meantime.
+      </p>
+      <div class="mt-6" data-reveal>
+        <CTAButton href="mailto:refinery@bionanomics.com?subject=Donating%20to%20The%20REFINERY">
+          Contact Us to Give
+        </CTAButton>
+      </div>
     </div>
   </section>
 </MarketingLayout>

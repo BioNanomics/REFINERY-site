@@ -17,7 +17,7 @@ const whatWeProvide = [
   },
   {
     title: 'Funding & Financial Infrastructure',
-    description: 'Helping teams raise, receive, manage, and spend funds through the REFINERY.',
+    description: 'Helping teams raise, receive, manage, and spend funds through The REFINERY.',
     href: withBase('what-we-do/#funding'),
   },
   {
@@ -60,7 +60,7 @@ const beyondNortheastIndiana = [
   },
   {
     title: 'TIMS',
-    description: 'Inventory and tool-management software built for the REFINERY, open to any FIRST team.',
+    description: 'Inventory and tool-management software built for The REFINERY, open to any FIRST team.',
     href: withBase('apps/'),
   },
   {
@@ -79,7 +79,6 @@ const impactMetrics = [
 
 const allNews = await getCollection('news', ({ data }) => !data.draft);
 const latestNews = allNews.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
-const featuredStory = latestNews[0];
 
 const allEvents = await getCollection('events', ({ data }) => !data.draft);
 const upcomingEvents = allEvents
@@ -107,111 +106,97 @@ const upcomingEvents = allEvents
   </Hero>
 
   <!-- The Problem -->
-  <section class="mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading
-      eyebrow="The Problem"
-      title="A team is more than just a robot"
-      align="left"
-    />
-    <p class="mt-4 max-w-3xl text-slate-600">
-      Sustainable robotics teams need far more than a kit of parts. They need funding, tools,
-      workspace, technical knowledge, mentors, operational systems, and institutional continuity
-      — and many schools and communities can't independently build all of that infrastructure on
-      their own.
-    </p>
-    <ul class="mt-6 flex flex-wrap gap-2">
-      {
-        ['Funding', 'Parts', 'Tools', 'Workspace', 'Technical Knowledge', 'Mentors', 'Operational Systems', 'Institutional Continuity'].map((need) => (
-          <li class="border border-brand/20 bg-brand/5 px-3 py-1 font-mono text-xs font-medium text-brand">
-            {need}
-          </li>
-        ))
-      }
-    </ul>
+  <section class="section-loose section">
+    <div class="section-inner">
+      <SectionHeading
+        eyebrow="The Problem"
+        title="A team is more than just a robot"
+        align="left"
+      />
+      <p class="mt-4 max-w-3xl text-slate-600" data-reveal>
+        Sustainable robotics teams need far more than a kit of parts. They need funding, tools,
+        workspace, technical knowledge, mentors, operational systems, and institutional continuity
+        — and many schools and communities can't independently build all of that infrastructure on
+        their own.
+      </p>
+    </div>
   </section>
 
-  <!-- What the REFINERY Provides -->
-  <section class="angled-top relative overflow-hidden border-t border-slate-100 bg-slate-50 pb-20 pt-16">
-    <div class="grid-texture pointer-events-none absolute inset-0 text-brand/10" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-6xl px-6">
-      <SectionHeading eyebrow="What We Provide" title="How the REFINERY helps teams" align="left" />
-      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <!-- What The REFINERY Provides -->
+  <section class="section band">
+    <div class="section-inner">
+      <SectionHeading eyebrow="What We Provide" title="How The REFINERY helps teams" align="left" />
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
         {whatWeProvide.map((item) => <SummaryCard {...item} />)}
       </div>
     </div>
   </section>
 
   <!-- Beyond Northeast Indiana -->
-  <section class="mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading
-      eyebrow="Beyond Northeast Indiana"
-      title="Built here. Shared with FIRST."
-      description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community — we share what we build, document what we learn, and partner to solve challenges teams face everywhere."
-      align="left"
-    />
-    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {beyondNortheastIndiana.map((item) => <SummaryCard {...item} />)}
-    </div>
-    <div class="mt-8">
-      <CTAButton href={withBase('what-we-do/#beyond-northeast-indiana')} variant="secondary">
-        See Our Contributions to the FIRST Community
-      </CTAButton>
+  <section class="section">
+    <div class="section-inner">
+      <SectionHeading
+        eyebrow="Beyond Northeast Indiana"
+        title="Built here. Shared with FIRST."
+        description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community — we share what we build, document what we learn, and partner to solve challenges teams face everywhere."
+        align="left"
+      />
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
+        {beyondNortheastIndiana.map((item) => <SummaryCard {...item} />)}
+      </div>
+      <div class="mt-8" data-reveal>
+        <CTAButton href={withBase('what-we-do/#beyond-northeast-indiana')} variant="secondary">
+          See Our Contributions to the FIRST Community
+        </CTAButton>
+      </div>
     </div>
   </section>
 
   <!-- Impact Snapshot -->
-  <section class="border-t border-slate-100 bg-slate-50 py-20">
-    <div class="mx-auto max-w-6xl px-6">
+  <section class="section-tight band">
+    <div class="section-inner">
       <SectionHeading eyebrow="Impact" title="Impact snapshot" align="left" />
-      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4">
+      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4" data-reveal-group>
         {
           impactMetrics.map((metric) => (
-            <div class="border-l-2 border-brand-accent pl-4">
+            <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
               <p class="font-heading text-3xl font-extrabold text-slate-900">{metric.value}</p>
               <p class="mt-1 text-sm text-slate-600">{metric.label}</p>
             </div>
           ))
         }
       </div>
-      {
-        featuredStory && (
-          <div class="mt-10 max-w-md">
-            <p class="eyebrow-tag mb-3 text-brand-accent">Featured Story</p>
-            <NewsCard post={featuredStory} />
-          </div>
-        )
-      }
     </div>
   </section>
 
   <!-- Latest News -->
-  <section class="mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading eyebrow="News" title="Latest from the REFINERY and the region" align="left" />
-    {
-      latestNews.length > 0 ? (
-        <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {latestNews.map((post) => <NewsCard post={post} />)}
-        </div>
-      ) : (
-        <p class="mt-8 text-sm text-slate-500">No news published yet — check back soon.</p>
-      )
-    }
-    <div class="mt-8">
-      <CTAButton href={withBase('news/')} variant="secondary">View All News</CTAButton>
+  <section class="section">
+    <div class="section-inner">
+      <SectionHeading eyebrow="News" title="Latest from The REFINERY and the region" align="left" />
+      {
+        latestNews.length > 0 ? (
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+            {latestNews.map((post) => <NewsCard post={post} />)}
+          </div>
+        ) : (
+          <p class="mt-8 text-sm text-slate-500">No news published yet — check back soon.</p>
+        )
+      }
+      <div class="mt-8" data-reveal>
+        <CTAButton href={withBase('news/')} variant="secondary">View All News</CTAButton>
+      </div>
     </div>
   </section>
 
   <!-- Upcoming -->
-  <section class="border-t border-slate-100 bg-slate-50 py-20">
-    <div class="mx-auto max-w-6xl px-6">
+  <section class="section band">
+    <div class="section-inner">
       <SectionHeading eyebrow="Upcoming" title="Upcoming programs and events" align="left" />
       {
         upcomingEvents.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {upcomingEvents.map((event) => (
-              <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
-                <span class="corner-bl" aria-hidden="true" />
-                <span class="corner-br" aria-hidden="true" />
+              <div class="card card-pad">
                 <time class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
                   {event.data.dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </time>
@@ -224,23 +209,25 @@ const upcomingEvents = allEvents
           <p class="mt-8 text-sm text-slate-500">No upcoming events posted yet — check back soon.</p>
         )
       }
-      <div class="mt-8">
+      <div class="mt-8" data-reveal>
         <CTAButton href={withBase('programs-events/')} variant="secondary">View Programs & Events</CTAButton>
       </div>
     </div>
   </section>
 
   <!-- Final CTA -->
-  <section class="mx-auto max-w-6xl px-6 py-20 text-center">
-    <SectionHeading
-      eyebrow="Join Us"
-      title="Help build the infrastructure robotics teams can't build alone"
-      align="center"
-    />
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <CTAButton href={withBase('get-involved/#volunteer')}>Volunteer</CTAButton>
-      <CTAButton href={withBase('get-involved/#partner')} variant="secondary">Partner</CTAButton>
-      <CTAButton href={withBase('donate/')} variant="secondary">Donate</CTAButton>
+  <section class="section-loose section text-center">
+    <div class="section-inner">
+      <SectionHeading
+        eyebrow="Join Us"
+        title="Help build the infrastructure robotics teams can't build alone"
+        align="center"
+      />
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3" data-reveal>
+        <CTAButton href={withBase('get-involved/#volunteer')}>Volunteer</CTAButton>
+        <CTAButton href={withBase('get-involved/#partner')} variant="secondary">Partner</CTAButton>
+        <CTAButton href={withBase('donate/')} variant="secondary">Donate</CTAButton>
+      </div>
     </div>
   </section>
 </MarketingLayout>

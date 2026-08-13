@@ -15,21 +15,25 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
   title="Meet the Teams"
   description="FRC and FTC teams supported by The REFINERY across Northeast Indiana."
 >
-  <section class="mx-auto max-w-6xl px-6 py-16">
-    <SectionHeading eyebrow="About" title="Meet the Teams" align="left" />
-    {
-      allTeams.length === 0 && (
-        <p class="mt-10 text-sm text-slate-500">Team directory coming soon.</p>
-      )
-    }
+  <section class="section-tight section">
+    <div class="section-inner">
+      <SectionHeading eyebrow="About" title="Meet the Teams" align="left" />
+      {
+        allTeams.length === 0 && (
+          <p class="mt-10 text-sm text-slate-500">Team directory coming soon.</p>
+        )
+      }
+    </div>
   </section>
 
   {
     frcTeams.length > 0 && (
-      <section class="mx-auto max-w-6xl px-6 pb-16">
-        <h2 class="font-heading text-xl font-bold text-slate-900">FIRST Robotics Competition</h2>
-        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {frcTeams.map((team) => <TeamCard team={team} />)}
+      <section class="section">
+        <div class="section-inner">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>FIRST Robotics Competition</h2>
+          <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+            {frcTeams.map((team) => <TeamCard team={team} />)}
+          </div>
         </div>
       </section>
     )
@@ -37,10 +41,12 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
 
   {
     ftcTeams.length > 0 && (
-      <section class="mx-auto max-w-6xl border-t border-slate-100 px-6 py-16">
-        <h2 class="font-heading text-xl font-bold text-slate-900">FIRST Tech Challenge</h2>
-        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ftcTeams.map((team) => <TeamCard team={team} />)}
+      <section class="band section-loose section">
+        <div class="section-inner">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>FIRST Tech Challenge</h2>
+          <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+            {ftcTeams.map((team) => <TeamCard team={team} />)}
+          </div>
         </div>
       </section>
     )

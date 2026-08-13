@@ -8,42 +8,20 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const { title, summary, image, imageAlt, tags, status } = project.data;
+const { title, summary, image, imageAlt, status } = project.data;
 ---
 
-<a
-  href={withBase(`projects/${project.id}/`)}
-  class="corner-brackets group flex flex-col overflow-hidden rounded-sm border border-slate-200 bg-white transition hover:border-brand-accent"
->
-  <span class="corner-bl" aria-hidden="true"></span>
-  <span class="corner-br" aria-hidden="true"></span>
-  <div class="aspect-[4/3] overflow-hidden bg-slate-100">
-    <Image
-      src={image}
-      alt={imageAlt}
-      class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-      widths={[400, 800]}
-      sizes="(min-width: 768px) 400px, 100vw"
-    />
+<a href={withBase(`projects/${project.id}/`)} class="card card-link group" data-reveal>
+  <div class="card-media aspect-[4/3]">
+    <Image src={image} alt={imageAlt} widths={[400, 800]} sizes="(min-width: 768px) 400px, 100vw" />
   </div>
-  <div class="flex flex-1 flex-col p-5">
+  <div class="card-body card-pad">
     <div class="flex items-center justify-between gap-2">
       <h3 class="font-heading text-base font-bold text-slate-900">{title}</h3>
       <span class="shrink-0 font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">
         [{status.replace('-', ' ')}]
       </span>
     </div>
-    <p class="mt-2 flex-1 text-sm text-slate-600">{summary}</p>
-    {
-      tags.length > 0 && (
-        <ul class="mt-4 flex flex-wrap gap-1.5">
-          {tags.slice(0, 3).map((tag) => (
-            <li class="border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.7rem] font-medium text-brand">
-              {tag}
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    <p class="mt-2 card-fill text-sm text-slate-600">{summary}</p>
   </div>
 </a>

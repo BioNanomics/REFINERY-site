@@ -9,9 +9,7 @@ const { program } = Astro.props;
 const { title, summary, audience } = program.data;
 ---
 
-<div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
-  <span class="corner-bl" aria-hidden="true"></span>
-  <span class="corner-br" aria-hidden="true"></span>
+<div class="card card-pad" data-reveal>
   <h3 class="font-heading text-base font-bold text-slate-900">{title}</h3>
   <p class="mt-2 text-sm text-slate-600">{summary}</p>
   {

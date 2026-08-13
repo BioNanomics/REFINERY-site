@@ -24,16 +24,18 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
   title="Programs & Events"
   description="Upcoming events, ongoing programs, and featured happenings from The REFINERY."
 >
-  <section class="mx-auto max-w-6xl px-6 py-16">
-    <SectionHeading eyebrow="Programs & Events" title="Get involved with what's happening" align="left" />
+  <section class="section-tight section">
+    <div class="section-inner">
+      <SectionHeading eyebrow="Programs & Events" title="Get involved with what's happening" align="left" />
+    </div>
   </section>
 
   {
     featuredEvents.length > 0 && (
-      <section class="border-t border-slate-100 bg-slate-50 py-16">
-        <div class="mx-auto max-w-6xl px-6">
+      <section class="band section">
+        <div class="section-inner">
           <SectionHeading eyebrow="Featured" title="Featured Events" align="left" />
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {featuredEvents.map((event) => <EventCard event={event} />)}
           </div>
         </div>
@@ -41,35 +43,35 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
     )
   }
 
-  <section class="mx-auto max-w-6xl px-6 py-16">
-    <SectionHeading eyebrow="Calendar" title="Upcoming Events" align="left" />
-    <div class="corner-brackets relative mt-8 overflow-hidden rounded-sm border border-slate-200">
-      <span class="corner-bl" aria-hidden="true"></span>
-      <span class="corner-br" aria-hidden="true"></span>
-      <iframe
-        src={calendarEmbedUrl}
-        title="The REFINERY events calendar"
-        class="h-[600px] w-full"
-        style="border: 0"
-        loading="eager"
-      />
+  <section class="section">
+    <div class="section-inner">
+      <SectionHeading eyebrow="Calendar" title="Upcoming Events" align="left" />
+      <div class="card mt-8 overflow-hidden" data-reveal>
+        <iframe
+          src={calendarEmbedUrl}
+          title="The REFINERY events calendar"
+          class="h-[600px] w-full"
+          style="border: 0"
+          loading="eager"
+        />
+      </div>
+      <a
+        href={calendarSubscribeUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+      >
+        Add to your Google Calendar &nearr;
+      </a>
     </div>
-    <a
-      href={calendarSubscribeUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
-    >
-      Add to your Google Calendar &nearr;
-    </a>
   </section>
 
-  <section class="border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-6xl px-6">
+  <section class="band section-loose section">
+    <div class="section-inner">
       <SectionHeading eyebrow="Ongoing" title="Ongoing Programs" align="left" />
       {
         allPrograms.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-8 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {allPrograms.map((program) => <ProgramCard program={program} />)}
           </div>
         ) : (

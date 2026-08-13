@@ -15,10 +15,12 @@ const projects = allProjects.sort((a, b) => {
   title="Projects"
   description="Hands-on engineering and robotics projects from The REFINERY, including FRC mechanisms and makerspace builds."
 >
-  <section class="mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading eyebrow="Projects" title="What we've built" align="left" />
-    <div class="mt-10">
-      <ProjectGrid projects={projects} />
+  <section class="section-loose section">
+    <div class="section-inner">
+      <SectionHeading eyebrow="Projects" title="What we've built" align="left" />
+      <div class="mt-10">
+        <ProjectGrid projects={projects} />
+      </div>
     </div>
   </section>
 </MarketingLayout>

@@ -11,7 +11,13 @@ const { projects } = Astro.props;
 
 {
   projects.length > 0 ? (
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      class:list={[
+        'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3',
+        projects[0]?.data.featured && '[&>*:first-child]:sm:col-span-2 [&>*:first-child]:lg:col-span-3',
+      ]}
+      data-reveal-group
+    >
       {projects.map((project) => (
         <ProjectCard project={project} />
       ))}

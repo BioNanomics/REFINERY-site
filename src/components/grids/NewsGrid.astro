@@ -27,7 +27,7 @@ const categories = [
             type="button"
             data-filter={c.value}
             class:list={[
-              'news-filter-btn border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wide transition-colors',
+              'news-filter-btn rounded-control border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft',
               i === 0 ? 'border-brand bg-brand text-brand-light' : 'border-slate-300 text-slate-600 hover:border-brand',
             ]}
           >
@@ -35,7 +35,7 @@ const categories = [
           </button>
         ))}
       </div>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
         {posts.map((post, i) => (
           <div data-category={post.data.category}>
             <NewsCard post={post} loading={i === 0 ? 'eager' : 'lazy'} />

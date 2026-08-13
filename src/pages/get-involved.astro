@@ -4,53 +4,46 @@ import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import { withBase } from '../utils/base';
 
-const volunteerAreas = [
-  'Technical advising', 'Workshop instruction', 'Open-shop support', 'Events',
-  'Inventory & facility projects', 'Software development', 'Administrative support',
-  'Transportation', 'Student engagement', 'Ongoing team mentoring',
-];
-
-const partnerOpportunities = [
-  'Co-deliver programs', 'Provide technical expertise', 'Supply employee volunteers',
-  'Donate equipment/materials', 'Support event infrastructure', 'Develop shared software/systems',
-  'Host student career experiences', 'Support team launches', 'Fund regional infrastructure',
-];
 ---
 
 <MarketingLayout
   title="Get Involved"
   description="Start or host a team, volunteer, partner, give, or refer someone to The REFINERY."
 >
-  <section class="mx-auto max-w-3xl px-6 py-16 text-center">
-    <SectionHeading eyebrow="Get Involved" title="Help build the infrastructure teams can't build alone" align="center" />
-  </section>
-
-  <section id="start-or-host-a-team" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">01</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Start or Host a Team</h2>
-    <p class="mt-3 text-sm text-slate-500">For schools, nonprofits, libraries, youth organizations, parents, and community groups.</p>
-    <p class="mt-4 text-slate-600">
-      We'll walk you through what starting a team requires, what your organization provides, and
-      how The REFINERY supports the process from kickoff onward.
-    </p>
-    <div class="mt-6">
-      <CTAButton href="mailto:refinery@bionanomics.com?subject=Starting%20a%20Team">
-        Talk With Us About Starting a Team
-      </CTAButton>
+  <section class="section-tight section text-center">
+    <div class="section-inner section-inner-narrow">
+      <SectionHeading eyebrow="Get Involved" title="Help build the infrastructure teams can't build alone" align="center" />
     </div>
   </section>
 
-  <section id="volunteer" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-4xl px-6">
-      <p class="eyebrow-tag text-brand-accent">02</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Volunteer</h2>
-      <p class="mt-4 text-slate-600">Whether you have an hour or a season, there's a place for you — one-time and long-term involvement are both welcome.</p>
-      <ul class="mt-6 flex flex-wrap gap-2">
-        {volunteerAreas.map((area) => (
-          <li class="border border-brand/20 bg-brand/5 px-3 py-1 font-mono text-xs font-medium text-brand">{area}</li>
-        ))}
-      </ul>
-      <div class="mt-6">
+  <section id="start-or-host-a-team" class="section scroll-mt-6">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Start or Host a Team</h2>
+      <p class="mt-3 text-sm text-slate-500" data-reveal>For schools, nonprofits, libraries, youth organizations, parents, and community groups.</p>
+      <p class="mt-4 text-slate-600" data-reveal>
+        We'll walk you through what starting a team requires, what your organization provides, and
+        how The REFINERY supports the process from kickoff onward.
+      </p>
+      <div class="mt-6" data-reveal>
+        <CTAButton href="mailto:refinery@bionanomics.com?subject=Starting%20a%20Team">
+          Talk With Us About Starting a Team
+        </CTAButton>
+      </div>
+    </div>
+  </section>
+
+  <section id="volunteer" class="band scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Volunteer</h2>
+      <p class="mt-4 text-slate-600" data-reveal>Whether you have an hour or a season, there's a place for you — one-time and long-term involvement are both welcome.</p>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Technical advising, workshop instruction, open-shop support, events, inventory and
+        facility projects, software development, administrative support, transportation, student
+        engagement, and ongoing team mentoring.
+      </p>
+      <div class="mt-6" data-reveal>
         <CTAButton href="mailto:refinery@bionanomics.com?subject=Volunteering%20with%20The%20REFINERY" variant="secondary">
           Volunteer With Us
         </CTAButton>
@@ -58,49 +51,54 @@ const partnerOpportunities = [
     </div>
   </section>
 
-  <section id="partner" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">03</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Partner</h2>
-    <p class="mt-4 text-slate-600">Organizations and businesses partner with us in a lot of different ways:</p>
-    <ul class="mt-6 flex flex-wrap gap-2">
-      {partnerOpportunities.map((item) => (
-        <li class="border border-brand/20 bg-brand/5 px-3 py-1 font-mono text-xs font-medium text-brand">{item}</li>
-      ))}
-    </ul>
-    <div class="mt-6">
-      <CTAButton href="mailto:refinery@bionanomics.com?subject=Partnering%20with%20The%20REFINERY" variant="secondary">
-        Talk With Us About Partnering
-      </CTAButton>
+  <section id="partner" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Partner</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Organizations and businesses partner with us in a lot of different ways: co-delivering
+        programs, providing technical expertise, supplying employee volunteers, donating
+        equipment or materials, supporting event infrastructure, developing shared software or
+        systems, hosting student career experiences, supporting team launches, and funding
+        regional infrastructure.
+      </p>
+      <div class="mt-6" data-reveal>
+        <CTAButton href="mailto:refinery@bionanomics.com?subject=Partnering%20with%20The%20REFINERY" variant="secondary">
+          Talk With Us About Partnering
+        </CTAButton>
+      </div>
     </div>
   </section>
 
-  <section id="donate-or-sponsor" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-4xl px-6">
-      <p class="eyebrow-tag text-brand-accent">04</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Donate or Sponsor</h2>
-      <p class="mt-4 text-slate-600">
+  <section id="donate-or-sponsor" class="band scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Donate or Sponsor</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
         Giving starts new teams, supports team funding, expands shared inventory, purchases
         tools and equipment, supports transportation, funds workshops, supports student
         experiences, sustains facility operations, and develops shared software infrastructure.
         Team-designated giving is available where appropriate.
       </p>
-      <div class="mt-6">
+      <div class="mt-6" data-reveal>
         <CTAButton href={withBase('donate/')}>See Ways to Give</CTAButton>
       </div>
     </div>
   </section>
 
-  <section id="refer" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">05</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Refer a Team or Student</h2>
-    <p class="mt-4 text-slate-600">
-      Know a student who may benefit, a team that needs support, a potential mentor, or an
-      organization interested in starting a team? Let us know and we'll follow up.
-    </p>
-    <div class="mt-6">
-      <CTAButton href="mailto:refinery@bionanomics.com?subject=Referral" variant="secondary">
-        Send a Referral
-      </CTAButton>
+  <section id="refer" class="section-loose scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Refer a Team or Student</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Know a student who may benefit, a team that needs support, a potential mentor, or an
+        organization interested in starting a team? Let us know and we'll follow up.
+      </p>
+      <div class="mt-6" data-reveal>
+        <CTAButton href="mailto:refinery@bionanomics.com?subject=Referral" variant="secondary">
+          Send a Referral
+        </CTAButton>
+      </div>
     </div>
   </section>
 </MarketingLayout>

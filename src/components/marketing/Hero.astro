@@ -25,25 +25,25 @@ const {
 } = Astro.props;
 ---
 
-<section class="relative overflow-hidden border-b border-slate-200 bg-white">
-  <div class="grid-texture pointer-events-none absolute inset-0 text-brand/[0.08]" aria-hidden="true"></div>
+<section class="relative overflow-hidden">
   <div class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:py-24">
-    <div class="flex flex-col items-start gap-6">
-      {eyebrow && <p class="eyebrow-tag text-brand-accent">{eyebrow}</p>}
-      <h1 class="font-heading text-5xl font-extrabold leading-[0.95] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+    <div class="flex flex-col items-start gap-6" data-reveal-group>
+      {eyebrow && <p class="eyebrow-tag text-brand-accent" data-reveal>{eyebrow}</p>}
+      <h1
+        class="font-heading text-5xl font-extrabold leading-[0.95] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl"
+        data-reveal
+      >
         {title}
       </h1>
-      <p class="max-w-md text-lg text-slate-600">{description}</p>
-      <div class="flex flex-wrap items-center gap-3">
+      <p class="max-w-md text-lg text-slate-600" data-reveal>{description}</p>
+      <div class="flex flex-wrap items-center gap-3" data-reveal>
         <CTAButton href={ctaHref}>{ctaLabel}</CTAButton>
         <slot name="actions" />
       </div>
       <slot name="footnote" />
     </div>
 
-    <div class="corner-brackets relative">
-      <span class="corner-bl" aria-hidden="true"></span>
-      <span class="corner-br" aria-hidden="true"></span>
+    <div class="corner-brackets overflow-hidden rounded-card" data-reveal style="--bracket-inset: -10px">
       <Image
         src={image}
         alt={imageAlt}

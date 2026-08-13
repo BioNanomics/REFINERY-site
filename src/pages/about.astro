@@ -34,27 +34,31 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   title="About"
   description="The REFINERY's story, mission, teams, people, facility, and partners."
 >
-  <section class="mx-auto max-w-3xl px-6 py-16 text-center">
-    <SectionHeading eyebrow="About" title="Who we are and how we work" align="center" />
+  <section class="section-tight section text-center">
+    <div class="section-inner section-inner-narrow">
+      <SectionHeading eyebrow="About" title="Who we are and how we work" align="center" />
+    </div>
   </section>
 
-  <section id="our-story" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">01</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Our Story</h2>
-    <p class="mt-4 text-slate-600">
-      Young robotics teams have long faced the same challenge: building
-      a competitive program takes far more than a robot, and few schools or communities can build
-      all of that infrastructure alone. The REFINERY grew out of a shared makerspace built to
-      close that gap — and has since evolved from just a physical facility into a regional
-      infrastructure organization supporting many teams across the region.
-    </p>
+  <section id="our-story" class="section scroll-mt-6">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Our Story</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Young robotics teams have long faced the same challenge: building
+        a competitive program takes far more than a robot, and few schools or communities can build
+        all of that infrastructure alone. The REFINERY grew out of a shared makerspace built to
+        close that gap — and has since evolved from just a physical facility into a regional
+        infrastructure organization supporting many teams across the region.
+      </p>
+    </div>
   </section>
 
-  <section id="mission-vision" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-4xl px-6">
-      <p class="eyebrow-tag text-brand-accent">02</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Mission</h2>
-      <p class="mt-4 text-slate-600">
+  <section id="mission-vision" class="band scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Mission</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
         {/* DRAFT — placeholder mission/vision statement pending final language from the client. */}
         The REFINERY exists so that no robotics team in Northeast Indiana has to build its
         infrastructure alone — we provide the funding, parts, tools, facilities, training, and
@@ -63,79 +67,84 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 
-  <section id="model" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16 text-center">
-    <p class="eyebrow-tag text-brand-accent">03</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">How the Model Works</h2>
-    <p class="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base">
-      <span>Funding</span><span class="text-brand-accent">+</span>
-      <span>Parts</span><span class="text-brand-accent">+</span>
-      <span>Tools</span><span class="text-brand-accent">+</span>
-      <span>Facilities</span><span class="text-brand-accent">+</span>
-      <span>Training</span><span class="text-brand-accent">+</span>
-      <span>Systems</span><span class="text-brand-accent">+</span>
-      <span>Community</span><span class="text-brand-accent">=</span>
-      <span class="text-brand-accent">Stronger, More Sustainable Teams</span>
-    </p>
+  <section id="model" class="section scroll-mt-6 text-center">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>How the Model Works</h2>
+      <p
+        class="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base"
+        data-reveal
+      >
+        <span>Funding</span><span class="text-brand-accent">+</span>
+        <span>Parts</span><span class="text-brand-accent">+</span>
+        <span>Tools</span><span class="text-brand-accent">+</span>
+        <span>Facilities</span><span class="text-brand-accent">+</span>
+        <span>Training</span><span class="text-brand-accent">+</span>
+        <span>Systems</span><span class="text-brand-accent">+</span>
+        <span>Community</span><span class="text-brand-accent">=</span>
+        <span class="text-brand-accent">Stronger, More Sustainable Teams</span>
+      </p>
+    </div>
   </section>
 
-  <section id="teams" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <p class="eyebrow-tag text-brand-accent">04</p>
+  <section id="teams" class="band scroll-mt-6 section">
+    <div class="section-inner">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
       <SectionHeading title="Meet the Teams" align="left" />
       {
         teams.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {teams.map((team) => <TeamCard team={team} />)}
           </div>
         ) : (
           <p class="mt-8 text-sm text-slate-500">Team directory coming soon.</p>
         )
       }
-      <div class="mt-8">
+      <div class="mt-8" data-reveal>
         <CTAButton href={withBase('about/teams/')} variant="secondary">See All Teams</CTAButton>
       </div>
     </div>
   </section>
 
-  <section id="impact" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">05</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Impact & Reports</h2>
-    <div class="mt-6 flex flex-wrap gap-8">
-      <div class="border-l-2 border-brand-accent pl-4">
-        <p class="font-heading text-3xl font-extrabold text-slate-900">15</p>
-        <p class="mt-1 text-sm text-slate-600">Teams supported</p>
+  <section id="impact" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact & Reports</h2>
+      <div class="mt-6 flex flex-wrap gap-8" data-reveal-group>
+        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
+          <p class="font-heading text-3xl font-extrabold text-slate-900">15</p>
+          <p class="mt-1 text-sm text-slate-600">Teams supported</p>
+        </div>
+        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
+          <p class="font-heading text-3xl font-extrabold text-slate-900">~200</p>
+          <p class="mt-1 text-sm text-slate-600">Students reached</p>
+        </div>
+        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
+          <p class="font-heading text-3xl font-extrabold text-slate-900">5</p>
+          <p class="mt-1 text-sm text-slate-600">New teams launched</p>
+        </div>
+        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
+          <p class="font-heading text-3xl font-extrabold text-slate-900">$75,000</p>
+          <p class="mt-1 text-sm text-slate-600">Funding provided</p>
+        </div>
       </div>
-      <div class="border-l-2 border-brand-accent pl-4">
-        <p class="font-heading text-3xl font-extrabold text-slate-900">~200</p>
-        <p class="mt-1 text-sm text-slate-600">Students reached</p>
-      </div>
-      <div class="border-l-2 border-brand-accent pl-4">
-        <p class="font-heading text-3xl font-extrabold text-slate-900">5</p>
-        <p class="mt-1 text-sm text-slate-600">New teams launched</p>
-      </div>
-      <div class="border-l-2 border-brand-accent pl-4">
-        <p class="font-heading text-3xl font-extrabold text-slate-900">$75,000</p>
-        <p class="mt-1 text-sm text-slate-600">Funding provided</p>
-      </div>
+      <p class="mt-6 text-slate-600" data-reveal>
+        {/* DRAFT — placeholder pending real annual reports and financial information. */}
+        Annual reports, financial information, organizational milestones, and major funding
+        acknowledgments will be published here.
+      </p>
     </div>
-    <p class="mt-6 text-slate-600">
-      {/* DRAFT — placeholder pending real annual reports and financial information. */}
-      Annual reports, financial information, organizational milestones, and major funding
-      acknowledgments will be published here.
-    </p>
   </section>
 
-  <section id="people" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <p class="eyebrow-tag text-brand-accent">06</p>
+  <section id="people" class="band scroll-mt-6 section">
+    <div class="section-inner">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
       <SectionHeading title="People & Leadership" align="left" />
       {
         people.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {people.map((person) => (
-              <div class="corner-brackets rounded-sm border border-slate-200 bg-white p-5">
-                <span class="corner-bl" aria-hidden="true" />
-                <span class="corner-br" aria-hidden="true" />
+              <div class="card card-pad">
                 <div class="flex items-center gap-3">
                   {person.data.photo && (
                     <Image
@@ -163,51 +172,52 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 
-  <section id="facility" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">07</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Facility</h2>
-    <p class="mt-4 text-slate-600">
-      {/* DRAFT — placeholder pending real facility photos, capabilities, parking, and accessibility details. */}
-      Photos, capabilities, parking, and accessibility information for The REFINERY's shop will
-      be published here.
-    </p>
-    <div class="corner-brackets relative mt-6 overflow-hidden rounded-sm border border-slate-200">
-      <span class="corner-bl" aria-hidden="true"></span>
-      <span class="corner-br" aria-hidden="true"></span>
-      <iframe
-        src={facilityMapEmbedUrl}
-        title="Map showing The REFINERY's location"
-        class="h-[400px] w-full"
-        style="border: 0"
-        loading="lazy"
-      />
+  <section id="facility" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Facility</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
+        {/* DRAFT — placeholder pending real facility photos, capabilities, parking, and accessibility details. */}
+        Photos, capabilities, parking, and accessibility information for The REFINERY's shop will
+        be published here.
+      </p>
+      <div class="card mt-6 overflow-hidden" data-reveal>
+        <iframe
+          src={facilityMapEmbedUrl}
+          title="Map showing The REFINERY's location"
+          class="h-[400px] w-full"
+          style="border: 0"
+          loading="lazy"
+        />
+      </div>
+      <a
+        href={facilityMapLinkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+      >
+        {facilityAddress} &nearr;
+      </a>
     </div>
-    <a
-      href={facilityMapLinkUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
-    >
-      {facilityAddress} &nearr;
-    </a>
   </section>
 
-  <section id="partners" class="scroll-mt-6 border-t border-slate-100 bg-slate-50 py-16">
-    <div class="mx-auto max-w-6xl px-6">
-      <p class="eyebrow-tag text-brand-accent">08</p>
+  <section id="partners" class="band scroll-mt-6 section">
+    <div class="section-inner">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
       <SectionHeading title="Partners" align="left" />
       {
         partners.length > 0 ? (
-          <div class="mt-8 flex flex-wrap items-center gap-8">
+          <div class="partner-row mt-8 flex flex-wrap items-center gap-8" data-reveal-group>
             {partners.map((partner) => (
               <a
                 href={partner.data.url ?? '#'}
                 target={partner.data.url ? '_blank' : undefined}
                 rel={partner.data.url ? 'noopener noreferrer' : undefined}
-                class="opacity-70 transition hover:opacity-100"
+                class="transition duration-base ease-out-soft hover:-translate-y-0.5"
                 title={partner.data.name}
+                data-reveal
               >
-                <Image src={partner.data.logo} alt={partner.data.name} class="h-20 w-auto max-w-[280px] object-contain" />
+                <Image src={partner.data.logo} alt={partner.data.name} class="h-[102px] w-auto max-w-[290px] rounded-media object-contain" />
               </a>
             ))}
           </div>
@@ -218,35 +228,37 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 
-  <section id="contact" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
-    <p class="eyebrow-tag text-brand-accent">09</p>
-    <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Contact & Policies</h2>
-    <p class="mt-4 text-slate-600">
-      The REFINERY follows and enforces the{' '}
-      <a
-        href="https://www.firstinspires.org/programs/youth-protection-program"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-brand-accent hover:underline"
-      >
-        FIRST Youth Protection Policy
-      </a>{' '}
-      to keep every student, mentor, and volunteer safe.
-    </p>
-    <p class="mt-4 text-slate-600">
-      Everyone using our facility follows The REFINERY's{' '}
-      <a
-        href="https://docs.google.com/document/d/1pEaRoxklMtsgSpg7-C6rHYIKlMl5dpkPGC4xDISE974/edit?tab=t.0#heading=h.ptazkv4428co"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-brand-accent hover:underline"
-      >
-        Space Use Rules
-      </a>
-      , covering safety, supervision, tool use, and facility conduct.
-    </p>
-    <div class="mt-6">
-      <CTAButton href={withBase('contact/')} variant="secondary">Contact Us</CTAButton>
+  <section id="contact" class="section-loose scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Contact & Policies</h2>
+      <p class="mt-4 text-slate-600" data-reveal>
+        The REFINERY follows and enforces the{' '}
+        <a
+          href="https://www.firstinspires.org/programs/youth-protection-program"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-brand-accent hover:underline"
+        >
+          FIRST Youth Protection Policy
+        </a>{' '}
+        to keep every student, mentor, and volunteer safe.
+      </p>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Everyone using our facility follows The REFINERY's{' '}
+        <a
+          href="https://docs.google.com/document/d/1pEaRoxklMtsgSpg7-C6rHYIKlMl5dpkPGC4xDISE974/edit?tab=t.0#heading=h.ptazkv4428co"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-brand-accent hover:underline"
+        >
+          Space Use Rules
+        </a>
+        , covering safety, supervision, tool use, and facility conduct.
+      </p>
+      <div class="mt-6" data-reveal>
+        <CTAButton href="mailto:refinery@bionanomics.com?subject=General%20Inquiry" variant="secondary">Contact Us</CTAButton>
+      </div>
     </div>
   </section>
 </MarketingLayout>

@@ -13,16 +13,8 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { title, summary, pubDate, author, category, heroImage, heroImageAlt, draft } = post.data;
+const { title, summary, pubDate, author, heroImage, heroImageAlt, draft } = post.data;
 const { Content } = await render(post);
-
-const categoryLabels: Record<string, string> = {
-  refinery: 'The REFINERY',
-  teams: 'Teams',
-  regional: 'Regional',
-  partnerships: 'Partnerships',
-  'first-community': 'FIRST Community',
-};
 ---
 
 <ArticleLayout
@@ -30,7 +22,6 @@ const categoryLabels: Record<string, string> = {
   summary={summary}
   pubDate={pubDate}
   author={author}
-  tags={[categoryLabels[category]]}
   heroImage={heroImage}
   heroImageAlt={heroImageAlt}
   isDraft={draft}

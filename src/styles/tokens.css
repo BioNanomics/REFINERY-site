@@ -29,4 +29,15 @@
   --refinery-font-heading: 'Inter', system-ui, sans-serif;
   --refinery-font-body: 'Inter', system-ui, sans-serif;
   --refinery-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Surfaces & hairlines for the .card/.band primitives in marketing.css.
+     Kept here (not in @theme) so they survive Tailwind v4's tree-shaking —
+     @theme values with no generated-utility consumer get dropped from
+     output, but a plain :root custom property never is. */
+  --refinery-color-border: #e2e8f0; /* was: border-slate-200 */
+  --refinery-color-surface-tint: rgb(19 75 112 / 0.028); /* translucent brand navy */
+
+  /* Motion geometry read by .reveal rules in marketing.css. */
+  --refinery-reveal-distance: 14px;
+  --refinery-reveal-stagger: 70ms;
 }

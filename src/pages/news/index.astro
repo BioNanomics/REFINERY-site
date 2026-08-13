@@ -12,15 +12,17 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
   title="News"
   description="Updates from The REFINERY, our teams, and the broader Northeast Indiana robotics community."
 >
-  <section class="mx-auto max-w-6xl px-6 py-20">
-    <SectionHeading
-      eyebrow="News"
-      title="Updates from The REFINERY and the region"
-      description="REFINERY news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
-      align="left"
-    />
-    <div class="mt-10">
-      <NewsGrid posts={posts} />
+  <section class="section-loose section">
+    <div class="section-inner">
+      <SectionHeading
+        eyebrow="News"
+        title="Updates from The REFINERY and the region"
+        description="The REFINERY's news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
+        align="left"
+      />
+      <div class="mt-10">
+        <NewsGrid posts={posts} />
+      </div>
     </div>
   </section>
 </MarketingLayout>

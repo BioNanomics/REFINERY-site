@@ -15,6 +15,15 @@ const { title, description, image } = Astro.props;
 <html lang="en">
   <head>
     <BaseHead title={title} description={description} image={image} />
+    <script is:inline>
+      // Only opt into the reveal system when JS runs AND the user hasn't
+      // asked for reduced motion. If either is false, this class is never
+      // added, .reveal's CSS never applies, and every [data-reveal]
+      // element is simply visible by default — no flash-then-hide.
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('js-reveal');
+      }
+    </script>
   </head>
   <body class="relative flex min-h-screen flex-col bg-white font-body text-slate-900 antialiased">
     <div class="grid-texture pointer-events-none fixed inset-0 -z-10 text-brand/[0.08]" aria-hidden="true"></div>
@@ -23,5 +32,42 @@ const { title, description, image } = Astro.props;
       <slot />
     </main>
     <SiteFooter />
+    <script>
+      function initReveal() {
+        if (!document.documentElement.classList.contains('js-reveal')) return;
+
+        const targets = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-revealed)');
+        if (targets.length === 0) return;
+
+        if (!('IntersectionObserver' in window)) {
+          targets.forEach((el) => el.classList.add('is-revealed'));
+          return;
+        }
+
+        // Per-group stagger index, capped so a long grid doesn't trail for
+        // ages after its last card enters the viewport.
+        document.querySelectorAll('[data-reveal-group]').forEach((group) => {
+          const items = group.querySelectorAll<HTMLElement>('[data-reveal]');
+          items.forEach((el, i) => el.style.setProperty('--reveal-i', String(Math.min(i, 5))));
+        });
+
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-revealed');
+              io.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+
+      initReveal();
+      // No-op today (no client-side router is in use), but keeps this
+      // correct if view transitions are ever enabled later.
+      document.addEventListener('astro:page-load', initReveal);
+    </script>
   </body>
 </html>
