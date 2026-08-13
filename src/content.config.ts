@@ -97,6 +97,7 @@ const people = defineCollection({
       role: z.string(),
       photo: image().optional(),
       bio: z.string().optional(),
+      linkedin: z.string().url().optional(),
       order: z.number().default(0),
       draft: z.boolean().default(false),
     }),
