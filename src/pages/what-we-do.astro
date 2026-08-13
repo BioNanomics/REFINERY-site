@@ -1,20 +1,8 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
-import SectionNav from '../components/marketing/SectionNav.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import { withBase } from '../utils/base';
-
-const sections = [
-  { id: 'team-launch', label: 'Team Launch & Org Support' },
-  { id: 'funding', label: 'Funding & Financial Infrastructure' },
-  { id: 'parts-inventory', label: 'Parts & Inventory' },
-  { id: 'tools-fabrication', label: 'Tools & Fabrication' },
-  { id: 'facilities', label: 'Facilities & Field Access' },
-  { id: 'training', label: 'Training & Technical Support' },
-  { id: 'community', label: 'Community & Student Experience' },
-  { id: 'beyond-northeast-indiana', label: 'Beyond Northeast Indiana' },
-];
 ---
 
 <MarketingLayout
@@ -24,8 +12,6 @@ const sections = [
   <section class="mx-auto max-w-6xl px-6 py-16">
     <SectionHeading eyebrow="What We Do" title="The full picture of how we support teams" align="left" />
   </section>
-
-  <SectionNav sections={sections} />
 
   <section id="team-launch" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
     <p class="eyebrow-tag text-brand-accent">01</p>
@@ -153,10 +139,6 @@ const sections = [
         ))
       }
     </ul>
-    <p class="mt-4 text-sm text-slate-500">
-      Detailed guides and workshop materials live in our
-      <a href={withBase('resources/')} class="text-brand-accent hover:underline"> Documentation</a>.
-    </p>
   </section>
 
   <section id="community" class="mx-auto max-w-4xl scroll-mt-6 border-t border-slate-100 px-6 py-16">

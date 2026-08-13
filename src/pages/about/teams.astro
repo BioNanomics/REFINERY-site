@@ -4,7 +4,11 @@ import SectionHeading from '../../components/marketing/SectionHeading.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
 import { getCollection } from 'astro:content';
 
-const teams = await getCollection('teams', ({ data }) => !data.draft);
+const allTeams = await getCollection('teams', ({ data }) => !data.draft);
+const sortByNumber = (a: (typeof allTeams)[number], b: (typeof allTeams)[number]) =>
+  Number(a.data.number) - Number(b.data.number);
+const frcTeams = allTeams.filter((t) => t.data.program === 'FRC').sort(sortByNumber);
+const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNumber);
 ---
 
 <MarketingLayout
@@ -14,13 +18,31 @@ const teams = await getCollection('teams', ({ data }) => !data.draft);
   <section class="mx-auto max-w-6xl px-6 py-16">
     <SectionHeading eyebrow="About" title="Meet the Teams" align="left" />
     {
-      teams.length > 0 ? (
-        <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {teams.map((team) => <TeamCard team={team} />)}
-        </div>
-      ) : (
+      allTeams.length === 0 && (
         <p class="mt-10 text-sm text-slate-500">Team directory coming soon.</p>
       )
     }
   </section>
+
+  {
+    frcTeams.length > 0 && (
+      <section class="mx-auto max-w-6xl px-6 pb-16">
+        <h2 class="font-heading text-xl font-bold text-slate-900">FIRST Robotics Competition</h2>
+        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {frcTeams.map((team) => <TeamCard team={team} />)}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    ftcTeams.length > 0 && (
+      <section class="mx-auto max-w-6xl border-t border-slate-100 px-6 py-16">
+        <h2 class="font-heading text-xl font-bold text-slate-900">FIRST Tech Challenge</h2>
+        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {ftcTeams.map((team) => <TeamCard team={team} />)}
+        </div>
+      </section>
+    )
+  }
 </MarketingLayout>

@@ -12,16 +12,13 @@ const navLinks = [
   { label: 'About', href: withBase('about/') },
 ];
 
-// TODO: replace with the real Team Portal URL once that system exists.
-const teamPortalUrl = '#';
-
 const currentPath = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-40 border-b-2 border-brand-accent bg-white/95 backdrop-blur">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
     <a href={withBase('/')} class="shrink-0">
-      <Image src={logoFullColor} alt="The REFINERY" class="h-9 w-auto" />
+      <Image src={logoFullColor} alt="The REFINERY" class="h-9 w-auto" loading="eager" />
     </a>
 
     <div class="hidden h-8 w-px bg-slate-200 lg:block" aria-hidden="true"></div>
@@ -58,9 +55,6 @@ const currentPath = Astro.url.pathname;
     </nav>
 
     <div class="hidden shrink-0 items-center gap-4 lg:flex">
-      <a href={teamPortalUrl} class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-brand">
-        Team Portal
-      </a>
       <a
         href={withBase('donate/')}
         class="rounded-sm border-2 border-brand-accent bg-brand-accent px-4 py-2 text-sm font-semibold text-brand-light transition hover:bg-white hover:text-brand-accent"
@@ -80,9 +74,6 @@ const currentPath = Astro.url.pathname;
             </a>
           ))
         }
-        <a href={teamPortalUrl} class="py-2 text-sm font-medium text-slate-600 hover:text-brand-accent">
-          Team Portal
-        </a>
         <a href={withBase('donate/')} class="py-2 text-sm font-semibold text-brand-accent">
           Donate
         </a>

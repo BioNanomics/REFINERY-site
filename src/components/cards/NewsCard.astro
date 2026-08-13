@@ -5,6 +5,7 @@ import { withBase } from '../../utils/base';
 
 interface Props {
   post: CollectionEntry<'news'>;
+  loading?: 'eager' | 'lazy';
 }
 
 const categoryLabels: Record<string, string> = {
@@ -15,7 +16,7 @@ const categoryLabels: Record<string, string> = {
   'first-community': 'FIRST Community',
 };
 
-const { post } = Astro.props;
+const { post, loading = 'lazy' } = Astro.props;
 const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, sourceName } = post.data;
 const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 const href = sourceUrl ?? withBase(`news/${post.id}/`);
@@ -38,6 +39,7 @@ const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } :
           class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           widths={[400, 800]}
           sizes="(min-width: 768px) 400px, 100vw"
+          loading={loading}
         />
       </div>
     )

@@ -1,17 +1,8 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
-import SectionNav from '../components/marketing/SectionNav.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import { withBase } from '../utils/base';
-
-const sections = [
-  { id: 'start-or-host-a-team', label: 'Start or Host a Team' },
-  { id: 'volunteer', label: 'Volunteer' },
-  { id: 'partner', label: 'Partner' },
-  { id: 'donate-or-sponsor', label: 'Donate or Sponsor' },
-  { id: 'refer', label: 'Refer a Team or Student' },
-];
 
 const volunteerAreas = [
   'Technical advising', 'Workshop instruction', 'Open-shop support', 'Events',
@@ -33,8 +24,6 @@ const partnerOpportunities = [
   <section class="mx-auto max-w-3xl px-6 py-16 text-center">
     <SectionHeading eyebrow="Get Involved" title="Help build the infrastructure teams can't build alone" align="center" />
   </section>
-
-  <SectionNav sections={sections} />
 
   <section id="start-or-host-a-team" class="mx-auto max-w-4xl scroll-mt-6 px-6 py-16">
     <p class="eyebrow-tag text-brand-accent">01</p>

@@ -72,9 +72,9 @@ const beyondNortheastIndiana = [
 
 const impactMetrics = [
   { label: 'Teams supported', value: '15' },
-  { label: 'Students reached', value: '94' },
+  { label: 'Students reached', value: '~200' },
   { label: 'New teams launched', value: '5' },
-  { label: 'Funding provided', value: '$55,000' },
+  { label: 'Funding provided', value: '$75,000' },
 ];
 
 const allNews = await getCollection('news', ({ data }) => !data.draft);
@@ -104,16 +104,13 @@ const upcomingEvents = allEvents
       <CTAButton href={withBase('get-involved/')} variant="secondary">Get Involved</CTAButton>
       <CTAButton href={withBase('donate/')} variant="secondary">Donate</CTAButton>
     </Fragment>
-    <p slot="footnote" class="mt-1 font-mono text-xs text-slate-500">
-      Already on a REFINERY team? <a href="#" class="underline hover:text-brand-accent">Visit the Team Portal &rarr;</a>
-    </p>
   </Hero>
 
   <!-- The Problem -->
   <section class="mx-auto max-w-6xl px-6 py-20">
     <SectionHeading
       eyebrow="The Problem"
-      title="A robot takes more than a robot"
+      title="A team is more than just a robot"
       align="left"
     />
     <p class="mt-4 max-w-3xl text-slate-600">
@@ -124,7 +121,7 @@ const upcomingEvents = allEvents
     </p>
     <ul class="mt-6 flex flex-wrap gap-2">
       {
-        ['Funding', 'Parts', 'Tools', 'Workspace', 'Technical knowledge', 'Mentors', 'Operational systems', 'Institutional continuity'].map((need) => (
+        ['Funding', 'Parts', 'Tools', 'Workspace', 'Technical Knowledge', 'Mentors', 'Operational Systems', 'Institutional Continuity'].map((need) => (
           <li class="border border-brand/20 bg-brand/5 px-3 py-1 font-mono text-xs font-medium text-brand">
             {need}
           </li>

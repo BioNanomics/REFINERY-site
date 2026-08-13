@@ -42,6 +42,8 @@ const teams = defineCollection({
       description: z.string(),
       highlight: z.string().optional(),
       links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
+      featured: z.boolean().default(false),
+      newTeam: z.boolean().default(false),
       draft: z.boolean().default(false),
     }),
 });
@@ -94,7 +96,7 @@ const people = defineCollection({
       name: z.string(),
       role: z.string(),
       photo: image().optional(),
-      bio: z.string(),
+      bio: z.string().optional(),
       order: z.number().default(0),
       draft: z.boolean().default(false),
     }),

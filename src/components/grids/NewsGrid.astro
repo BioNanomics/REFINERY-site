@@ -36,9 +36,9 @@ const categories = [
         ))}
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
+        {posts.map((post, i) => (
           <div data-category={post.data.category}>
-            <NewsCard post={post} />
+            <NewsCard post={post} loading={i === 0 ? 'eager' : 'lazy'} />
           </div>
         ))}
       </div>
