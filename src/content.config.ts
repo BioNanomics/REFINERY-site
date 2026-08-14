@@ -97,8 +97,10 @@ const people = defineCollection({
       role: z.string(),
       photo: image().optional(),
       bio: z.string().optional(),
+      quote: z.string().optional(),
       linkedin: z.string().url().optional(),
       order: z.number().default(0),
+      featured: z.boolean().default(false),
       draft: z.boolean().default(false),
     }),
 });

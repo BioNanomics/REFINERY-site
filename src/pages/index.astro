@@ -3,6 +3,8 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import Hero from '../components/marketing/Hero.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import SummaryCard from '../components/marketing/SummaryCard.astro';
+import Carousel from '../components/marketing/Carousel.astro';
+import ImpactStats from '../components/marketing/ImpactStats.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import NewsCard from '../components/cards/NewsCard.astro';
 import { getCollection } from 'astro:content';
@@ -14,68 +16,72 @@ const whatWeProvide = [
     title: 'Team Launch & Organizational Support',
     description: 'Helping new and developing teams build the organizational foundation they need to last.',
     href: withBase('what-we-do/#team-launch'),
+    icon: 'launch',
   },
   {
     title: 'Funding & Financial Infrastructure',
     description: 'Helping teams raise, receive, manage, and spend funds through The REFINERY.',
     href: withBase('what-we-do/#funding'),
+    icon: 'funding',
   },
   {
     title: 'Parts & Inventory',
     description: 'Providing access to shared robot components, materials, hardware, and build-season essentials.',
     href: withBase('what-we-do/#parts-inventory'),
+    icon: 'parts',
   },
   {
     title: 'Tools & Fabrication',
     description: 'Giving teams access to specialized tools and production capabilities to turn designs into finished parts.',
     href: withBase('what-we-do/#tools-fabrication'),
+    icon: 'tools',
   },
   {
     title: 'Facilities & Field Access',
     description: 'Providing space to build, meet, collaborate, practice, and participate in robotics activities.',
     href: withBase('what-we-do/#facilities'),
+    icon: 'facilities',
   },
   {
     title: 'Training & Technical Support',
     description: 'Providing students and mentors with practical instruction, resources, and troubleshooting assistance.',
     href: withBase('what-we-do/#training'),
+    icon: 'training',
   },
   {
     title: 'Community & Student Experience',
     description: 'Creating opportunities for students and mentors to build relationships and community beyond their individual teams.',
     href: withBase('what-we-do/#community'),
+    icon: 'community',
   },
-];
+] as const;
 
 const beyondNortheastIndiana = [
   {
     title: 'Robot in 3 Days',
     description: "A documented rapid-build immediately following each year's FRC game reveal.",
     href: withBase('what-we-do/#beyond-northeast-indiana'),
+    icon: 'robot',
   },
   {
     title: 'KitBot in 3 Days',
     description: 'A rapid, documented KitBot build to help developing teams assemble, program, and iterate.',
     href: withBase('what-we-do/#beyond-northeast-indiana'),
+    icon: 'kit',
   },
   {
     title: 'TIMS',
     description: 'Inventory and tool-management software built for The REFINERY, open to any FIRST team.',
     href: withBase('apps/'),
+    icon: 'clipboard',
   },
   {
     title: 'Event Parts Support',
     description: 'Live parts inventory at events, helping teams get back on the field when issues come up.',
     href: withBase('what-we-do/#beyond-northeast-indiana'),
+    icon: 'map-pin',
   },
-];
-
-const impactMetrics = [
-  { label: 'Teams supported', value: '15' },
-  { label: 'Students reached', value: '~200' },
-  { label: 'New teams launched', value: '5' },
-  { label: 'Funding provided', value: '$75,000' },
-];
+] as const;
 
 const allNews = await getCollection('news', ({ data }) => !data.draft);
 const latestNews = allNews.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
@@ -126,8 +132,10 @@ const upcomingEvents = allEvents
   <section class="section band">
     <div class="section-inner">
       <SectionHeading eyebrow="What We Provide" title="How The REFINERY helps teams" align="left" />
-      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-        {whatWeProvide.map((item) => <SummaryCard {...item} />)}
+      <div class="mt-8" data-reveal-group>
+        <Carousel ariaLabel="How The REFINERY helps teams">
+          {whatWeProvide.map((item) => <SummaryCard {...item} class="w-[85%] flex-none sm:w-72 lg:w-80" />)}
+        </Carousel>
       </div>
     </div>
   </section>
@@ -141,8 +149,15 @@ const upcomingEvents = allEvents
         description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community — we share what we build, document what we learn, and partner to solve challenges teams face everywhere."
         align="left"
       />
-      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
-        {beyondNortheastIndiana.map((item) => <SummaryCard {...item} />)}
+      {/* 2x2 at lg, but on a 5-col track so each row splits 3/2 — and the wide
+          card swaps sides between rows, so the pair of rows reads as a zigzag
+          rather than one column of wide cards next to a column of narrow ones. */}
+      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5" data-reveal-group>
+        {
+          beyondNortheastIndiana.map((item, i) => (
+            <SummaryCard {...item} class={i === 0 || i === 3 ? 'lg:col-span-3' : 'lg:col-span-2'} />
+          ))
+        }
       </div>
       <div class="mt-8" data-reveal>
         <CTAButton href={withBase('what-we-do/#beyond-northeast-indiana')} variant="secondary">
@@ -156,15 +171,8 @@ const upcomingEvents = allEvents
   <section class="section-tight band">
     <div class="section-inner">
       <SectionHeading eyebrow="Impact" title="Impact snapshot" align="left" />
-      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4" data-reveal-group>
-        {
-          impactMetrics.map((metric) => (
-            <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
-              <p class="font-heading text-3xl font-extrabold text-slate-900">{metric.value}</p>
-              <p class="mt-1 text-sm text-slate-600">{metric.label}</p>
-            </div>
-          ))
-        }
+      <div class="mt-8">
+        <ImpactStats />
       </div>
     </div>
   </section>

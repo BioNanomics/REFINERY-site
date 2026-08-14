@@ -1,0 +1,28 @@
+---
+import { impactStatement } from '../../data/impact';
+
+const { opening, clauses } = impactStatement;
+---
+
+{/* One editorial sentence rather than a grid of stat tiles: the figures read
+    as a claim the organization is making. Content comes straight from
+    data/impact.ts so Home and About can't drift apart — hence no props. */}
+<p
+  class="max-w-4xl font-heading text-xl font-medium leading-snug text-slate-600 sm:text-2xl lg:text-3xl"
+  data-reveal
+>
+  {opening}{' '}
+  {
+    clauses.map((clause, i) => (
+      <>
+        {clause.lead}{' '}
+        <strong class="font-extrabold text-slate-900">
+          <span class="text-[1.1em]">{clause.value}</span> {clause.noun}
+        </strong>
+        {clause.tail && <> {clause.tail}</>}
+        {i < clauses.length - 1 ? ', ' : '.'}
+      </>
+    ))
+  }
+</p>
+<slot />

@@ -1,15 +1,31 @@
 ---
+import Icon, { type IconName } from './Icon.astro';
+
 interface Props {
   title: string;
   description: string;
   href: string;
   cta?: string;
+  icon?: IconName;
+  offset?: boolean;
+  class?: string;
 }
 
-const { title, description, href, cta = 'Explore' } = Astro.props;
+const { title, description, href, cta = 'Explore', icon, offset = false, class: className } = Astro.props;
 ---
 
-<a href={href} class="card card-link card-pad-lg group" data-reveal>
+<a
+  href={href}
+  class:list={['card card-link card-pad-lg group', { 'sm:mt-8': offset }, className]}
+  data-reveal
+>
+  {
+    icon && (
+      <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-control bg-brand-accent/10 text-brand-accent">
+        <Icon name={icon} class="h-5 w-5" />
+      </div>
+    )
+  }
   <h3 class="font-heading text-lg font-bold text-slate-900">{title}</h3>
   <p class="mt-2 card-fill text-sm text-slate-600">{description}</p>
   <span class="mt-4 font-mono text-sm font-semibold text-brand-accent group-hover:underline">{cta} &rarr;</span>
