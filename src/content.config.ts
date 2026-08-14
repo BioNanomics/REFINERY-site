@@ -103,23 +103,6 @@ const people = defineCollection({
     }),
 });
 
-const projects = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      summary: z.string().max(280),
-      pubDate: z.coerce.date(),
-      image: image(),
-      imageAlt: z.string(),
-      tags: z.array(z.string()).default([]),
-      status: z.enum(['completed', 'in-progress', 'archived']).default('completed'),
-      featured: z.boolean().default(false),
-      links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
-      draft: z.boolean().default(false),
-    }),
-});
-
 const apps = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/apps' }),
   schema: ({ image }) =>
@@ -135,4 +118,4 @@ const apps = defineCollection({
 
 const docs = defineCollection({ loader: docsLoader(), schema: docsSchema() });
 
-export const collections = { news, teams, programs, events, partners, people, projects, apps, docs };
+export const collections = { news, teams, programs, events, partners, people, apps, docs };
