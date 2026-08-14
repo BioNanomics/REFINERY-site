@@ -1,0 +1,101 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  people: CollectionEntry<'people'>[];
+}
+
+const { people } = Astro.props;
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+---
+
+{
+  people.length > 0 ? (
+    <div class="mt-8 flex flex-col gap-12" data-reveal-group>
+      {people.map((person, i) => {
+        const hasContent = Boolean(person.data.bio || person.data.quote);
+        const reversed = i % 2 === 1;
+        return (
+          <div
+            class:list={[
+              'flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8',
+              { 'sm:flex-row-reverse': reversed },
+            ]}
+            data-reveal
+          >
+            <div
+              class:list={[
+                'aspect-[4/5] w-full shrink-0 overflow-hidden rounded-card bg-slate-100 sm:w-48',
+                { 'corner-brackets': person.data.featured },
+              ]}
+            >
+              {person.data.photo ? (
+                <Image
+                  src={person.data.photo}
+                  alt={person.data.name}
+                  class="h-full w-full object-cover"
+                  width={192}
+                  height={240}
+                  densities={[1, 2]}
+                />
+              ) : (
+                <div class="flex h-full w-full items-center justify-center bg-brand font-heading text-3xl font-bold text-white">
+                  {initials(person.data.name)}
+                </div>
+              )}
+            </div>
+            <div
+              class:list={[
+                'min-w-0 flex-1',
+                { 'text-right': reversed, 'card card-featured card-pad-lg': person.data.featured && hasContent },
+              ]}
+            >
+              <div class:list={['flex items-center gap-3', { 'flex-row-reverse': reversed }]}>
+                <div>
+                  <h3 class="font-heading text-xl font-bold text-slate-900">{person.data.name}</h3>
+                  <p class="mt-1 font-mono text-xs text-brand-accent">{person.data.role}</p>
+                </div>
+                {person.data.linkedin && (
+                  <a
+                    href={person.data.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="shrink-0 text-slate-400 transition-colors duration-base ease-out-soft hover:text-brand-accent"
+                    aria-label={`${person.data.name} on LinkedIn`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.114 20.452H3.558V9h3.556v11.452z" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+              {person.data.quote && (
+                <blockquote
+                  class:list={[
+                    'mt-4 border-l-2 border-brand-accent pl-4 font-heading text-lg italic text-slate-700',
+                    { 'border-l-0 border-r-2 pl-0 pr-4': reversed },
+                  ]}
+                >
+                  “{person.data.quote}”
+                </blockquote>
+              )}
+              {person.data.bio && <p class="mt-3 text-sm text-slate-600">{person.data.bio}</p>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  ) : (
+    <p class="mt-8 text-sm text-slate-500">Staff and leadership information coming soon.</p>
+  )
+}

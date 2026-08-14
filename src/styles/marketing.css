@@ -184,6 +184,16 @@
     box-shadow: var(--shadow-float);
   }
 
+  /* Hides the native scrollbar on carousel tracks — the prev/next buttons
+     and touch/trackpad swipe remain the way to scroll, a visible
+     system scrollbar underneath them just reads as visual noise. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* ── Section rhythm ──────────────────────────────────────────────────
      Rules of the system:
      1. A section gets a TINT (.band) or a RULE (.section-rule) — never

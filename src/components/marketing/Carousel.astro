@@ -1,0 +1,156 @@
+---
+interface Props {
+  ariaLabel: string;
+}
+
+const { ariaLabel } = Astro.props;
+---
+
+<div class="relative" data-carousel>
+  <div
+    class="scrollbar-none flex gap-6 overflow-x-auto scroll-smooth pb-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-accent"
+    data-carousel-track
+    role="group"
+    aria-label={ariaLabel}
+    tabindex="0"
+  >
+    <slot />
+  </div>
+  <div class="mt-4 flex justify-end gap-2">
+    <button
+      type="button"
+      class="flex h-9 w-9 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition-colors duration-base ease-out-soft hover:border-brand-accent hover:text-brand-accent disabled:pointer-events-none disabled:opacity-30"
+      data-carousel-prev
+      aria-label={`Previous — ${ariaLabel}`}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15,18 9,12 15,6" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="flex h-9 w-9 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition-colors duration-base ease-out-soft hover:border-brand-accent hover:text-brand-accent disabled:pointer-events-none disabled:opacity-30"
+      data-carousel-next
+      aria-label={`Next — ${ariaLabel}`}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9,6 15,12 9,18" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  function initCarousels() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+      if (root.dataset.carouselInit) return;
+      root.dataset.carouselInit = 'true';
+
+      const track = root.querySelector<HTMLElement>('[data-carousel-track]');
+      const prevBtn = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+      const nextBtn = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
+      if (!track) return;
+
+      const step = () => {
+        const card = track.querySelector<HTMLElement>(':scope > *');
+        const gap = 24; // matches the track's gap-6
+        return card ? card.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
+      };
+
+      const updateButtons = () => {
+        const max = track.scrollWidth - track.clientWidth - 1;
+        if (prevBtn) prevBtn.disabled = track.scrollLeft <= 0;
+        if (nextBtn) nextBtn.disabled = track.scrollLeft >= max;
+      };
+
+      // Two independent pause reasons compose with OR: hovering/focus pauses
+      // for as long as it lasts, a manual scroll/click pauses for a few
+      // seconds so autoplay doesn't fight the person's own input.
+      let hoverPaused = false;
+      let interactionPaused = false;
+      let resumeTimer: ReturnType<typeof setTimeout>;
+      const pauseForInteraction = () => {
+        interactionPaused = true;
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(() => {
+          interactionPaused = false;
+        }, 3000);
+      };
+
+      prevBtn?.addEventListener('click', () => {
+        pauseForInteraction();
+        track.scrollBy({ left: -step(), behavior: 'smooth' });
+      });
+      nextBtn?.addEventListener('click', () => {
+        pauseForInteraction();
+        track.scrollBy({ left: step(), behavior: 'smooth' });
+      });
+      track.addEventListener('scroll', updateButtons, { passive: true });
+      window.addEventListener('resize', updateButtons);
+      updateButtons();
+
+      // No autoplay for users who've asked for reduced motion — the
+      // carousel stays fully usable via the buttons and native scrolling.
+      if (prefersReducedMotion) return;
+
+      root.addEventListener('pointerenter', () => {
+        hoverPaused = true;
+      });
+      root.addEventListener('pointerleave', () => {
+        hoverPaused = false;
+      });
+      root.addEventListener('focusin', () => {
+        hoverPaused = true;
+      });
+      root.addEventListener('focusout', () => {
+        hoverPaused = false;
+      });
+      track.addEventListener('pointerdown', pauseForInteraction);
+
+      const SPEED = 20; // px/second — a slow, steady drift
+      let direction = 1;
+      let lastTime: number | undefined;
+      // Tracked ourselves rather than re-read from track.scrollLeft each
+      // frame — the DOM getter rounds to whole pixels, so a sub-pixel
+      // per-frame increment (20px/s at 60fps is ~0.33px) would get
+      // truncated back to the same integer every frame and never
+      // accumulate past 0.
+      let position = track.scrollLeft;
+
+      const tick = (time: number) => {
+        if (lastTime === undefined) lastTime = time;
+        const dt = (time - lastTime) / 1000;
+        lastTime = time;
+
+        const max = track.scrollWidth - track.clientWidth;
+        if (hoverPaused || interactionPaused) {
+          // Stay synced with wherever a manual scroll/button click left the
+          // track, so resuming continues from there instead of jumping
+          // back to the last position we drove ourselves.
+          position = track.scrollLeft;
+        } else if (max > 0) {
+          position += direction * SPEED * dt;
+          if (position >= max) {
+            position = max;
+            direction = -1;
+          } else if (position <= 0) {
+            position = 0;
+            direction = 1;
+          }
+          // `scroll-smooth` on the track makes plain `.scrollLeft = x`
+          // writes animate asynchronously — force instant here; the
+          // buttons still get a real smooth animation via their own
+          // explicit `behavior`.
+          track.scrollTo({ left: position, behavior: 'instant' });
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  initCarousels();
+  document.addEventListener('astro:page-load', initCarousels);
+</script>

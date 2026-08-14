@@ -3,6 +3,8 @@ import MarketingLayout from '../layouts/MarketingLayout.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import TeamCard from '../components/cards/TeamCard.astro';
+import ImpactStats from '../components/marketing/ImpactStats.astro';
+import PeopleBios from '../components/marketing/PeopleBios.astro';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
@@ -110,29 +112,15 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     <div class="section-inner section-inner-narrow">
       <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
       <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact & Reports</h2>
-      <div class="mt-6 flex flex-wrap gap-8" data-reveal-group>
-        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
-          <p class="font-heading text-3xl font-extrabold text-slate-900">15</p>
-          <p class="mt-1 text-sm text-slate-600">Teams supported</p>
-        </div>
-        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
-          <p class="font-heading text-3xl font-extrabold text-slate-900">~200</p>
-          <p class="mt-1 text-sm text-slate-600">Students reached</p>
-        </div>
-        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
-          <p class="font-heading text-3xl font-extrabold text-slate-900">5</p>
-          <p class="mt-1 text-sm text-slate-600">New teams launched</p>
-        </div>
-        <div class="rounded-r-control border-l-2 border-brand-accent pl-4" data-reveal>
-          <p class="font-heading text-3xl font-extrabold text-slate-900">$75,000</p>
-          <p class="mt-1 text-sm text-slate-600">Funding provided</p>
-        </div>
+      <div class="mt-6">
+        <ImpactStats>
+          <p class="mt-8 text-slate-600" data-reveal>
+            {/* DRAFT — placeholder pending real annual reports and financial information. */}
+            Annual reports, financial information, organizational milestones, and major funding
+            acknowledgments will be published here.
+          </p>
+        </ImpactStats>
       </div>
-      <p class="mt-6 text-slate-600" data-reveal>
-        {/* DRAFT — placeholder pending real annual reports and financial information. */}
-        Annual reports, financial information, organizational milestones, and major funding
-        acknowledgments will be published here.
-      </p>
     </div>
   </section>
 
@@ -140,50 +128,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     <div class="section-inner">
       <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
       <SectionHeading title="People & Leadership" align="left" />
-      {
-        people.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {people.map((person) => (
-              <div class="card card-pad">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    {person.data.photo && (
-                      <Image
-                        src={person.data.photo}
-                        alt={person.data.name}
-                        class="h-12 w-12 rounded-full object-cover"
-                        width={48}
-                        height={48}
-                        densities={[1, 2, 3]}
-                      />
-                    )}
-                    <div>
-                      <h3 class="font-heading text-base font-bold text-slate-900">{person.data.name}</h3>
-                      <p class="mt-1 font-mono text-xs text-brand-accent">{person.data.role}</p>
-                    </div>
-                  </div>
-                  {person.data.linkedin && (
-                    <a
-                      href={person.data.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="shrink-0 text-slate-400 transition-colors duration-base ease-out-soft hover:text-brand-accent"
-                      aria-label={`${person.data.name} on LinkedIn`}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.114 20.452H3.558V9h3.556v11.452z" />
-                      </svg>
-                    </a>
-                  )}
-                </div>
-                {person.data.bio && <p class="mt-2 text-sm text-slate-600">{person.data.bio}</p>}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p class="mt-8 text-sm text-slate-500">Staff and leadership information coming soon.</p>
-        )
-      }
+      <PeopleBios people={people} />
     </div>
   </section>
 
