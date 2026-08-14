@@ -1,0 +1,65 @@
+---
+import FormField from './FormField.astro';
+import type { ContactFormDef } from '../../config/contact-forms';
+
+interface Props {
+  form: ContactFormDef;
+}
+
+const { form } = Astro.props;
+const titleId = `${form.id}-title`;
+const introId = `${form.id}-intro`;
+---
+
+<dialog id={`dialog-${form.id}`} class="dialog-panel" aria-labelledby={titleId} data-contact-dialog={form.id}>
+  <div class="flex items-start justify-between gap-4 border-b border-refinery-color-border px-5 py-4">
+    <div>
+      <h2 id={titleId} class="font-heading text-lg font-bold text-slate-900">{form.title}</h2>
+      <p id={introId} class="mt-1 text-sm text-slate-500">{form.intro}</p>
+    </div>
+    <button
+      type="button"
+      data-dialog-close
+      aria-label="Close"
+      class="shrink-0 rounded-control p-1 text-slate-400 transition-colors duration-fast ease-out-soft hover:text-brand-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-accent"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="dialog-body px-5 py-4">
+    <form data-contact-form={form.id} data-subject={form.subject} aria-describedby={introId}>
+      <div class="flex flex-col gap-4">
+        {form.fields.map((field) => <FormField field={field} idPrefix={form.id} />)}
+      </div>
+
+      {/* Honeypot: real visitors never see or fill this in. Not display:none —
+         some bots and some form-relay spam filters both skip that. Clipped to
+         1px rather than pushed off-canvas so it can't widen the dialog's
+         scrollable area. */}
+      <div class="absolute h-px w-px overflow-hidden whitespace-nowrap" style="clip-path: inset(50%)" aria-hidden="true">
+        <label for={`${form.id}-website`}>Leave this field blank</label>
+        <input type="text" id={`${form.id}-website`} name="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <p class="mt-4 text-sm" role="status" aria-live="polite" data-form-status></p>
+
+      <div class="mt-2 flex items-center justify-end gap-3">
+        <button type="button" data-dialog-close class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary" data-submit-button>{form.submitLabel}</button>
+      </div>
+    </form>
+
+    <div class="hidden flex-col items-center py-6 text-center" data-form-success>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-10 w-10 text-brand-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+      <h3 class="mt-3 font-heading text-base font-bold text-slate-900">{form.successTitle}</h3>
+      <p class="mt-1 text-sm text-slate-600">{form.successBody}</p>
+      <button type="button" data-dialog-close class="btn btn-secondary mt-5">Close</button>
+    </div>
+  </div>
+</dialog>

@@ -2,6 +2,7 @@
 import BaseHead from './BaseHead.astro';
 import SiteHeader from '../components/nav/SiteHeader.astro';
 import SiteFooter from '../components/nav/SiteFooter.astro';
+import ContactDialogs from '../components/forms/ContactDialogs.astro';
 
 interface Props {
   title: string;
@@ -32,6 +33,7 @@ const { title, description, image } = Astro.props;
       <slot />
     </main>
     <SiteFooter />
+    <ContactDialogs />
     <script>
       function initReveal() {
         if (!document.documentElement.classList.contains('js-reveal')) return;

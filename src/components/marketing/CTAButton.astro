@@ -2,22 +2,21 @@
 interface Props {
   href: string;
   variant?: 'primary' | 'secondary';
+  /**
+   * Opens the matching contact popup instead of following `href` — but only
+   * once the popup script decides it can (a delivery endpoint is configured,
+   * and the browser supports <dialog>). `href` stays a real mailto: link the
+   * whole time, so this is additive: with JS off, or with forms.ts left
+   * blank, the button behaves exactly as if this prop were never set.
+   */
+  dialog?: 'contact' | 'start-a-team';
+  /** Preselects a "what is this about?" option in the contact dialog. */
+  topic?: string;
 }
 
-const { href, variant = 'primary' } = Astro.props;
-
-const styles = {
-  primary: 'bg-brand-accent text-brand-light border-brand-accent hover:brightness-110',
-  secondary: 'bg-white text-brand border-brand hover:bg-slate-100',
-};
+const { href, variant = 'primary', dialog, topic } = Astro.props;
 ---
 
-<a
-  href={href}
-  class:list={[
-    'inline-flex items-center justify-center rounded-control border-2 px-6 py-3 text-sm font-semibold transition duration-base ease-out-soft hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent',
-    styles[variant],
-  ]}
->
+<a href={href} data-contact-open={dialog} data-contact-topic={topic} class:list={['btn', `btn-${variant}`]}>
   <slot />
 </a>

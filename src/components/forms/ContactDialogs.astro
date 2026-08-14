@@ -1,0 +1,159 @@
+---
+import FormDialog from './FormDialog.astro';
+import { contactForm, startTeamForm } from '../../config/contact-forms';
+---
+
+<FormDialog form={contactForm} />
+<FormDialog form={startTeamForm} />
+
+<script>
+  import { isFormConfigured, formDelivery, CONTACT_EMAIL } from '../../config/forms';
+
+  // Popups only ever open when there's somewhere for a submission to go.
+  // With a blank config in a production build, every [data-contact-open]
+  // trigger is left alone and falls through to its mailto: href — exactly
+  // how the site behaved before these dialogs existed. import.meta.env.DEV
+  // lets the popups still be reviewed locally before a provider is wired in.
+  const canOpen = isFormConfigured || import.meta.env.DEV;
+
+  function closeDialog(dialog: HTMLDialogElement) {
+    dialog.close();
+  }
+
+  function init() {
+    const dialogs = document.querySelectorAll<HTMLDialogElement>('[data-contact-dialog]');
+    if (dialogs.length === 0) return;
+
+    document.addEventListener('click', (e) => {
+      const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-contact-open]');
+      if (!trigger) return;
+
+      const dialogId = trigger.dataset.contactOpen;
+      const dialog = document.querySelector<HTMLDialogElement>(`[data-contact-dialog="${dialogId}"]`);
+      if (!canOpen || !dialog || typeof dialog.showModal !== 'function') return;
+
+      e.preventDefault();
+
+      const topic = trigger.dataset.contactTopic;
+      if (topic) {
+        const radio = dialog.querySelector<HTMLInputElement>(
+          `input[name="topic"][value="${CSS.escape(topic)}"]`,
+        );
+        if (radio) radio.checked = true;
+      }
+
+      document.documentElement.classList.add('dialog-open');
+      dialog.showModal();
+    });
+
+    dialogs.forEach((dialog) => {
+      const form = dialog.querySelector<HTMLFormElement>('[data-contact-form]');
+      const success = dialog.querySelector<HTMLElement>('[data-form-success]');
+      const statusEl = dialog.querySelector<HTMLElement>('[data-form-status]');
+      if (!form || !success || !statusEl) return;
+
+      // Backdrop click: a click that lands inside the dialog element but
+      // outside its rendered content box is a click on the ::backdrop.
+      dialog.addEventListener('click', (e) => {
+        const rect = dialog.getBoundingClientRect();
+        const inside =
+          e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+        if (!inside) closeDialog(dialog);
+      });
+
+      dialog.querySelectorAll<HTMLButtonElement>('[data-dialog-close]').forEach((btn) => {
+        btn.addEventListener('click', () => closeDialog(dialog));
+      });
+
+      dialog.addEventListener('close', () => {
+        document.documentElement.classList.remove('dialog-open');
+        statusEl.textContent = '';
+        statusEl.className = 'mt-4 text-sm';
+
+        // Only clear the form once a submission actually succeeded — an
+        // accidental Esc or backdrop click should never erase what someone
+        // was in the middle of writing.
+        if (!success.classList.contains('hidden')) {
+          form.reset();
+          form.classList.remove('hidden');
+          success.classList.add('hidden');
+          success.classList.remove('flex');
+        }
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const honeypot = form.querySelector<HTMLInputElement>('input[name="website"]');
+        if (honeypot && honeypot.value) return; // silently drop — a real visitor never fills this in
+
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit-button]');
+
+        if (!isFormConfigured) {
+          statusEl.textContent = `Form delivery isn't configured yet — email us directly at ${CONTACT_EMAIL}.`;
+          statusEl.classList.add('text-red-600');
+          return;
+        }
+
+        const payload: Record<string, string> = {};
+        new FormData(form).forEach((value, key) => {
+          if (key === 'website') return;
+          payload[key] = String(value);
+        });
+        payload[formDelivery.subjectKey] = form.dataset.subject ?? '';
+        Object.assign(payload, formDelivery.hiddenFields);
+
+        const originalLabel = submitBtn?.textContent ?? '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending…';
+        }
+        statusEl.textContent = '';
+        statusEl.classList.remove('text-red-600');
+
+        try {
+          const requestInit: RequestInit =
+            formDelivery.encoding === 'json'
+              ? {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                  body: JSON.stringify(payload),
+                }
+              : {
+                  method: 'POST',
+                  body: Object.entries(payload).reduce((fd, [key, value]) => {
+                    fd.append(key, value);
+                    return fd;
+                  }, new FormData()),
+                };
+
+          const res = await fetch(formDelivery.endpoint, requestInit);
+          if (!res.ok) throw new Error(`Request failed (${res.status})`);
+
+          form.classList.add('hidden');
+          success.classList.remove('hidden');
+          success.classList.add('flex');
+        } catch {
+          statusEl.innerHTML = `Something went wrong sending your message. <a href="mailto:${CONTACT_EMAIL}" class="underline hover:text-brand-accent">Email us directly</a>.`;
+          statusEl.classList.add('text-red-600');
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalLabel;
+          }
+        }
+      });
+    });
+  }
+
+  init();
+  // No-op today (no client-side router is in use), but keeps this correct
+  // if view transitions are ever enabled later — matches MarketingLayout's
+  // reveal script.
+  document.addEventListener('astro:page-load', init);
+</script>

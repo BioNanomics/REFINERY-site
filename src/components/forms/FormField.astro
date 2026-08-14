@@ -1,0 +1,88 @@
+---
+import type { Field } from '../../config/contact-forms';
+
+interface Props {
+  field: Field;
+  /** Prefix so ids stay unique when the same field name appears in both forms. */
+  idPrefix: string;
+}
+
+const { field, idPrefix } = Astro.props;
+const fieldId = `${idPrefix}-${field.name}`;
+const errorId = `${fieldId}-error`;
+---
+
+<div class="field" data-field={field.name}>
+  {
+    field.type === 'radio' ? (
+      <fieldset>
+        <legend class="text-sm font-medium text-slate-700">
+          {field.label}
+          {field.required && (
+            <span class="text-brand-accent" aria-hidden="true">
+              {' '}
+              *
+            </span>
+          )}
+        </legend>
+        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-2" role="radiogroup" aria-describedby={errorId}>
+          {field.options.map((option, i) => {
+            const optionId = `${fieldId}-${i}`;
+            const checked = field.default ? option.value === field.default : i === 0 && field.required;
+            return (
+              <label for={optionId} class="flex items-center gap-1.5 text-sm text-slate-600">
+                <input
+                  type="radio"
+                  id={optionId}
+                  name={field.name}
+                  value={option.value}
+                  checked={checked}
+                  required={field.required}
+                  class="h-4 w-4 accent-brand-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-accent"
+                />
+                {option.label}
+              </label>
+            );
+          })}
+        </div>
+        <p id={errorId} class="mt-1 hidden text-xs text-red-600" data-field-error></p>
+      </fieldset>
+    ) : (
+      <>
+        <label for={fieldId} class="text-sm font-medium text-slate-700">
+          {field.label}
+          {field.required && (
+            <span class="text-brand-accent" aria-hidden="true">
+              {' '}
+              *
+            </span>
+          )}
+        </label>
+        {field.type === 'textarea' ? (
+          <textarea
+            id={fieldId}
+            name={field.name}
+            required={field.required}
+            rows={field.rows ?? 4}
+            placeholder={field.placeholder}
+            aria-describedby={errorId}
+            class="form-input mt-1 resize-y"
+          />
+        ) : (
+          <input
+            type={field.type}
+            id={fieldId}
+            name={field.name}
+            required={field.required}
+            placeholder={field.placeholder}
+            autocomplete={field.autocomplete}
+            inputmode={field.type === 'tel' ? 'tel' : field.type === 'number' ? 'numeric' : undefined}
+            aria-describedby={errorId}
+            class="form-input mt-1"
+          />
+        )}
+        <p id={errorId} class="mt-1 hidden text-xs text-red-600" data-field-error></p>
+      </>
+    )
+  }
+</div>
