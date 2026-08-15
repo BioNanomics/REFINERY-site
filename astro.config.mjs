@@ -6,12 +6,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-  // TODO: confirm the actual GitHub org/username this repo lives under and
-  // update `site` below. `base` must exactly match the repo name unless/until
-  // a custom domain is configured (in which case: set `site` to the domain,
-  // drop `base`, and add public/CNAME).
-  site: 'https://crey-09.github.io',
-  base: '/refinery-website',
+  site: 'https://refineryrobotics.org',
 
   vite: {
     plugins: [tailwindcss()],
