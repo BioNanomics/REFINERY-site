@@ -5,6 +5,8 @@ import CTAButton from '../components/marketing/CTAButton.astro';
 import TeamCard from '../components/cards/TeamCard.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import PeopleBios from '../components/marketing/PeopleBios.astro';
+import First from '../components/brand/First.astro';
+import { firstPlain } from '../utils/first';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
@@ -174,10 +176,10 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
                 target={partner.data.url ? '_blank' : undefined}
                 rel={partner.data.url ? 'noopener noreferrer' : undefined}
                 class="transition duration-base ease-out-soft hover:-translate-y-0.5"
-                title={partner.data.name}
+                title={firstPlain(partner.data.name)}
                 data-reveal
               >
-                <Image src={partner.data.logo} alt={partner.data.name} class="h-[102px] w-auto max-w-[290px] rounded-media object-contain" />
+                <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[102px] w-auto max-w-[290px] rounded-media object-contain" />
               </a>
             ))}
           </div>
@@ -200,7 +202,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
           rel="noopener noreferrer"
           class="text-brand-accent hover:underline"
         >
-          FIRST Youth Protection Policy
+          <First /> Youth Protection Policy
         </a>{' '}
         to keep every student, mentor, and volunteer safe.
       </p>

@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { withBase } from '../../utils/base';
+import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   post: CollectionEntry<'news'>;
@@ -43,11 +44,11 @@ const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } :
         {formattedDate}
       </time>
       <span class="rounded-control border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wide text-brand">
-        {categoryLabels[category]}
+        <FirstText text={categoryLabels[category]} />
       </span>
     </div>
-    <h3 class="mt-2 font-heading text-base font-bold text-slate-900">{title}</h3>
-    <p class="mt-2 card-fill text-sm text-slate-600">{summary}</p>
+    <h3 class="mt-2 font-heading text-base font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
+    <p class="mt-2 card-fill text-sm text-slate-600"><FirstText text={summary} /></p>
     {
       sourceUrl && (
         <span class="mt-4 font-mono text-xs font-semibold text-brand-accent">

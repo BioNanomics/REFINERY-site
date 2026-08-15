@@ -1,4 +1,5 @@
 ---
+import FirstText from '../brand/FirstText.astro';
 import type { CollectionEntry } from 'astro:content';
 import { withBase } from '../../utils/base';
 
@@ -21,9 +22,9 @@ const Tag = href ? 'a' : 'div';
   <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
     {formattedDate}
   </time>
-  <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{title}</h3>
+  <h3 class="mt-1 font-heading text-base font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
   <p class="mt-1 text-xs text-slate-500">{location}</p>
-  <p class="mt-2 text-sm text-slate-600">{summary}</p>
+  <p class="mt-2 text-sm text-slate-600"><FirstText text={summary} /></p>
   {
     audience.length > 0 && (
       <ul class="mt-4 flex flex-wrap gap-1.5">
