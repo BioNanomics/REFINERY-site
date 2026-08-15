@@ -19,7 +19,9 @@ const { number, name, program, school, community, logo, description, highlight, 
     )
   }
   <div class="flex items-center gap-3">
-    {logo && <Image src={logo} alt="" class="h-10 w-10 rounded-media object-cover" width={40} height={40} densities={[1, 2, 3]} />}
+    {/* Team logos range from square badges to wide wordmarks, so fix the height
+        and let width follow the aspect ratio instead of cropping to a square. */}
+    {logo && <Image src={logo} alt={`${name} logo`} class="h-12 w-auto max-w-[5rem] shrink-0 object-contain" />}
     <div>
       <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">{program} {number}</p>
       <h3 class="font-heading text-base font-bold text-slate-900">{name}</h3>
