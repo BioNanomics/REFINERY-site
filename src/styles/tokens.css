@@ -41,3 +41,32 @@
   --refinery-reveal-distance: 14px;
   --refinery-reveal-stagger: 70ms;
 }
+
+/**
+ * FIRST® trademark presentation. Lives here rather than in marketing.css because both
+ * stylesheets import this file, so the marketing pages and Starlight's /resources render
+ * the marks identically — a trademark rule, not a per-surface design choice.
+ *
+ * Per the FIRST Branding & Design Guidelines (FI084, p. 8): FIRST is always capitals and
+ * italics, and "should not be bolded unless part of a longer phrase where all of the text
+ * is bolded" — hence `font-weight: inherit`, which keeps it roman-weight in body copy
+ * while letting it match an already-bold heading.
+ */
+@layer components {
+  .first-mark {
+    font-style: italic;
+    font-weight: inherit;
+  }
+
+  /* Superscript ® on first use. Sized down so it reads as a trademark symbol rather
+     than punctuation, and zero line-height so it never opens up the leading. */
+  .first-reg {
+    font-size: 0.6em;
+    font-style: normal;
+    font-weight: inherit;
+    line-height: 0;
+    position: relative;
+    top: -0.45em;
+    vertical-align: baseline;
+  }
+}
