@@ -2,7 +2,7 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
-import TeamCard from '../components/cards/TeamCard.astro';
+import RandomTeamsTeaser from '../components/marketing/RandomTeamsTeaser.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import PeopleBios from '../components/marketing/PeopleBios.astro';
 import First from '../components/brand/First.astro';
@@ -12,20 +12,6 @@ import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
-const sortByNumber = (a: (typeof allTeams)[number], b: (typeof allTeams)[number]) =>
-  Number(a.data.number) - Number(b.data.number);
-// Within each program, teams flagged `featured` sort first so editors can pick who
-// shows up in this teaser; everything else falls back to team number.
-const byFeaturedThenNumber = (a: (typeof allTeams)[number], b: (typeof allTeams)[number]) =>
-  Number(b.data.featured) - Number(a.data.featured) || sortByNumber(a, b);
-const frcTeams = allTeams.filter((t) => t.data.program === 'FRC').sort(byFeaturedThenNumber);
-const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(byFeaturedThenNumber);
-// Guarantee at least one FTC team in the teaser alongside FRC teams, so the preview
-// reflects both programs The REFINERY supports rather than whichever teams happen to
-// sort first by filename.
-const featuredFtc = ftcTeams.slice(0, 1);
-const featuredFrc = frcTeams.slice(0, 3 - featuredFtc.length);
-const teams = [...featuredFtc, ...featuredFrc].sort(sortByNumber);
 
 const facilityAddress = '1750 Broadway, Fort Wayne, IN';
 const facilityMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(facilityAddress)}&output=embed`;
@@ -95,15 +81,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     <div class="section-inner">
       <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
       <SectionHeading title="Meet the Teams" align="left" />
-      {
-        teams.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {teams.map((team) => <TeamCard team={team} />)}
-          </div>
-        ) : (
-          <p class="mt-8 text-sm text-slate-500">Team directory coming soon.</p>
-        )
-      }
+      <RandomTeamsTeaser teams={allTeams} />
       <div class="mt-8" data-reveal>
         <CTAButton href={withBase('about/teams/')} variant="secondary">See All Teams</CTAButton>
       </div>
