@@ -9,7 +9,9 @@ interface Props {
 
 const { event } = Astro.props;
 const { title, summary, dateStart, location, audience, featured } = event.data;
-const formattedDate = dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+// timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
+// Without this, formatting in a behind-UTC locale renders the previous day.
+const formattedDate = dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 const href = featured ? withBase(`programs-events/${event.id}/`) : undefined;
 const Tag = href ? 'a' : 'div';
 ---
