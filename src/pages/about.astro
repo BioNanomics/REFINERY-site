@@ -5,6 +5,8 @@ import CTAButton from '../components/marketing/CTAButton.astro';
 import TeamCard from '../components/cards/TeamCard.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import PeopleBios from '../components/marketing/PeopleBios.astro';
+import First from '../components/brand/First.astro';
+import { firstPlain } from '../utils/first';
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
@@ -50,7 +52,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
         Young robotics teams have long faced the same challenge: building
         a competitive program takes far more than a robot, and few schools or communities can build
         all of that infrastructure alone. The REFINERY grew out of a shared makerspace built to
-        close that gap — and has since evolved from just a physical facility into a regional
+        close that gap, and has since evolved from just a physical facility into a regional
         infrastructure organization supporting many teams across the region.
       </p>
     </div>
@@ -63,7 +65,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
       <p class="mt-4 text-slate-600" data-reveal>
         {/* DRAFT — placeholder mission/vision statement pending final language from the client. */}
         The REFINERY exists so that no robotics team in Northeast Indiana has to build its
-        infrastructure alone — we provide the funding, parts, tools, facilities, training, and
+        infrastructure alone. We provide the funding, parts, tools, facilities, training, and
         community that let teams start, grow, and succeed.
       </p>
     </div>
@@ -174,10 +176,10 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
                 target={partner.data.url ? '_blank' : undefined}
                 rel={partner.data.url ? 'noopener noreferrer' : undefined}
                 class="transition duration-base ease-out-soft hover:-translate-y-0.5"
-                title={partner.data.name}
+                title={firstPlain(partner.data.name)}
                 data-reveal
               >
-                <Image src={partner.data.logo} alt={partner.data.name} class="h-[102px] w-auto max-w-[290px] rounded-media object-contain" />
+                <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[102px] w-auto max-w-[290px] rounded-media object-contain" />
               </a>
             ))}
           </div>
@@ -200,7 +202,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
           rel="noopener noreferrer"
           class="text-brand-accent hover:underline"
         >
-          FIRST Youth Protection Policy
+          <First /> Youth Protection Policy
         </a>{' '}
         to keep every student, mentor, and volunteer safe.
       </p>

@@ -4,11 +4,21 @@ interface Props {
 }
 
 const { ariaLabel } = Astro.props;
+
+/**
+ * `overflow-y-hidden` is load-bearing here, not decoration. A box that scrolls on one axis
+ * cannot leave the other axis `visible`, so `overflow-x-auto` on its own silently computes
+ * the y axis to `auto`, and a wheel over the track drags it up and down by however far its
+ * contents overflow: the cards still carrying the scroll-reveal translateY, for one. Pinning
+ * y to hidden clips exactly what `auto` was already clipping, minus the stray scrolling.
+ */
+const trackClass =
+  'scrollbar-none flex gap-6 overflow-x-auto overflow-y-hidden scroll-smooth pb-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-accent';
 ---
 
 <div class="relative" data-carousel>
   <div
-    class="scrollbar-none flex gap-6 overflow-x-auto scroll-smooth pb-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-accent"
+    class={trackClass}
     data-carousel-track
     role="group"
     aria-label={ariaLabel}
@@ -21,7 +31,7 @@ const { ariaLabel } = Astro.props;
       type="button"
       class="flex h-9 w-9 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition-colors duration-base ease-out-soft hover:border-brand-accent hover:text-brand-accent disabled:pointer-events-none disabled:opacity-30"
       data-carousel-prev
-      aria-label={`Previous — ${ariaLabel}`}
+      aria-label={`Previous: ${ariaLabel}`}
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15,18 9,12 15,6" />
@@ -31,7 +41,7 @@ const { ariaLabel } = Astro.props;
       type="button"
       class="flex h-9 w-9 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition-colors duration-base ease-out-soft hover:border-brand-accent hover:text-brand-accent disabled:pointer-events-none disabled:opacity-30"
       data-carousel-next
-      aria-label={`Next — ${ariaLabel}`}
+      aria-label={`Next: ${ariaLabel}`}
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="9,6 15,12 9,18" />

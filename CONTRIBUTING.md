@@ -218,9 +218,36 @@ directly under `src/content/docs/` (outside `resources/`) will leak a Starlight 
 ## Images
 
 Don't hotlink or reuse other organizations' photography without confirmed permission — see
-`public/images/placeholders/README.md` for the current placeholder policy. Real photos should
+`docs/placeholder-images.md` for the current placeholder policy. Real photos should
 be added under `src/assets/{blog,projects,apps}/` and referenced by relative path in
 frontmatter, so Astro can optimize them.
+
+## Writing FIRST and program names
+
+*FIRST* licenses its trademarks to registered teams on the condition that we follow the
+[*FIRST* Branding & Design Guidelines](https://www.firstinspires.org/brand). Three rules
+cover everything you'll write:
+
+1. **Type `FIRST` in capitals.** Styling is automatic — the site italicizes the mark and
+   adds the superscript ® on first use, in both Markdown/MDX bodies and `.astro` files.
+   Lowercase "first" in ordinary prose ("our first season") is never touched.
+2. **Never use a possessive or plural.** Not `FIRST's`, not `FIRSTs`, not `LEGOs`. Rewrite
+   instead: "the mission of FIRST", "LEGO bricks".
+3. **Spell out a program the first time it appears on a page** — `FIRST Robotics
+   Competition`, `FIRST Tech Challenge`, `FIRST LEGO League`. `FRC`/`FTC` are acceptable
+   after that first mention, but the guidelines define no official acronyms, so prefer the
+   full name where it reads naturally.
+
+Mechanics, if you need them: `src/utils/first.ts` holds the term table,
+`src/plugins/rehype-first-marks.mjs` styles Markdown/MDX bodies, and
+`src/components/brand/` has `<First />` for inline use in `.astro` templates and
+`<FirstText text={...} />` for strings that arrive as props. Plain-text contexts that can't
+hold markup (`<title>`, meta descriptions, `alt`) go through `firstPlain()` in
+`src/layouts/BaseHead.astro`, which yields `FIRST®` without italics.
+
+One gap to know about: Starlight renders `/resources` frontmatter `title` and `description`
+as plain strings, outside all of the above. Avoid putting `FIRST` in a docs page title, and
+write `FIRST®` literally in a docs `description`.
 
 ## Internal links inside Markdown/MDX body content
 
