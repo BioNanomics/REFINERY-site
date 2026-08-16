@@ -36,10 +36,16 @@ export type FormDelivery = {
  * doc comment above. Paste the deployment's Web App URL (ends in /exec) in below once you
  * have it. 'formdata' encoding matters here specifically: it keeps the request a CORS
  * "simple request" so the browser skips a preflight, which Apps Script doesn't answer.
+ *
+ * `secret` must match SHARED_SECRET in docs/contact-form.gs — the script silently drops
+ * any request where it doesn't match. This isn't confidentiality (it ships to every
+ * visitor's browser same as everything else here) — it's a floor against blind scanners
+ * and casual abuse of the bare script.google.com URL. See the hardening notes at the top
+ * of contact-form.gs for the other layers (rate limiting, field caps, uniform responses).
  */
 export const formDelivery: FormDelivery = {
   endpoint: '',
-  hiddenFields: {},
+  hiddenFields: { secret: 'ye6FKxFUahIj4BjMx1v3XWOxXa37SbGS' },
   subjectKey: 'subject',
   encoding: 'formdata',
 };
