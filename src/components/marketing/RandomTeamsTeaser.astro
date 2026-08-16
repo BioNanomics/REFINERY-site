@@ -2,41 +2,47 @@
 /**
  * The "Meet the Teams" teaser on the About page. Every eligible team renders into the DOM
  * (mirrors NewsGrid.astro's filter-via-JS pattern), and a client script picks a random
- * `count` of them to reveal on each visit — no server here to reroll per-request, so the
- * reshuffle has to happen in the browser instead.
+ * `frcCount` FRC teams and `ftcCount` FTC teams to reveal on each visit — no server here to
+ * reroll per-request, so the reshuffle has to happen in the browser instead. The FRC/FTC
+ * split is fixed (not just a random draw from the combined pool) so the teaser keeps
+ * showing both programs The REFINERY supports rather than occasionally landing on all FRC.
  *
  * Progressive enhancement: the server-rendered default (no JS) is the same
- * featured-then-number selection this teaser used before randomization existed, guaranteeing
- * at least one FTC team alongside FRC teams. That set is what a no-JS visitor sees; everyone
- * else gets a fresh random `count` on load.
+ * featured-then-number selection this teaser used before randomization existed. That set is
+ * what a no-JS visitor sees; everyone else gets a fresh random pick on load.
  */
 import TeamCard from '../cards/TeamCard.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
   teams: CollectionEntry<'teams'>[];
-  count?: number;
+  frcCount?: number;
+  ftcCount?: number;
 }
 
-const { teams, count = 3 } = Astro.props;
+const { teams, frcCount = 2, ftcCount = 1 } = Astro.props;
 
 const sortByNumber = (a: (typeof teams)[number], b: (typeof teams)[number]) => Number(a.data.number) - Number(b.data.number);
 const byFeaturedThenNumber = (a: (typeof teams)[number], b: (typeof teams)[number]) =>
   Number(b.data.featured) - Number(a.data.featured) || sortByNumber(a, b);
 const frcTeams = teams.filter((t) => t.data.program === 'FRC').sort(byFeaturedThenNumber);
 const ftcTeams = teams.filter((t) => t.data.program === 'FTC').sort(byFeaturedThenNumber);
-const featuredFtc = ftcTeams.slice(0, 1);
-const featuredFrc = frcTeams.slice(0, count - featuredFtc.length);
-const defaultIds = new Set([...featuredFtc, ...featuredFrc].map((t) => t.id));
+const defaultIds = new Set([...ftcTeams.slice(0, ftcCount), ...frcTeams.slice(0, frcCount)].map((t) => t.id));
 
 const orderedTeams = [...teams].sort(sortByNumber);
 ---
 
 {
   orderedTeams.length > 0 ? (
-    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group data-team-teaser data-team-count={count}>
+    <div
+      class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      data-reveal-group
+      data-team-teaser
+      data-frc-count={frcCount}
+      data-ftc-count={ftcCount}
+    >
       {orderedTeams.map((team) => (
-        <div data-team-card class:list={[!defaultIds.has(team.id) && 'hidden']}>
+        <div data-team-card data-team-program={team.data.program} class:list={[!defaultIds.has(team.id) && 'hidden']}>
           <TeamCard team={team} />
         </div>
       ))}
@@ -47,18 +53,28 @@ const orderedTeams = [...teams].sort(sortByNumber);
 }
 
 <script>
+  function shuffle<T>(items: T[]): T[] {
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+  }
+
+  function pickProgram(container: HTMLElement, program: string, wanted: number): Set<HTMLElement> {
+    const cards = Array.from(container.querySelectorAll<HTMLElement>(`[data-team-card][data-team-program="${program}"]`));
+    return new Set(shuffle(cards).slice(0, wanted));
+  }
+
   function shuffleTeamsTeaser() {
     document.querySelectorAll<HTMLElement>('[data-team-teaser]').forEach((container) => {
-      const count = Number(container.dataset.teamCount ?? '3');
-      const cards = Array.from(container.querySelectorAll<HTMLElement>('[data-team-card]'));
-      if (cards.length <= count) return;
+      const frcCount = Number(container.dataset.frcCount ?? '2');
+      const ftcCount = Number(container.dataset.ftcCount ?? '1');
+      const chosen = new Set([...pickProgram(container, 'FRC', frcCount), ...pickProgram(container, 'FTC', ftcCount)]);
 
-      for (let i = cards.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [cards[i], cards[j]] = [cards[j], cards[i]];
-      }
-      const chosen = new Set(cards.slice(0, count));
-      cards.forEach((card) => card.classList.toggle('hidden', !chosen.has(card)));
+      container.querySelectorAll<HTMLElement>('[data-team-card]').forEach((card) => {
+        card.classList.toggle('hidden', !chosen.has(card));
+      });
     });
   }
 
