@@ -1,13 +1,14 @@
 /**
- * Styles FIRST® / LEGO® trademarks in Markdown and MDX bodies so content authors only
- * have to type the token in capitals. Mirrors src/utils/first.ts — keep the two in sync.
+ * Styles FIRST® / FRC® / FTC® / LEGO® trademarks in Markdown and MDX bodies so content
+ * authors only have to type the token in capitals. Mirrors src/utils/first.ts — keep the
+ * two in sync.
  *
- * First use is tracked per document, which is exactly the "first use in body copy" the
- * FIRST Branding & Design Guidelines call for (p. 8). The surrounding page shell tracks
- * its own heading/title first use separately, via src/middleware.ts.
+ * First use is tracked per document, which is exactly the "first use in body copy" FIRST's
+ * trademark policy calls for. The surrounding page shell tracks its own heading/title first
+ * use separately, via src/middleware.ts.
  */
 
-const TOKEN_PATTERN = /\b(FIRST|LEGO)\b/g;
+const TOKEN_PATTERN = /\b(FIRST|FRC|FTC|LEGO)\b/g;
 
 /** Never touch code — `FIRST` there is an identifier, not a trademark. */
 const SKIPPED_TAGS = new Set(['code', 'pre', 'kbd', 'samp']);
@@ -22,7 +23,8 @@ function markSegments(value, claimed) {
       nodes.push({ type: 'text', value: value.slice(lastIndex, match.index) });
     }
 
-    // Only FIRST is italicized; LEGO is all caps but roman (guidelines p. 20).
+    // Only the word "FIRST" is italicized; FRC, FTC, and LEGO are separate marks that
+    // stay all caps and roman.
     nodes.push(
       token === 'FIRST'
         ? { type: 'element', tagName: 'i', properties: { className: ['first-mark'] }, children: [{ type: 'text', value: token }] }
