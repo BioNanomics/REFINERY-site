@@ -4,7 +4,6 @@ import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
 import FirstText from '../components/brand/FirstText.astro';
-import { withBase } from '../utils/base';
 ---
 
 <MarketingLayout
@@ -39,7 +38,7 @@ import { withBase } from '../utils/base';
         }
       </ul>
       <div class="mt-6" data-reveal>
-        <CTAButton href={withBase('get-involved/#start-or-host-a-team')} variant="secondary">
+        <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" variant="secondary" dialog="start-a-team">
           Talk With Us About Starting a Team
         </CTAButton>
       </div>
