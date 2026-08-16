@@ -1,7 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import NewsCard from '../cards/NewsCard.astro';
-import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   posts: CollectionEntry<'news'>[];
@@ -32,7 +31,7 @@ const categories = [
               i === 0 ? 'border-brand bg-brand text-brand-light' : 'border-slate-300 text-slate-600 hover:border-brand',
             ]}
           >
-            <FirstText text={c.label} />
+            {c.label}
           </button>
         ))}
       </div>
@@ -45,7 +44,7 @@ const categories = [
       </div>
     </div>
   ) : (
-    <p class="text-sm text-slate-500">No news published yet. Check back soon.</p>
+    <p class="text-sm text-slate-500">No news published yet — check back soon.</p>
   )
 }
 

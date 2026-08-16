@@ -1,5 +1,4 @@
 ---
-import FirstText from '../brand/FirstText.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -11,8 +10,8 @@ const { title, summary, audience } = program.data;
 ---
 
 <div class="card card-pad" data-reveal>
-  <h3 class="font-heading text-base font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
-  <p class="mt-2 text-sm text-slate-600"><FirstText text={summary} /></p>
+  <h3 class="font-heading text-base font-bold text-slate-900">{title}</h3>
+  <p class="mt-2 text-sm text-slate-600">{summary}</p>
   {
     audience.length > 0 && (
       <ul class="mt-4 flex flex-wrap gap-1.5">

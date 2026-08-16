@@ -3,7 +3,6 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import starlight from '@astrojs/starlight';
-import rehypeFirstMarks from './src/plugins/rehype-first-marks.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,12 +15,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-  },
-
-  // Styles FIRST® trademarks in every Markdown/MDX body. MDX and Starlight both inherit
-  // this via `extendMarkdownConfig`, so content authors just type FIRST in capitals.
-  markdown: {
-    rehypePlugins: [rehypeFirstMarks],
   },
 
   integrations: [

@@ -2,14 +2,12 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
-import First from '../components/brand/First.astro';
-import FirstText from '../components/brand/FirstText.astro';
 import { withBase } from '../utils/base';
 ---
 
 <MarketingLayout
   title="What We Do"
-  description="How The REFINERY supports robotics teams: team launch, funding, parts, tools, facilities, training, community, and our contributions to the wider FIRST community."
+  description="How The REFINERY supports robotics teams — team launch, funding, parts, tools, facilities, training, community, and our contributions to the wider FIRST community."
 >
   <section class="section-tight section">
     <div class="section-inner">
@@ -34,7 +32,7 @@ import { withBase } from '../utils/base';
             'Prepare for competition seasons',
             'Build institutional continuity',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>
@@ -83,7 +81,7 @@ import { withBase } from '../utils/base';
             'Build-season emergency availability',
             'Centralized purchasing efficiencies',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>
@@ -106,7 +104,7 @@ import { withBase } from '../utils/base';
             'Specialized tool access',
             'Custom robot-part production',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>
@@ -131,7 +129,7 @@ import { withBase } from '../utils/base';
             'Parts distribution',
             'Community events',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>
@@ -150,7 +148,7 @@ import { withBase } from '../utils/base';
             'Robot tuning and competition preparation',
             'Mentor development and technical troubleshooting',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>
@@ -172,7 +170,7 @@ import { withBase } from '../utils/base';
             'Shared build projects',
             'Outreach and demonstrations',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>
@@ -182,10 +180,10 @@ import { withBase } from '../utils/base';
   <section id="beyond-northeast-indiana" class="band scroll-mt-6 section-loose section">
     <div class="section-inner section-inner-narrow">
       <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Beyond Northeast Indiana: Contributions to the <First context="heading" /> Community</h2>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Beyond Northeast Indiana: Contributions to the FIRST Community</h2>
       <p class="mt-4 text-slate-600" data-reveal>
         While The REFINERY is rooted in Northeast Indiana, many of the systems, projects, and
-        resources we develop are intended to support the broader <First /> community. We share what
+        resources we develop are intended to support the broader FIRST community. We share what
         we build, document what we learn, and partner with other organizations to solve
         challenges teams face everywhere.
       </p>
@@ -194,9 +192,9 @@ import { withBase } from '../utils/base';
         <div class="card card-pad">
           <h3 class="font-heading text-base font-bold text-slate-900">Robot in 3 Days</h3>
           <p class="mt-2 text-sm text-slate-600">
-            The REFINERY designs and builds a robot immediately following the annual{' '}
-            <First /> Robotics Competition game reveal, documenting the design process,
-            prototypes, decisions, failures, and final robot for teams to learn from.
+            The REFINERY designs and builds a robot immediately following the annual FRC game
+            reveal, documenting the design process, prototypes, decisions, failures, and final
+            robot for teams to learn from.
           </p>
         </div>
         <div class="card card-pad">
@@ -210,7 +208,7 @@ import { withBase } from '../utils/base';
           <h3 class="font-heading text-base font-bold text-slate-900">TIMS</h3>
           <p class="mt-2 text-sm text-slate-600">
             Inventory and tool-management software developed for The REFINERY and made available
-            to any <First /> team that wants to use it.
+            to any FIRST team that wants to use it.
           </p>
           <a href="https://tims.bionanomics.com" target="_blank" rel="noopener noreferrer" class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline">
             Open TIMS &rarr;
@@ -219,7 +217,7 @@ import { withBase } from '../utils/base';
         <div class="card card-pad">
           <h3 class="font-heading text-base font-bold text-slate-900">Event Parts Support</h3>
           <p class="mt-2 text-sm text-slate-600">
-            Partnerships with <First /> Indiana Robotics and MentorBridge to provide live parts
+            Partnerships with FIRST Indiana Robotics and MentorBridge to provide live parts
             inventory at events, helping teams identify and access components when technical
             issues occur.
           </p>
@@ -237,7 +235,7 @@ import { withBase } from '../utils/base';
             'Workshop materials',
             'Other open or reusable projects',
           ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
           ))
         }
       </ul>

@@ -2,7 +2,6 @@
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import SectionHeading from '../../components/marketing/SectionHeading.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
-import First from '../../components/brand/First.astro';
 import { getCollection } from 'astro:content';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
@@ -14,7 +13,7 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
 
 <MarketingLayout
   title="Meet the Teams"
-  description="FIRST Robotics Competition and FIRST Tech Challenge teams supported by The REFINERY across Northeast Indiana."
+  description="FRC and FTC teams supported by The REFINERY across Northeast Indiana."
 >
   <section class="section-tight section">
     <div class="section-inner">
@@ -31,7 +30,7 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
     frcTeams.length > 0 && (
       <section class="section">
         <div class="section-inner">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal><First context="heading" /> Robotics Competition</h2>
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>FIRST Robotics Competition</h2>
           <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {frcTeams.map((team) => <TeamCard team={team} />)}
           </div>
@@ -44,7 +43,7 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
     ftcTeams.length > 0 && (
       <section class="band section-loose section">
         <div class="section-inner">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal><First context="heading" /> Tech Challenge</h2>
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>FIRST Tech Challenge</h2>
           <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {ftcTeams.map((team) => <TeamCard team={team} />)}
           </div>

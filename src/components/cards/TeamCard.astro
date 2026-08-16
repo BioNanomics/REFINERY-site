@@ -1,20 +1,10 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   team: CollectionEntry<'teams'>;
 }
-
-// The schema's FRC/FTC values are internal data keys. A card badge is a standalone label
-// with no guaranteed earlier mention on the page, so it carries the full program name —
-// which also satisfies the guidelines' requirement (p. 32) that team identification appear
-// in conjunction with the program name.
-const programNames: Record<CollectionEntry<'teams'>['data']['program'], string> = {
-  FRC: 'FIRST Robotics Competition',
-  FTC: 'FIRST Tech Challenge',
-};
 
 const { team } = Astro.props;
 const { number, name, program, school, community, logo, description, highlight, links, newTeam } = team.data;
@@ -33,14 +23,12 @@ const { number, name, program, school, community, logo, description, highlight, 
         and let width follow the aspect ratio instead of cropping to a square. */}
     {logo && <Image src={logo} alt={`${name} logo`} class="h-12 w-auto max-w-[5rem] shrink-0 object-contain" />}
     <div>
-      <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
-        <FirstText text={programNames[program]} /> {number}
-      </p>
+      <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">{program} {number}</p>
       <h3 class="font-heading text-base font-bold text-slate-900">{name}</h3>
     </div>
   </div>
   <p class="mt-2 text-xs text-slate-500">{school} &middot; {community}</p>
-  <p class="mt-2 text-sm text-slate-600"><FirstText text={description} /></p>
+  <p class="mt-2 text-sm text-slate-600">{description}</p>
   {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
   {
     links.length > 0 && (

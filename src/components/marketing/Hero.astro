@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import CTAButton from './CTAButton.astro';
-import FirstText from '../brand/FirstText.astro';
 import { withBase } from '../../utils/base';
 
 interface Props {
@@ -29,14 +28,14 @@ const {
 <section class="relative overflow-hidden">
   <div class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:py-24">
     <div class="flex flex-col items-start gap-6" data-reveal-group>
-      {eyebrow && <p class="eyebrow-tag text-brand-accent" data-reveal><FirstText text={eyebrow} context="heading" /></p>}
+      {eyebrow && <p class="eyebrow-tag text-brand-accent" data-reveal>{eyebrow}</p>}
       <h1
         class="font-heading text-5xl font-extrabold leading-[0.95] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl"
         data-reveal
       >
-        <FirstText text={title} context="heading" />
+        {title}
       </h1>
-      <p class="max-w-md text-lg text-slate-600" data-reveal><FirstText text={description} /></p>
+      <p class="max-w-md text-lg text-slate-600" data-reveal>{description}</p>
       <div class="flex flex-wrap items-center gap-3" data-reveal>
         <CTAButton href={ctaHref}>{ctaLabel}</CTAButton>
         <slot name="actions" />

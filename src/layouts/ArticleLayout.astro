@@ -1,5 +1,4 @@
 ---
-import FirstText from '../components/brand/FirstText.astro';
 import MarketingLayout from './MarketingLayout.astro';
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -28,13 +27,13 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
     {
       isDraft && (
         <p class="mb-6 rounded-control border border-amber-400 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800">
-          Draft content: not yet reviewed by The REFINERY team.
+          Draft content — not yet reviewed by The REFINERY team.
         </p>
       )
     }
 
     <header class="mb-8" data-reveal>
-      <h1 class="font-heading text-3xl font-bold text-slate-900 sm:text-4xl"><FirstText text={title} context="heading" /></h1>
+      <h1 class="font-heading text-3xl font-bold text-slate-900 sm:text-4xl">{title}</h1>
       <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-slate-500">
         <time datetime={pubDate.toISOString()}>{formattedDate}</time>
         {author && <span>&middot; {author}</span>}

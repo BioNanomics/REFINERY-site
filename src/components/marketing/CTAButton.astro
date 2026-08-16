@@ -19,8 +19,5 @@ const styles = {
     styles[variant],
   ]}
 >
-  {/* The label lives in one span so it stays a single flex item. Labels that contain inline
-      markup — the italic <First /> mark, for instance — would otherwise split into separate
-      flex items and lose the spaces around them. */}
-  <span><slot /></span>
+  <slot />
 </a>

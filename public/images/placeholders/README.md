@@ -9,7 +9,7 @@ download or hotlink those photos for this scaffold:
 - Downloading and rehosting FIRST Indiana's photography on The REFINERY's production site
   without confirmed permission is a licensing risk.
 
-Instead, `public/images/placeholders/` holds neutral, locally-authored gradient placeholders
+Instead, this directory holds neutral, locally-authored gradient placeholders
 (`hero-placeholder.svg`, `card-placeholder.svg`, `avatar-placeholder.svg`) for anywhere real
 photography isn't available yet. Every usage includes descriptive alt text and an inline
 `{/* TODO: replace with real REFINERY shop photography */}` comment so they're easy to find

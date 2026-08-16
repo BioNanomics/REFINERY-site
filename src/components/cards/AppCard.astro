@@ -1,5 +1,4 @@
 ---
-import FirstText from '../brand/FirstText.astro';
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
@@ -22,6 +21,6 @@ const { name, summary, icon, externalUrl } = app.data;
     {icon && <Image src={icon} alt="" class="h-10 w-10 rounded-media object-cover" width={40} height={40} densities={[1, 2, 3]} />}
     <h3 class="font-heading text-lg font-bold text-slate-900">{name}</h3>
   </div>
-  <p class="mt-3 card-fill text-sm text-slate-600"><FirstText text={summary} /></p>
+  <p class="mt-3 card-fill text-sm text-slate-600">{summary}</p>
   <span class="mt-4 font-mono text-sm font-semibold text-brand-accent group-hover:underline">Visit app &rarr;</span>
 </a>
