@@ -22,8 +22,45 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
   // lets the popups still be reviewed locally before a provider is wired in.
   const canOpen = isFormConfigured || import.meta.env.DEV;
 
+  // Opened with dialog.show(), not showModal() — see the comment on .dialog-panel in
+  // marketing.css for why (a captcha challenge overlay needs to render in the same normal
+  // stacking context as the dialog, which showModal()'s browser "top layer" makes
+  // impossible regardless of z-index). Everything showModal() gives for free — backdrop,
+  // focus trap, Esc-to-close, inert background, focus restore — is hand-rolled below.
+  let lastFocusedTrigger: HTMLElement | null = null;
+
+  function backdropFor(dialog: HTMLDialogElement): HTMLElement | null {
+    const id = dialog.dataset.contactDialog;
+    return document.querySelector<HTMLElement>(`[data-dialog-backdrop="${id}"]`);
+  }
+
+  // Isolates the open dialog from the rest of the page for keyboard/screen-reader users —
+  // inert both removes background elements from the tab order (a full focus trap, since the
+  // dialog + its backdrop are the only non-inert content left) and blocks their interaction.
+  function setBackgroundInert(makeInert: boolean, dialog: HTMLDialogElement, backdrop: HTMLElement | null) {
+    Array.from(document.body.children).forEach((el) => {
+      if (el === dialog || el === backdrop) return;
+      if (makeInert) el.setAttribute('inert', '');
+      else el.removeAttribute('inert');
+    });
+  }
+
+  function openDialog(dialog: HTMLDialogElement) {
+    if (dialog.open) return;
+    lastFocusedTrigger = document.activeElement as HTMLElement;
+    const backdrop = backdropFor(dialog);
+    backdrop?.classList.add('is-open');
+    document.documentElement.classList.add('dialog-open');
+    setBackgroundInert(true, dialog, backdrop);
+    dialog.show();
+    // Close button is a conventional, always-safe initial focus target — doesn't skip a
+    // sighted keyboard user straight into the first field before they've read the intro.
+    dialog.querySelector<HTMLElement>('[data-dialog-close]')?.focus();
+  }
+
   function closeDialog(dialog: HTMLDialogElement) {
-    dialog.close();
+    if (!dialog.open) return;
+    dialog.close(); // fires 'close' — cleanup lives in that listener, shared with Esc/backdrop/etc.
   }
 
   function init() {
@@ -36,7 +73,7 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
 
       const dialogId = trigger.dataset.contactOpen;
       const dialog = document.querySelector<HTMLDialogElement>(`[data-contact-dialog="${dialogId}"]`);
-      if (!canOpen || !dialog || typeof dialog.showModal !== 'function') return;
+      if (!canOpen || !dialog) return;
 
       e.preventDefault();
 
@@ -48,8 +85,13 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
         if (radio) radio.checked = true;
       }
 
-      document.documentElement.classList.add('dialog-open');
-      dialog.showModal();
+      openDialog(dialog);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const openDialogEl = document.querySelector<HTMLDialogElement>('dialog[open]');
+      if (openDialogEl) closeDialog(openDialogEl);
     });
 
     dialogs.forEach((dialog) => {
@@ -58,23 +100,25 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
       const statusEl = dialog.querySelector<HTMLElement>('[data-form-status]');
       if (!form || !success || !statusEl) return;
 
-      // Backdrop click: a click that lands inside the dialog element but
-      // outside its rendered content box is a click on the ::backdrop.
-      dialog.addEventListener('click', (e) => {
-        const rect = dialog.getBoundingClientRect();
-        const inside =
-          e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
-        if (!inside) closeDialog(dialog);
-      });
+      backdropFor(dialog)?.addEventListener('click', () => closeDialog(dialog));
 
       dialog.querySelectorAll<HTMLButtonElement>('[data-dialog-close]').forEach((btn) => {
         btn.addEventListener('click', () => closeDialog(dialog));
       });
 
       dialog.addEventListener('close', () => {
-        document.documentElement.classList.remove('dialog-open');
+        const backdrop = backdropFor(dialog);
+        backdrop?.classList.remove('is-open');
+        // Only clear inert/dialog-open if no OTHER dialog is still open — defensive, since
+        // only one of the two ever opens at a time through this UI, but cheap to guard.
+        if (!document.querySelector('dialog[open]')) {
+          document.documentElement.classList.remove('dialog-open');
+        }
+        setBackgroundInert(false, dialog, backdrop);
+        lastFocusedTrigger?.focus();
+
         statusEl.textContent = '';
-        statusEl.className = 'mt-4 text-sm';
+        statusEl.className = 'text-sm';
 
         // Only clear the form once a submission actually succeeded — an
         // accidental Esc or backdrop click should never erase what someone
