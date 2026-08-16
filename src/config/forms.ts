@@ -75,6 +75,6 @@ export const formDelivery: FormDelivery = {
  */
 
 /** Shared inbox. Also the fallback address shown when a submission fails. */
-export const CONTACT_EMAIL = 'refinery@bionanomics.com';
+export const CONTACT_EMAIL = 'info@refineryrobotics.org';
 
 export const isFormConfigured = formDelivery.endpoint !== '';

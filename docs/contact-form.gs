@@ -9,7 +9,7 @@
  * question to either form in src/config/contact-forms.ts doesn't require touching this file.
  */
 
-var DESTINATION_EMAIL = 'refinery@bionanomics.com';
+var DESTINATION_EMAIL = 'info@refineryrobotics.org';
 
 function doPost(e) {
   var params = e.parameter;

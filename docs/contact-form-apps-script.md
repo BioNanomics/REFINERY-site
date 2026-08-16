@@ -9,7 +9,7 @@ controls where the mail actually comes from.
 
 1. Go to [script.google.com](https://script.google.com/) and sign in with **the Google
    account you want submissions to be sent from** (its Gmail "From" address is what
-   recipients will see — using the account behind `refinery@bionanomics.com`, if that's a
+   recipients will see — using the account behind `info@refineryrobotics.org`, if that's a
    Google Workspace/Gmail account, is the natural choice).
 2. **New project**. Delete the placeholder `myFunction` code and paste in the contents of
    `contact-form.gs` (below) in this same folder.
@@ -43,7 +43,7 @@ export const formDelivery: FormDelivery = {
 ## 4. Test it
 
 Run `npx astro dev`, open either popup, and submit a real test. Confirm the email lands in
-`refinery@bionanomics.com` and that replying to it actually reaches the person who submitted
+`info@refineryrobotics.org` and that replying to it actually reaches the person who submitted
 the form (the script sets `replyTo` to whatever email address they entered).
 
 ## Redeploying after editing the script
