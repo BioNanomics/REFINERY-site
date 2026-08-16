@@ -61,20 +61,25 @@ const orderedTeams = [...teams].sort(sortByNumber);
     return items;
   }
 
-  function pickProgram(container: HTMLElement, program: string, wanted: number): Set<HTMLElement> {
+  function pickProgram(container: HTMLElement, program: string, wanted: number): HTMLElement[] {
     const cards = Array.from(container.querySelectorAll<HTMLElement>(`[data-team-card][data-team-program="${program}"]`));
-    return new Set(shuffle(cards).slice(0, wanted));
+    return shuffle(cards).slice(0, wanted);
   }
 
   function shuffleTeamsTeaser() {
     document.querySelectorAll<HTMLElement>('[data-team-teaser]').forEach((container) => {
       const frcCount = Number(container.dataset.frcCount ?? '2');
       const ftcCount = Number(container.dataset.ftcCount ?? '1');
-      const chosen = new Set([...pickProgram(container, 'FRC', frcCount), ...pickProgram(container, 'FTC', ftcCount)]);
+      const picked = shuffle([...pickProgram(container, 'FRC', frcCount), ...pickProgram(container, 'FTC', ftcCount)]);
+      const chosen = new Set(picked);
 
       container.querySelectorAll<HTMLElement>('[data-team-card]').forEach((card) => {
         card.classList.toggle('hidden', !chosen.has(card));
       });
+      // Reveal order (not just which teams show) should vary too — number sort
+      // always put the highest-numbered FTC team last. appendChild moves an
+      // existing node rather than cloning it, so this reorders in place.
+      picked.forEach((card) => container.appendChild(card));
     });
   }
 
