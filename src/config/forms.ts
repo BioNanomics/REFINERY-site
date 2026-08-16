@@ -28,42 +28,35 @@ export type FormDelivery = {
 };
 
 /**
- * Active provider: Google Apps Script. No third party — sends via Gmail from whichever
- * Google account deployed the script. Setup + the actual doPost(e) script:
- * docs/contact-form-apps-script.md and docs/contact-form.gs in this repo.
+ * TESTING Web3Forms locally right now — not committed. See "OTHER PRESETS" below for the
+ * Google Apps Script config this is temporarily standing in for; that setup (and its docs
+ * in docs/contact-form-apps-script.md + docs/contact-form.gs) is on pause, not abandoned.
  *
- * `endpoint` is intentionally still blank until that script is deployed — see the module
- * doc comment above. Paste the deployment's Web App URL (ends in /exec) in below once you
- * have it. 'formdata' encoding matters here specifically: it keeps the request a CORS
- * "simple request" so the browser skips a preflight, which Apps Script doesn't answer.
- *
- * `secret` must match SHARED_SECRET in docs/contact-form.gs — the script silently drops
- * any request where it doesn't match. This isn't confidentiality (it ships to every
- * visitor's browser same as everything else here) — it's a floor against blind scanners
- * and casual abuse of the bare script.google.com URL. See the hardening notes at the top
- * of contact-form.gs for the other layers (rate limiting, field caps, uniform responses).
+ * Web3Forms — https://web3forms.com — free, unlimited forms, no dashboard account. Get a
+ * key by visiting the site and verifying the destination inbox (info@refineryrobotics.org);
+ * they email you an access key. Paste it in below.
  */
 export const formDelivery: FormDelivery = {
-  endpoint: '',
-  hiddenFields: { secret: 'ye6FKxFUahIj4BjMx1v3XWOxXa37SbGS' },
+  endpoint: 'https://api.web3forms.com/submit',
+  hiddenFields: { access_key: 'c97ff9fd-5689-4153-a70f-58f75409e0e2' },
   subjectKey: 'subject',
-  encoding: 'formdata',
+  encoding: 'json',
 };
 
 /*
  * ---------------------------------------------------------------------------
- * OTHER PRESETS — swap in one of these instead if you'd rather not self-host.
+ * OTHER PRESETS
  * ---------------------------------------------------------------------------
  *
- * Web3Forms — https://web3forms.com
- * Free tier, unlimited forms. Create a key by verifying the destination inbox;
- * no dashboard account needed. Both forms can share one key.
+ * Google Apps Script — no third party; sends via Gmail from whichever Google account
+ * deployed the script. Full setup: docs/contact-form-apps-script.md and
+ * docs/contact-form.gs (already hardened — secret check, rate limiting, validation).
  *
  *   export const formDelivery: FormDelivery = {
- *     endpoint: 'https://api.web3forms.com/submit',
- *     hiddenFields: { access_key: 'PASTE-YOUR-ACCESS-KEY-HERE' },
+ *     endpoint: 'https://script.google.com/macros/s/YOUR-DEPLOYMENT-ID/exec',
+ *     hiddenFields: { secret: 'ye6FKxFUahIj4BjMx1v3XWOxXa37SbGS' },
  *     subjectKey: 'subject',
- *     encoding: 'json',
+ *     encoding: 'formdata',
  *   };
  *
  * ---------------------------------------------------------------------------

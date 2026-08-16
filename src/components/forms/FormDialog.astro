@@ -31,6 +31,15 @@ const introId = `${form.id}-intro`;
 
   <div class="dialog-body px-5 py-4">
     <form data-contact-form={form.id} data-subject={form.subject} aria-describedby={introId}>
+      {/* hCaptcha, via Web3Forms' client script — see docs/contact-form-apps-script.md's
+         sibling note in forms.ts. Web3Forms' script scans the page for this div and
+         swaps in the widget, which creates a hidden `<textarea name="h-captcha-response">`
+         inside it once solved. That textarea lives inside this <form>, so the existing
+         `new FormData(form)` submit logic in ContactDialogs.astro picks it up automatically
+         — no submit-payload changes needed, only a pre-submit "did they solve it" check.
+         Placed above the fields so it's visible without scrolling the dialog body. */}
+      <div class="h-captcha mb-4" data-captcha="true"></div>
+
       <div class="flex flex-col gap-4">
         {form.fields.map((field) => <FormField field={field} idPrefix={form.id} />)}
       </div>

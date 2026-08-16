@@ -6,6 +6,12 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
 <FormDialog form={contactForm} />
 <FormDialog form={startTeamForm} />
 
+{/* hCaptcha widget loader — scans the page for [data-captcha] and swaps in the challenge.
+   Free-tier Web3Forms accounts use their shared site key automatically (no signup or key
+   of our own needed); server-side verification only actually enforces once "hCaptcha" is
+   turned on as the preferred captcha for this form in the Web3Forms dashboard. */}
+<script is:inline src="https://web3forms.com/client/script.js" async defer></script>
+
 <script>
   import { isFormConfigured, formDelivery, CONTACT_EMAIL } from '../../config/forms';
 
@@ -89,6 +95,18 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
 
         if (!form.checkValidity()) {
           form.reportValidity();
+          return;
+        }
+
+        // hCaptcha inserts a `<textarea name="h-captcha-response">` inside its widget div
+        // once solved — querying fresh here (not caching at init) since the widget's
+        // third-party script may still be initializing when the dialog first opens. This
+        // is a friendly client-side nudge only; Web3Forms enforces the real check
+        // server-side once hCaptcha is turned on as the form's preferred captcha.
+        const captchaResponse = form.querySelector<HTMLTextAreaElement>('textarea[name="h-captcha-response"]');
+        if (!captchaResponse || !captchaResponse.value) {
+          statusEl.textContent = 'Please complete the captcha before submitting.';
+          statusEl.classList.add('text-red-600');
           return;
         }
 
