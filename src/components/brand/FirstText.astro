@@ -1,0 +1,35 @@
+---
+/**
+ * Renders arbitrary copy with FIRST® / LEGO® trademarks styled per the FIRST Branding &
+ * Design Guidelines. Use this for strings that arrive as props — content-collection
+ * frontmatter, card labels, section headings — where the author can't wrap the mark
+ * themselves. Markdown and MDX bodies are handled by rehype-first-marks.mjs instead.
+ */
+import { tokenizeFirst, claimRegisteredMark, type FirstContext } from '../../utils/first';
+
+interface Props {
+  text: string;
+  /** Headings and body copy each earn their own first-use ® (guidelines p. 8). */
+  context?: FirstContext;
+  /** Force or suppress the ® when document render order needs overriding. */
+  reg?: boolean;
+}
+
+const { text, context = 'body', reg } = Astro.props;
+
+const segments = tokenizeFirst(text).map((segment) => {
+  if (segment.type !== 'mark') return { ...segment, registered: false };
+  const claimed = claimRegisteredMark(Astro.locals.firstMarks, segment.token!, context);
+  return { ...segment, registered: reg ?? claimed };
+});
+---
+{
+  segments.map((segment) =>
+    segment.type === 'mark' ? (
+      /* Only FIRST is italicized; LEGO is all caps but roman (guidelines p. 20). */
+      <Fragment>{segment.token === 'FIRST' ? <i class="first-mark">{segment.value}</i> : segment.value}{segment.registered && <sup class="first-reg">®</sup>}</Fragment>
+    ) : (
+      segment.value
+    ),
+  )
+}

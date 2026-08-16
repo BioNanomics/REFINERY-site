@@ -1,6 +1,7 @@
 ---
 import '../styles/marketing.css';
 import { withBase } from '../utils/base';
+import { firstPlain } from '../utils/first';
 
 interface Props {
   title: string;
@@ -8,8 +9,13 @@ interface Props {
   image?: string;
 }
 
-const { title, description, image = withBase('images/og-default.jpeg') } = Astro.props;
+const { title: rawTitle, description: rawDescription, image = withBase('images/og-default.jpeg') } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// <title> and meta content can't carry italics, so FIRST® gets the closest compliant
+// treatment the medium allows: capitals plus a registered symbol on first use.
+const title = firstPlain(rawTitle);
+const description = firstPlain(rawDescription);
 ---
 
 <meta charset="utf-8" />

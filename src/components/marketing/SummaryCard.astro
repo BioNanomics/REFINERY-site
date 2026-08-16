@@ -1,5 +1,6 @@
 ---
 import Icon, { type IconName } from './Icon.astro';
+import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   title: string;
@@ -26,7 +27,7 @@ const { title, description, href, cta = 'Explore', icon, offset = false, class: 
       </div>
     )
   }
-  <h3 class="font-heading text-lg font-bold text-slate-900">{title}</h3>
-  <p class="mt-2 card-fill text-sm text-slate-600">{description}</p>
+  <h3 class="font-heading text-lg font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
+  <p class="mt-2 card-fill text-sm text-slate-600"><FirstText text={description} /></p>
   <span class="mt-4 font-mono text-sm font-semibold text-brand-accent group-hover:underline">{cta} &rarr;</span>
 </a>
