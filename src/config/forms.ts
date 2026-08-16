@@ -27,16 +27,26 @@ export type FormDelivery = {
   encoding: 'json' | 'formdata';
 };
 
+/**
+ * Active provider: Google Apps Script. No third party — sends via Gmail from whichever
+ * Google account deployed the script. Setup + the actual doPost(e) script:
+ * docs/contact-form-apps-script.md and docs/contact-form.gs in this repo.
+ *
+ * `endpoint` is intentionally still blank until that script is deployed — see the module
+ * doc comment above. Paste the deployment's Web App URL (ends in /exec) in below once you
+ * have it. 'formdata' encoding matters here specifically: it keeps the request a CORS
+ * "simple request" so the browser skips a preflight, which Apps Script doesn't answer.
+ */
 export const formDelivery: FormDelivery = {
   endpoint: '',
   hiddenFields: {},
   subjectKey: 'subject',
-  encoding: 'json',
+  encoding: 'formdata',
 };
 
 /*
  * ---------------------------------------------------------------------------
- * PRESETS — replace the `formDelivery` object above with one of these.
+ * OTHER PRESETS — swap in one of these instead if you'd rather not self-host.
  * ---------------------------------------------------------------------------
  *
  * Web3Forms — https://web3forms.com
@@ -61,19 +71,6 @@ export const formDelivery: FormDelivery = {
  *     hiddenFields: {},
  *     subjectKey: '_subject',
  *     encoding: 'json',
- *   };
- *
- * ---------------------------------------------------------------------------
- * Google Apps Script — no third party; sends via Gmail, can log to a Sheet.
- * Deploy a Web App with "Execute as: me" and "Who has access: anyone", and
- * have doPost(e) read e.parameter. Use 'formdata' so the browser sends a
- * simple request and skips the CORS preflight that Apps Script won't answer.
- *
- *   export const formDelivery: FormDelivery = {
- *     endpoint: 'https://script.google.com/macros/s/YOUR-DEPLOYMENT-ID/exec',
- *     hiddenFields: {},
- *     subjectKey: 'subject',
- *     encoding: 'formdata',
  *   };
  */
 
