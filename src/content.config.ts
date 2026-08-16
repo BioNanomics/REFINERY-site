@@ -42,6 +42,16 @@ const teams = defineCollection({
       description: z.string(),
       highlight: z.string().optional(),
       links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
+      socials: z
+        .object({
+          instagram: z.string().url().optional(),
+          twitter: z.string().url().optional(),
+          youtube: z.string().url().optional(),
+          github: z.string().url().optional(),
+          tumblr: z.string().url().optional(),
+          website: z.string().url().optional(),
+        })
+        .optional(),
       featured: z.boolean().default(false),
       newTeam: z.boolean().default(false),
       draft: z.boolean().default(false),

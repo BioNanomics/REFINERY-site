@@ -17,7 +17,22 @@ const programNames: Record<CollectionEntry<'teams'>['data']['program'], string> 
 };
 
 const { team } = Astro.props;
-const { number, name, program, school, community, logo, description, highlight, links, newTeam } = team.data;
+const { number, name, program, school, community, logo, description, highlight, links, socials, newTeam } = team.data;
+
+// Rendered in a fixed, predictable order regardless of frontmatter key order; only
+// platforms a team actually has get a spot, so the row's width tracks what's real.
+const socialLinks = socials
+  ? (
+      [
+        { key: 'instagram', url: socials.instagram, label: 'Instagram' },
+        { key: 'twitter', url: socials.twitter, label: 'X (Twitter)' },
+        { key: 'youtube', url: socials.youtube, label: 'YouTube' },
+        { key: 'tumblr', url: socials.tumblr, label: 'Tumblr' },
+        { key: 'github', url: socials.github, label: 'GitHub' },
+        { key: 'website', url: socials.website, label: 'Website' },
+      ] as const
+    ).filter((s): s is (typeof s) & { url: string } => Boolean(s.url))
+  : [];
 ---
 
 <div class="card card-pad" data-reveal>
@@ -49,6 +64,58 @@ const { number, name, program, school, community, logo, description, highlight, 
           <li>
             <a href={link.url} target="_blank" rel="noopener noreferrer" class="font-mono text-xs font-semibold text-brand-accent hover:underline">
               {link.label} &nearr;
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  {
+    socialLinks.length > 0 && (
+      <ul class="mt-3 flex flex-wrap items-center gap-3 text-slate-400">
+        {socialLinks.map((social) => (
+          <li>
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="transition-colors duration-base ease-out-soft hover:text-brand-accent"
+              aria-label={`${name} on ${social.label}`}
+            >
+              {social.key === 'instagram' && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <circle cx="12" cy="12" r="5" />
+                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+                </svg>
+              )}
+              {social.key === 'twitter' && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+                  <path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z" />
+                </svg>
+              )}
+              {social.key === 'youtube' && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+                  <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8zM9.6 15.6V8.4L15.8 12l-6.2 3.6z" />
+                </svg>
+              )}
+              {social.key === 'tumblr' && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+                  <path d="M14.563 24c-5.093 0-7.031-3.756-7.031-6.411V9.747H5.116V6.648c3.63-1.313 4.512-4.596 4.71-6.469C9.84.051 9.941 0 9.999 0h3.517v6.114h4.801v3.633h-4.82v7.47c.016 1.001.375 2.371 2.207 2.371h.09c.631-.02 1.486-.205 1.936-.419l1.156 3.425c-.436.636-2.4 1.374-4.156 1.404h-.178l.011.002z" />
+                </svg>
+              )}
+              {social.key === 'github' && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.378.203 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" />
+                </svg>
+              )}
+              {social.key === 'website' && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+              )}
             </a>
           </li>
         ))}
