@@ -37,9 +37,16 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
   // Isolates the open dialog from the rest of the page for keyboard/screen-reader users —
   // inert both removes background elements from the tab order (a full focus trap, since the
   // dialog + its backdrop are the only non-inert content left) and blocks their interaction.
-  function setBackgroundInert(makeInert: boolean, dialog: HTMLDialogElement, backdrop: HTMLElement | null) {
-    Array.from(document.body.children).forEach((el) => {
-      if (el === dialog || el === backdrop) return;
+  //
+  // Deliberately an ALLOWLIST of the site's own known layout regions, not "every body child
+  // except the dialog/backdrop". hCaptcha's expanded challenge is a normal-layer overlay
+  // that's also appended directly to <body> — the exact mechanism this dialog system now
+  // relies on for its own stacking fix — so a denylist here would inert the captcha's own
+  // challenge along with everything else. inert implies pointer-events: none, so clicks on
+  // an inert element pass through to whatever's behind it; that's what made the challenge
+  // look like it was routing clicks into the form's text fields instead of itself.
+  function setBackgroundInert(makeInert: boolean) {
+    document.querySelectorAll<HTMLElement>('body > header, body > main, body > footer').forEach((el) => {
       if (makeInert) el.setAttribute('inert', '');
       else el.removeAttribute('inert');
     });
@@ -51,7 +58,7 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
     const backdrop = backdropFor(dialog);
     backdrop?.classList.add('is-open');
     document.documentElement.classList.add('dialog-open');
-    setBackgroundInert(true, dialog, backdrop);
+    setBackgroundInert(true);
     dialog.show();
     // Close button is a conventional, always-safe initial focus target — doesn't skip a
     // sighted keyboard user straight into the first field before they've read the intro.
@@ -113,8 +120,8 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
         // only one of the two ever opens at a time through this UI, but cheap to guard.
         if (!document.querySelector('dialog[open]')) {
           document.documentElement.classList.remove('dialog-open');
+          setBackgroundInert(false);
         }
-        setBackgroundInert(false, dialog, backdrop);
         lastFocusedTrigger?.focus();
 
         statusEl.textContent = '';
