@@ -29,17 +29,13 @@ const introId = `${form.id}-intro`;
     </button>
   </div>
 
-  <div class="dialog-body px-5 py-4">
-    <form data-contact-form={form.id} data-subject={form.subject} aria-describedby={introId}>
-      {/* hCaptcha, via Web3Forms' client script — see docs/contact-form-apps-script.md's
-         sibling note in forms.ts. Web3Forms' script scans the page for this div and
-         swaps in the widget, which creates a hidden `<textarea name="h-captcha-response">`
-         inside it once solved. That textarea lives inside this <form>, so the existing
-         `new FormData(form)` submit logic in ContactDialogs.astro picks it up automatically
-         — no submit-payload changes needed, only a pre-submit "did they solve it" check.
-         Placed above the fields so it's visible without scrolling the dialog body. */}
-      <div class="h-captcha mb-4" data-captcha="true"></div>
-
+  {/* The form spans a scrolling body (fields only) and a pinned footer (captcha + status +
+     buttons). Critical: the footer must NOT sit inside anything with overflow:auto/hidden —
+     hCaptcha's challenge expands via an absolutely-positioned iframe, and any scroll-clipped
+     ancestor cuts it off. A single <form> can still validly wrap two visually-separate
+     regions; its fields don't need to be DOM-contiguous with its buttons. */}
+  <form data-contact-form={form.id} data-subject={form.subject} class="dialog-form" aria-describedby={introId}>
+    <div class="dialog-body px-5 py-4">
       <div class="flex flex-col gap-4">
         {form.fields.map((field) => <FormField field={field} idPrefix={form.id} />)}
       </div>
@@ -52,23 +48,33 @@ const introId = `${form.id}-intro`;
         <label for={`${form.id}-website`}>Leave this field blank</label>
         <input type="text" id={`${form.id}-website`} name="website" tabindex="-1" autocomplete="off" />
       </div>
+    </div>
 
-      <p class="mt-4 text-sm" role="status" aria-live="polite" data-form-status></p>
+    <div class="dialog-footer border-t border-refinery-color-border px-5 py-4">
+      {/* hCaptcha, via Web3Forms' client script — see docs/contact-form-apps-script.md's
+         sibling note in forms.ts. Web3Forms' script scans the page for this div and swaps
+         in the widget, which creates a hidden `<textarea name="h-captcha-response">` inside
+         it once solved. That textarea lives inside this <form>, so the existing
+         `new FormData(form)` submit logic in ContactDialogs.astro picks it up automatically
+         — no submit-payload changes needed, only a pre-submit "did they solve it" check. */}
+      <div class="h-captcha mb-4" data-captcha="true"></div>
+
+      <p class="text-sm" role="status" aria-live="polite" data-form-status></p>
 
       <div class="mt-2 flex items-center justify-end gap-3">
         <button type="button" data-dialog-close class="btn btn-secondary">Cancel</button>
         <button type="submit" class="btn btn-primary" data-submit-button>{form.submitLabel}</button>
       </div>
-    </form>
-
-    <div class="hidden flex-col items-center py-6 text-center" data-form-success>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-10 w-10 text-brand-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="m9 12 2 2 4-4" />
-      </svg>
-      <h3 class="mt-3 font-heading text-base font-bold text-slate-900">{form.successTitle}</h3>
-      <p class="mt-1 text-sm text-slate-600">{form.successBody}</p>
-      <button type="button" data-dialog-close class="btn btn-secondary mt-5">Close</button>
     </div>
+  </form>
+
+  <div class="hidden flex-col items-center px-5 py-10 text-center" data-form-success>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-10 w-10 text-brand-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+    <h3 class="mt-3 font-heading text-base font-bold text-slate-900">{form.successTitle}</h3>
+    <p class="mt-1 text-sm text-slate-600">{form.successBody}</p>
+    <button type="button" data-dialog-close class="btn btn-secondary mt-5">Close</button>
   </div>
 </dialog>

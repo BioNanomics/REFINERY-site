@@ -291,9 +291,25 @@
       opacity: 0;
     }
   }
+  /* The <form> itself is now a flex column so its scrolling body and pinned footer can
+     split the dialog's remaining height after the header. min-height: 0 is required here —
+     without it a flex item won't shrink below its content's natural size, and .dialog-body's
+     overflow-y: auto would never actually kick in. */
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
   .dialog-body {
     flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
+  }
+  /* Deliberately NOT inside anything with overflow:auto/hidden — hCaptcha's challenge
+     expands via an absolutely-positioned iframe, and a scroll-clipped ancestor cuts it off. */
+  .dialog-footer {
+    flex: none;
   }
 
   /* Text/number/email/tel + textarea fields across both dialog forms. */
