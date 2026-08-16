@@ -1,0 +1,69 @@
+---
+/**
+ * The "Meet the Teams" teaser on the About page. Every eligible team renders into the DOM
+ * (mirrors NewsGrid.astro's filter-via-JS pattern), and a client script picks a random
+ * `count` of them to reveal on each visit — no server here to reroll per-request, so the
+ * reshuffle has to happen in the browser instead.
+ *
+ * Progressive enhancement: the server-rendered default (no JS) is the same
+ * featured-then-number selection this teaser used before randomization existed, guaranteeing
+ * at least one FTC team alongside FRC teams. That set is what a no-JS visitor sees; everyone
+ * else gets a fresh random `count` on load.
+ */
+import TeamCard from '../cards/TeamCard.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  teams: CollectionEntry<'teams'>[];
+  count?: number;
+}
+
+const { teams, count = 3 } = Astro.props;
+
+const sortByNumber = (a: (typeof teams)[number], b: (typeof teams)[number]) => Number(a.data.number) - Number(b.data.number);
+const byFeaturedThenNumber = (a: (typeof teams)[number], b: (typeof teams)[number]) =>
+  Number(b.data.featured) - Number(a.data.featured) || sortByNumber(a, b);
+const frcTeams = teams.filter((t) => t.data.program === 'FRC').sort(byFeaturedThenNumber);
+const ftcTeams = teams.filter((t) => t.data.program === 'FTC').sort(byFeaturedThenNumber);
+const featuredFtc = ftcTeams.slice(0, 1);
+const featuredFrc = frcTeams.slice(0, count - featuredFtc.length);
+const defaultIds = new Set([...featuredFtc, ...featuredFrc].map((t) => t.id));
+
+const orderedTeams = [...teams].sort(sortByNumber);
+---
+
+{
+  orderedTeams.length > 0 ? (
+    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group data-team-teaser data-team-count={count}>
+      {orderedTeams.map((team) => (
+        <div data-team-card class:list={[!defaultIds.has(team.id) && 'hidden']}>
+          <TeamCard team={team} />
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p class="mt-8 text-sm text-slate-500">Team directory coming soon.</p>
+  )
+}
+
+<script>
+  function shuffleTeamsTeaser() {
+    document.querySelectorAll<HTMLElement>('[data-team-teaser]').forEach((container) => {
+      const count = Number(container.dataset.teamCount ?? '3');
+      const cards = Array.from(container.querySelectorAll<HTMLElement>('[data-team-card]'));
+      if (cards.length <= count) return;
+
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+      }
+      const chosen = new Set(cards.slice(0, count));
+      cards.forEach((card) => card.classList.toggle('hidden', !chosen.has(card)));
+    });
+  }
+
+  shuffleTeamsTeaser();
+  // No-op today (no client-side router is in use), but keeps this correct if view
+  // transitions are ever enabled later — matches MarketingLayout's reveal script.
+  document.addEventListener('astro:page-load', shuffleTeamsTeaser);
+</script>
