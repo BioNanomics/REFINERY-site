@@ -1,14 +1,22 @@
 /**
- * Plain Tailwind stylesheet for all custom (non-Starlight) pages.
- * Imported only by MarketingLayout.astro — isolated from Starlight's
- * cascade so its reset/base styles never fight the doc pages under
- * /resources (see global.css).
+ * The site's Tailwind stylesheet. Imported only by BaseHead.astro, so every
+ * page picks it up through the shared layout.
  */
 @import 'tailwindcss';
 @import './tokens.css';
 @plugin '@tailwindcss/typography';
 
 @theme {
+  /* Page surface. Deliberately NOT #fff: cards, the sticky header, and
+     secondary buttons are all pure white, so tinting the page is what
+     gives them something to sit on. A white page made every one of them
+     read as a 1px border and nothing else. Brand navy at ~3.5% so the
+     softening stays in the same family as the shadows.
+
+     This is the ONLY depth cue left now that banding is off, so lightening
+     it further trades directly against how much cards lift: #fff over this
+     is an 8/6/5 delta, versus 13/10/8 at the ~5.5% (#f2f5f7) it came from. */
+  --color-page: #f7f9fa;
   --color-brand: #134b70;
   --color-brand-accent: #40a578;
   --color-brand-light: #eeeeee;
@@ -406,31 +414,18 @@
     max-width: 80rem;
   }
 
-  /* Tinted band. Translucent, not opaque — the fixed .grid-texture layer
-     in MarketingLayout sits behind everything at -z-10, so a translucent
-     tint lets it show through (tint + grid = the section reads as
-     "deeper") while a plain section stays flat. An opaque tint here would
-     hide the texture and put the depth cue backwards. */
+  /* Banding currently OFF — kept as an inert hook so the call sites across the
+     pages stay valid and it's a two-line restore. To re-enable, give this
+     `background-color: var(--refinery-color-surface-tint)` (the token is still
+     in tokens.css) and bring back the ::before/::after edge fades.
+
+     Two constraints if it ever comes back: the tint must be DARKER than the
+     page, never lighter — cards, the sticky header, and secondary buttons are
+     all pure white, so a white band would swallow them. And the edge fades
+     must resolve to var(--refinery-color-bg), not a hardcoded #fff, which
+     streaks against a tinted page. */
   .band {
     position: relative;
-    background-color: var(--refinery-color-surface-tint);
-  }
-  .band::before,
-  .band::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 3.5rem;
-    pointer-events: none;
-  }
-  .band::before {
-    top: 0;
-    background: linear-gradient(to bottom, #fff, transparent);
-  }
-  .band::after {
-    bottom: 0;
-    background: linear-gradient(to top, #fff, transparent);
   }
 
   /* Soft rule for same-color adjacencies — replaces `border-t

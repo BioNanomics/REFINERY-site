@@ -21,7 +21,7 @@
   --refinery-color-accent: #40a578;
   --refinery-color-primary-light: #eeeeee;
   --refinery-color-accent-light: #a1d18b;
-  --refinery-color-bg: #ffffff;
+  --refinery-color-bg: #f7f9fa;
   --refinery-color-surface-dark: #18181b;
   --refinery-color-surface-card: #232326;
 
@@ -34,7 +34,10 @@
      @theme values with no generated-utility consumer get dropped from
      output, but a plain :root custom property never is. */
   --refinery-color-border: #e2e8f0; /* was: border-slate-200 */
-  --refinery-color-surface-tint: rgb(19 75 112 / 0.028); /* translucent brand navy */
+  /* Band tint, composited OVER --refinery-color-bg (not over white). Parked:
+     banding is currently off in marketing.css, but kept here so re-enabling
+     .band is a two-line change rather than a re-derivation. */
+  --refinery-color-surface-tint: rgb(19 75 112 / 0.06); /* translucent brand navy */
 
   /* Motion geometry read by .reveal rules in marketing.css. */
   --refinery-reveal-distance: 14px;

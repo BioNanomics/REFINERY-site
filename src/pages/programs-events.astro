@@ -32,7 +32,7 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
 
   {
     featuredEvents.length > 0 && (
-      <section class="band section">
+      <section class="section">
         <div class="section-inner">
           <SectionHeading eyebrow="Featured" title="Featured Events" align="left" />
           <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
@@ -43,7 +43,9 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
     )
   }
 
-  <section class="section">
+  {/* Featured is conditional, so this is the first content section whenever there are no
+      featured events — and the first content section on every page goes without a rule. */}
+  <section class:list={['section', featuredEvents.length > 0 && 'section-rule']}>
     <div class="section-inner">
       <SectionHeading eyebrow="Calendar" title="Upcoming Events" align="left" />
       <div class="card mt-8 overflow-hidden" data-reveal>
@@ -66,7 +68,7 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
     </div>
   </section>
 
-  <section class="band section-loose section">
+  <section class="section-rule section-loose section">
     <div class="section-inner">
       <SectionHeading eyebrow="Ongoing" title="Ongoing Programs" align="left" />
       {
