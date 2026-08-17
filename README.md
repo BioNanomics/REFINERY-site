@@ -1,4 +1,5 @@
 # REFINERY Website
+[![Deploy to GitHub Pages](https://github.com/BioNanomics/REFINERY-site/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/BioNanomics/REFINERY-site/actions/workflows/deploy.yml)
 
 The public site for **The REFINERY**, a nonprofit robotics makerspace affiliated with
 BioNanomics. Built with [Astro](https://astro.build),
