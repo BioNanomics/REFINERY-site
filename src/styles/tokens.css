@@ -11,10 +11,14 @@
  * grey/black (--refinery-color-surface-dark), not the navy brand color —
  * keeps the site reading as "dark mode" rather than "blue site".
  *
- * IMPORTANT: Tailwind v4's `@theme` block (in marketing.css) requires static
- * literal values, it can't consume var() reliably for utility generation.
- * If you change a value here, mirror it into src/styles/marketing.css's
- * `@theme` block.
+ * IMPORTANT: the color values here are duplicated in Tailwind v4's `@theme` block (in
+ * marketing.css), which needs static literals so it can generate utilities with opacity
+ * modifiers. If you change a color here, mirror it there.
+ *
+ * Fonts are NOT duplicated. They live in astro.config.mjs's `fonts` array, and `@theme`
+ * points at the cssVariable Astro generates for each family — verified to generate the
+ * font-heading/font-body/font-mono utilities correctly, since a bare font-family needs no
+ * literal the way a color does.
  */
 :root {
   --refinery-color-primary: #134b70;
@@ -24,10 +28,6 @@
   --refinery-color-bg: #f7f9fa;
   --refinery-color-surface-dark: #18181b;
   --refinery-color-surface-card: #232326;
-
-  --refinery-font-heading: 'Inter', system-ui, sans-serif;
-  --refinery-font-body: 'Inter', system-ui, sans-serif;
-  --refinery-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Surfaces & hairlines for the .card/.band primitives in marketing.css.
      Kept here (not in @theme) so they survive Tailwind v4's tree-shaking —

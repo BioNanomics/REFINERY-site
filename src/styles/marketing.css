@@ -23,9 +23,13 @@
   --color-brand-accent-light: #a1d18b;
   --color-surface-dark: #18181b;
   --color-surface-card: #232326;
-  --font-heading: 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Fonts are self-hosted and declared in astro.config.mjs's `fonts` array; Astro exposes
+     each family's full stack (family name + optimized metric fallbacks) as the cssVariable
+     named there. Referencing those here keeps one source of truth, so weights, subsets, and
+     fallbacks are configured in exactly one place. */
+  --font-heading: var(--font-inter);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 
   /* Radius — semantic names so cards/controls/media can move together
      later without touching every call site. Tailwind's own --radius-sm

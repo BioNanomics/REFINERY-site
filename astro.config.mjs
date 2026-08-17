@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
@@ -20,6 +20,41 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+
+  // Self-hosted via Astro's font pipeline, replacing two render-blocking requests to
+  // fonts.googleapis.com on every page. The families are consumed through @theme in
+  // src/styles/marketing.css and rendered by <Font> in src/layouts/BaseHead.astro.
+  //
+  // `weights` lists what the codebase actually uses — Astro defaults to 400 only, and the
+  // old Google Fonts URL was wrong in both directions (it requested Inter 400-800 correctly
+  // but only mono 500/700, while the CSS also asks for mono 400 and 600).
+  //
+  // `styles` includes italic deliberately. The FIRST® trademark treatment (.first-mark in
+  // src/styles/tokens.css) is `font-style: italic; font-weight: inherit`, applied site-wide
+  // by both FirstText.astro and rehype-first-marks.mjs. The old Google URL requested no
+  // italic axis at all, so every trademark was a browser-synthesized oblique — which the
+  // FIRST Branding Guidelines don't allow. Mono italic 700 matters too: .eyebrow-tag is
+  // mono at weight 700 and hosts a FirstText in both Hero and SectionHeading.
+  fonts: [
+    {
+      name: 'Inter',
+      cssVariable: '--font-inter',
+      provider: fontProviders.fontsource(),
+      weights: [400, 500, 600, 700, 800],
+      styles: ['normal', 'italic'],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      name: 'JetBrains Mono',
+      cssVariable: '--font-jetbrains-mono',
+      provider: fontProviders.fontsource(),
+      weights: [400, 500, 600, 700],
+      styles: ['normal', 'italic'],
+      subsets: ['latin'],
+      fallbacks: ['ui-monospace', 'monospace'],
+    },
+  ],
 
   // Both run over every Markdown/MDX body; MDX inherits them via `extendMarkdownConfig`.
   // rehypeFirstMarks styles FIRST® trademarks, so authors just type FIRST in capitals.

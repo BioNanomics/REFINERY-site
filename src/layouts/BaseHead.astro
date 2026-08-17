@@ -1,5 +1,6 @@
 ---
 import '../styles/marketing.css';
+import { Font } from 'astro:assets';
 import { withBase } from '../utils/base';
 import { firstPlain } from '../utils/first';
 
@@ -34,9 +35,25 @@ const description = firstPlain(rawDescription);
 <meta property="og:image" content={new URL(image, Astro.site)} />
 <meta name="twitter:card" content="summary_large_image" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
-  rel="stylesheet"
+{/*
+  Self-hosted — families are declared in astro.config.mjs. Preloads are limited to the faces
+  that actually render above the fold, since preloading every weight and style would be ~18
+  files and defeat the point: Inter 400 (body), 600 (.btn and the nav), 800 (the h1), and
+  JetBrains Mono 400 (nav numerals) and 700 (.eyebrow-tag). Everything else, italics
+  included, arrives via display: swap.
+*/}
+<Font
+  cssVariable="--font-inter"
+  preload={[
+    { weight: 400, style: 'normal' },
+    { weight: 600, style: 'normal' },
+    { weight: 800, style: 'normal' },
+  ]}
+/>
+<Font
+  cssVariable="--font-jetbrains-mono"
+  preload={[
+    { weight: 400, style: 'normal' },
+    { weight: 700, style: 'normal' },
+  ]}
 />
