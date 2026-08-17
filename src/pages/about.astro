@@ -14,7 +14,12 @@ import { withBase } from '../utils/base';
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 
 const facilityAddress = '1750 Broadway, Fort Wayne, IN';
-const facilityMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(facilityAddress)}&output=embed`;
+// t=h is hybrid — satellite imagery with road and place labels drawn over it, which is
+// what Google's own "Satellite" toggle shows. Use t=k for bare imagery with no labels.
+// z=18 frames the building; satellite at the default zoom is too far out to be useful.
+const facilityMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(facilityAddress)}&t=h&z=18&output=embed`;
+// Ships as a plain Google Maps web URL so the link works with no JS and on desktop.
+// A script at the foot of this page swaps it for a native handoff on mobile.
 const facilityMapLinkUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(facilityAddress)}`;
 const people = (await getCollection('people', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
 const partners = await getCollection('partners', ({ data }) => !data.draft);
@@ -127,6 +132,8 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
       </div>
       <a
         href={facilityMapLinkUrl}
+        data-map-link
+        data-map-address={facilityAddress}
         target="_blank"
         rel="noopener noreferrer"
         class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
@@ -194,3 +201,47 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 </MarketingLayout>
+
+<script>
+  // The facility address link ships as a Google Maps web URL, so it already works with
+  // no JS and everywhere that isn't a phone. On mobile we rewrite it in place to hand
+  // off to a native app instead:
+  //
+  //   Android — a geo: URI. This is the only form that honours whichever map app the
+  //             user has actually set as their default; an https://maps.google.com link
+  //             forces Google Maps regardless of that preference.
+  //   iOS     — maps.apple.com, a universal link that opens the Maps app directly. iOS
+  //             has no general "default map app" setting to respect (the EU-only
+  //             navigation-default option aside), so Apple Maps is the right target.
+  //
+  // Anything else — desktop, or an unrecognised UA — keeps the Google Maps URL that was
+  // already in the markup, which is the "no such thing" fallback.
+  function initMapLink() {
+    const link = document.querySelector<HTMLAnchorElement>('[data-map-link]');
+    if (!link) return;
+
+    const address = link.dataset.mapAddress;
+    if (!address) return;
+    const q = encodeURIComponent(address);
+
+    const ua = navigator.userAgent;
+    // iPadOS 13+ reports a Macintosh UA, so touch points are what separate it from a
+    // desktop Mac — which should keep the web URL.
+    const isIOS =
+      /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+
+    if (/Android/.test(ua)) link.href = `geo:0,0?q=${q}`;
+    else if (isIOS) link.href = `https://maps.apple.com/?q=${q}`;
+    else return;
+
+    // Handing off to an app replaces the page's context rather than opening a browser
+    // tab, so target=_blank would strand an empty tab behind once the app launches.
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
+  }
+
+  initMapLink();
+  // Matches the reveal script's pattern in MarketingLayout — a no-op today, but correct
+  // if view transitions are ever turned on.
+  document.addEventListener('astro:page-load', initMapLink);
+</script>
