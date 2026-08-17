@@ -100,7 +100,10 @@ const jsonLdOut = nodes.length === 0 ? undefined : nodes.length === 1 ? nodes[0]
     {/* The alpha here is the single knob for how strong the texture reads — see .grid-texture. */}
     <div class="grid-texture pointer-events-none fixed inset-0 -z-10 text-brand/[0.055]" aria-hidden="true"></div>
     <SiteHeader />
-    <main class="flex-1">
+    {/* has-breadcrumb-trail tightens the first section's top padding, since the trail already
+        provides that gap — see the rule in marketing.css. Keeps a breadcrumbed page's heading
+        at the same height as its siblings' instead of pushing it down by the trail's height. */}
+    <main class:list={['flex-1', breadcrumbs?.length && 'has-breadcrumb-trail']}>
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} narrow={breadcrumbsNarrow} />}
       <slot />
     </main>

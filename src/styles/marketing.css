@@ -449,6 +449,16 @@
     padding-block: 7rem;
   }
 
+  /* A breadcrumb trail already supplies the gap below the header, so the first section
+     underneath one must not stack its own full padding on top. MarketingLayout sets this
+     class on <main> whenever it renders a trail; ArticleLayout applies the equivalent pt-6
+     to its own <article> directly. Both land the heading block 1.5rem under the trail, so a
+     breadcrumbed page's h1 sits where a reader expects it rather than 40px lower than its
+     siblings. Applies to the first section only — later sections keep the normal rhythm. */
+  .has-breadcrumb-trail > section:first-of-type {
+    padding-top: 1.5rem;
+  }
+
   .section-inner {
     margin-inline: auto;
     width: 100%;

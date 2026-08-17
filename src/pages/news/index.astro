@@ -12,14 +12,17 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
   title="Robotics News from Northeast Indiana"
   description="Updates from The REFINERY, our teams, and the broader Northeast Indiana robotics community."
 >
-  <section class="section-loose section">
+  {/* section-tight, matching every other listing page. section-loose put this h1 64px lower
+      than its siblings. No text-center on the section: the NewsGrid below is in here too, and
+      SectionHeading's align="center" already centers its own block. */}
+  <section class="section-tight section">
     <div class="section-inner">
       <SectionHeading
         as="h1"
         eyebrow="News"
         title="Updates from The REFINERY and the region"
         description="The REFINERY's news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
-        align="left"
+        align="center"
       />
       <div class="mt-10">
         <NewsGrid posts={posts} />
