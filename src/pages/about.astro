@@ -14,7 +14,12 @@ import { withBase } from '../utils/base';
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 
 const facilityAddress = '1750 Broadway, Fort Wayne, IN';
-const facilityMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(facilityAddress)}&output=embed`;
+// t=h is hybrid — satellite imagery with road and place labels drawn over it, which is
+// what Google's own "Satellite" toggle shows. Use t=k for bare imagery with no labels.
+// z=18 frames the building; satellite at the default zoom is too far out to be useful.
+const facilityMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(facilityAddress)}&t=h&z=18&output=embed`;
+// Ships as a plain Google Maps web URL so the link works with no JS and on desktop.
+// A script at the foot of this page swaps it for a native handoff on mobile.
 const facilityMapLinkUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(facilityAddress)}`;
 const people = (await getCollection('people', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
 const partners = await getCollection('partners', ({ data }) => !data.draft);
@@ -25,16 +30,18 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   description="The REFINERY's story, mission, teams, people, facility, and partners."
 >
   <section class="section-tight section text-center">
-    <div class="section-inner section-inner-narrow">
+    <div class="section-inner">
       <SectionHeading eyebrow="About" title="Who we are and how we work" align="center" />
     </div>
   </section>
 
   <section id="our-story" class="section scroll-mt-6">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Our Story</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
+    <div class="section-inner section-split">
+      <div>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Our Story</h2>
+      </div>
+      <p class="text-slate-600" data-reveal>
         Young robotics teams have long faced the same challenge: building
         a competitive program takes far more than a robot, and few schools or communities can build
         all of that infrastructure alone. The REFINERY grew out of a shared makerspace built to
@@ -44,25 +51,29 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 
-  <section id="mission-vision" class="band scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Mission</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        {/* DRAFT — placeholder mission/vision statement pending final language from the client. */}
-        The REFINERY exists so that no robotics team in Northeast Indiana has to build its
-        infrastructure alone. We provide the funding, parts, tools, facilities, training, and
+  <section id="mission-vision" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-split">
+      <div>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Mission</h2>
+      </div>
+      <p class="text-slate-600" data-reveal>
+        {/* DRAFT — placeholder mission statement pending final language from the client. */}
+        The REFINERY exists so that no <First /> robotics team in Northeast Indiana has to build
+        its infrastructure alone. We provide the funding, parts, tools, facilities, training, and
         community that let teams start, grow, and succeed.
       </p>
     </div>
   </section>
 
-  <section id="model" class="section scroll-mt-6 text-center">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>How the Model Works</h2>
+  <section id="model" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-split">
+      <div>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>How the Model Works</h2>
+      </div>
       <p
-        class="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base"
+        class="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base"
         data-reveal
       >
         <span>Funding</span><span class="text-brand-accent">+</span>
@@ -77,7 +88,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 
-  <section id="teams" class="band scroll-mt-6 section">
+  <section id="teams" class="section-rule scroll-mt-6 section">
     <div class="section-inner">
       <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
       <SectionHeading title="Meet the Teams" align="left" />
@@ -89,22 +100,19 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   </section>
 
   <section id="impact" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact & Reports</h2>
-      <div class="mt-6">
+    <div class="section-inner section-split">
+      <div>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact</h2>
+      </div>
+      <div>
         <ImpactStats>
-          <p class="mt-8 text-slate-600" data-reveal>
-            {/* DRAFT — placeholder pending real annual reports and financial information. */}
-            Annual reports, financial information, organizational milestones, and major funding
-            acknowledgments will be published here.
-          </p>
         </ImpactStats>
       </div>
     </div>
   </section>
 
-  <section id="people" class="band scroll-mt-6 section">
+  <section id="people" class="section-rule scroll-mt-6 section">
     <div class="section-inner">
       <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
       <SectionHeading title="People & Leadership" align="left" />
@@ -113,15 +121,58 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   </section>
 
   <section id="facility" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Facility</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        {/* DRAFT — placeholder pending real facility photos, capabilities, parking, and accessibility details. */}
-        Photos, capabilities, parking, and accessibility information for The REFINERY's shop will
-        be published here.
+    <div class="section-inner section-split">
+      <div>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Facility</h2>
+      </div>
+      <div>
+      <p class="text-slate-600" data-reveal>
+        The REFINERY doesn't keep regular hours, so every visit is by appointment, including
+        visits from teams outside The REFINERY. Get in touch and we'll find a time.
       </p>
-      <div class="card mt-6 overflow-hidden" data-reveal>
+      <a
+        href="mailto:info@refineryrobotics.org?subject=Visiting%20The%20REFINERY"
+        data-contact-open="contact"
+        class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+        data-reveal
+      >
+        Request a visit &rarr;
+      </a>
+
+      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>In the shop</h3>
+      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
+        {
+          [
+            'Full practice field',
+            'CNC router',
+            'Drill press',
+            'Hydraulic press',
+            'Shear, press brake, and slip roll combo',
+            '14" vertical bandsaw',
+          ].map((item) => (
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+          ))
+        }
+      </ul>
+
+      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>Parking</h3>
+      <p class="mt-2 text-slate-600" data-reveal>
+        Parking is free on either side of Broadway, and there's a loading zone the size of two
+        spaces directly outside our door. If you need somewhere else to put a trailer or a team's
+        worth of cars, Electric Works publishes a{' '}
+        <a
+          href="https://fortwayneelectricworks.com/parking-map/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-brand-accent hover:underline"
+        >
+          parking map
+        </a>{' '}
+        with more options.
+      </p>
+
+      <div class="card mt-8 overflow-hidden" data-reveal>
         <iframe
           src={facilityMapEmbedUrl}
           title="Map showing The REFINERY's location"
@@ -132,26 +183,34 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
       </div>
       <a
         href={facilityMapLinkUrl}
+        data-map-link
+        data-map-address={facilityAddress}
         target="_blank"
         rel="noopener noreferrer"
         class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
       >
-        {facilityAddress} &nearr;
+        {facilityAddress}
       </a>
+      </div>
     </div>
   </section>
 
-  <section id="partners" class="band scroll-mt-6 section">
+  <section id="partners" class="section-rule scroll-mt-6 section">
     <div class="section-inner">
       <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
       <SectionHeading title="Partners" align="left" />
+      {/* The logo row is centered until two logos fit on a line (the two widest need
+          ~592px, so md is the first breakpoint that reliably holds a pair). Below that
+          every logo wraps to its own row, where flush-left leaves the narrow ones
+          looking stranded; from md it left-aligns to match the section heading. */}
       {
         partners.length > 0 ? (
-          <div class="partner-row mt-8 flex flex-wrap items-center gap-8" data-reveal-group>
+          <div class="partner-row mt-8 flex flex-wrap items-center justify-center gap-8 md:justify-start" data-reveal-group>
             {partners.map((partner) => (
               <a
                 href={partner.data.url ?? '#'}
                 target={partner.data.url ? '_blank' : undefined}
+                data-no-external-arrow
                 rel={partner.data.url ? 'noopener noreferrer' : undefined}
                 class="transition duration-base ease-out-soft hover:-translate-y-0.5"
                 title={firstPlain(partner.data.name)}
@@ -168,12 +227,15 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
     </div>
   </section>
 
-  <section id="contact" class="section-loose scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Contact & Policies</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        The REFINERY follows and enforces the{' '}
+  <section id="contact" class="section-rule section-loose scroll-mt-6 section">
+    <div class="section-inner section-split">
+      <div>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
+        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Policies</h2>
+      </div>
+      <div>
+      <p class="text-slate-600" data-reveal>
+        The REFINERY follows the{' '}
         <a
           href="https://www.firstinspires.org/programs/youth-protection-program"
           target="_blank"
@@ -196,9 +258,51 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
         </a>
         , covering safety, supervision, tool use, and facility conduct.
       </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton href="mailto:info@refineryrobotics.org?subject=General%20Inquiry" variant="secondary" dialog="contact">Contact Us</CTAButton>
       </div>
     </div>
   </section>
 </MarketingLayout>
+
+<script>
+  // The facility address link ships as a Google Maps web URL, so it already works with
+  // no JS and everywhere that isn't a phone. On mobile we rewrite it in place to hand
+  // off to a native app instead:
+  //
+  //   Android — a geo: URI. This is the only form that honours whichever map app the
+  //             user has actually set as their default; an https://maps.google.com link
+  //             forces Google Maps regardless of that preference.
+  //   iOS     — maps.apple.com, a universal link that opens the Maps app directly. iOS
+  //             has no general "default map app" setting to respect (the EU-only
+  //             navigation-default option aside), so Apple Maps is the right target.
+  //
+  // Anything else — desktop, or an unrecognised UA — keeps the Google Maps URL that was
+  // already in the markup, which is the "no such thing" fallback.
+  function initMapLink() {
+    const link = document.querySelector<HTMLAnchorElement>('[data-map-link]');
+    if (!link) return;
+
+    const address = link.dataset.mapAddress;
+    if (!address) return;
+    const q = encodeURIComponent(address);
+
+    const ua = navigator.userAgent;
+    // iPadOS 13+ reports a Macintosh UA, so touch points are what separate it from a
+    // desktop Mac — which should keep the web URL.
+    const isIOS =
+      /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+
+    if (/Android/.test(ua)) link.href = `geo:0,0?q=${q}`;
+    else if (isIOS) link.href = `https://maps.apple.com/?q=${q}`;
+    else return;
+
+    // Handing off to an app replaces the page's context rather than opening a browser
+    // tab, so target=_blank would strand an empty tab behind once the app launches.
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
+  }
+
+  initMapLink();
+  // Matches the reveal script's pattern in MarketingLayout — a no-op today, but correct
+  // if view transitions are ever turned on.
+  document.addEventListener('astro:page-load', initMapLink);
+</script>

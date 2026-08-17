@@ -2,8 +2,8 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
-import starlight from '@astrojs/starlight';
 import rehypeFirstMarks from './src/plugins/rehype-first-marks.mjs';
+import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -18,35 +18,13 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  // Styles FIRST® trademarks in every Markdown/MDX body. MDX and Starlight both inherit
-  // this via `extendMarkdownConfig`, so content authors just type FIRST in capitals.
+  // Both run over every Markdown/MDX body; MDX inherits them via `extendMarkdownConfig`.
+  // rehypeFirstMarks styles FIRST® trademarks, so authors just type FIRST in capitals.
+  // rehypeExternalLinks marks absolute links as external, so a plain Markdown link picks up
+  // the same new-tab behaviour and ↗ indicator as one written in an .astro template.
   markdown: {
-    rehypePlugins: [rehypeFirstMarks],
+    rehypePlugins: [rehypeFirstMarks, rehypeExternalLinks],
   },
 
-  integrations: [
-    starlight({
-      title: 'The REFINERY Documentation',
-      favicon: '/favicon.png',
-      logo: {
-        light: './src/assets/logo-full-color.svg',
-        dark: './src/assets/logo-reversed.svg',
-        replacesTitle: true,
-      },
-      // We ship our own branded 404 at src/pages/404.astro for the whole site.
-      disable404Route: true,
-      customCss: ['./src/styles/global.css'],
-      sidebar: [
-        { label: 'Mentor Guides', items: [{ autogenerate: { directory: 'resources/mentor-guides' } }] },
-        { label: 'Technical Deep-Dives', items: [{ autogenerate: { directory: 'resources/technical' } }] },
-      ],
-      components: {
-        Header: './src/components/starlight/Header.astro',
-        Footer: './src/components/starlight/Footer.astro',
-        ThemeProvider: './src/components/starlight/ThemeProvider.astro',
-        ThemeSelect: './src/components/starlight/ThemeSelectEmpty.astro',
-      },
-    }),
-    mdx(),
-  ],
+  integrations: [mdx()],
 });

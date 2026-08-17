@@ -8,14 +8,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:docs": "astro build --config astro.config.docs.mjs --outDir dist-docs",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
-    "@astrojs/starlight": "^0.41.7",
-    "@astrojs/starlight-tailwind": "^5.0.0",
     "@tailwindcss/vite": "^4.3.2",
     "astro": "^7.2.1",
     "tailwindcss": "^4.3.2"

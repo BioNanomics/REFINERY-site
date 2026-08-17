@@ -1,14 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { docsLoader } from '@astrojs/starlight/loaders';
-import { docsSchema } from '@astrojs/starlight/schema';
 import { NEWS_CATEGORY_SLUGS } from './utils/news-categories';
-
-// NOTE: Starlight generates routes purely from this collection's file paths.
-// Every doc must live under src/content/docs/resources/** so that all
-// Starlight-rendered routes stay scoped to /resources/* — never add a file
-// directly under src/content/docs/ (outside resources/) or it will leak a
-// route elsewhere on the site.
 
 // A story can belong to more than one category. Frontmatter accepts any of:
 //   category: teams
@@ -134,26 +126,19 @@ const people = defineCollection({
       photo: image().optional(),
       bio: z.string().optional(),
       quote: z.string().optional(),
-      linkedin: z.string().url().optional(),
+      // A bare URL for one person, or one {name, url} per person when a single entry
+      // covers more than one (a founding couple sharing a card). PeopleBios normalizes
+      // both to an array, so existing single-URL entries need no change.
+      linkedin: z
+        .union([
+          z.string().url(),
+          z.array(z.object({ name: z.string(), url: z.string().url() })).nonempty(),
+        ])
+        .optional(),
       order: z.number().default(0),
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),
     }),
 });
 
-const apps = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/apps' }),
-  schema: ({ image }) =>
-    z.object({
-      name: z.string(),
-      summary: z.string(),
-      icon: image().optional(),
-      externalUrl: z.string().url(),
-      status: z.enum(['live', 'beta', 'coming-soon']).default('live'),
-      order: z.number().default(0),
-    }),
-});
-
-const docs = defineCollection({ loader: docsLoader(), schema: docsSchema() });
-
-export const collections = { news, teams, programs, events, partners, people, apps, docs };
+export const collections = { news, teams, programs, events, partners, people };
