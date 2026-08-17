@@ -184,6 +184,169 @@
     box-shadow: var(--shadow-float);
   }
 
+  /* ── Buttons ──────────────────────────────────────────────────────────
+     Shared by CTAButton.astro (an <a>) and the dialog forms' submit/cancel
+     controls (real <button>s) — CTAButton has no slot for a native submit
+     button, so the class needed to exist independently of the component. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-control);
+    border-width: 2px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all var(--transition-duration-base) var(--ease-out-soft);
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 2px;
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+  }
+  .btn-primary {
+    border-color: var(--color-brand-accent);
+    background-color: var(--color-brand-accent);
+    color: var(--color-brand-light);
+  }
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+  .btn-secondary {
+    border-color: var(--color-brand);
+    background-color: #fff;
+    color: var(--color-brand);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: #f1f5f9;
+  }
+
+  /* ── Contact-form dialogs ─────────────────────────────────────────────
+     Native <dialog> gives focus trapping, Esc-to-close, and top-layer
+     stacking for free — it renders above the header (z-40 in
+     SiteHeader.astro) and the fixed grid-texture layer with no z-index of
+     our own. Column flex + a scrolling body keeps the header/footer of the
+     dialog pinned while the (taller, on the Start-a-Team form) field list
+     scrolls on small screens. */
+  /* Shown via dialog.show(), not showModal() — a captcha challenge (hCaptcha, via the
+     Web3Forms widget) renders on a normal-layer overlay of its own, most likely appended to
+     document.body rather than nested inside our dialog's own subtree. showModal()'s browser
+     "top layer" paints above the ENTIRE normal document regardless of z-index — proven
+     empirically, a document.body-appended element at z-index 2147483647 still rendered
+     BELOW a showModal()'d dialog — so a top-layer dialog can never let a normal-layer
+     challenge overlay appear in front of it. show() keeps everything in the same normal
+     stacking context, where ordinary z-index rules apply and the captcha's own (typically
+     very high) z-index can do its job. The cost: show() gives us none of showModal()'s
+     built-ins (backdrop, focus trap, Esc-to-close, background inert) for free — all
+     hand-rolled below and in ContactDialogs.astro's script.
+
+     display is intentionally left unset on the base (closed) rule — the browser's own
+     `dialog:not([open]) { display: none }` UA style is what keeps this un-rendered and
+     non-interactive while closed; an unconditional `display: flex` here would beat that UA
+     rule and make the dialog paint (and swallow clicks) at all times. position/z-index are
+     safe to set unconditionally since display:none already removes it from paint either way,
+     and show() (unlike showModal()) never applies its own centering — this is the only
+     source of it now. */
+  .dialog-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 101;
+    margin: auto;
+    width: calc(100% - 2rem);
+    max-width: 32rem;
+    max-height: calc(100dvh - 3rem);
+    padding: 0;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--refinery-color-border);
+    box-shadow: var(--shadow-float);
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition:
+      opacity var(--transition-duration-base) var(--ease-out-soft),
+      transform var(--transition-duration-base) var(--ease-out-soft),
+      display var(--transition-duration-base) allow-discrete;
+  }
+  .dialog-panel[open] {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    .dialog-panel[open] {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+
+  /* Real sibling element standing in for ::backdrop, which only exists for showModal()'d
+     dialogs. Toggled by ContactDialogs.astro's script alongside dialog.show()/close(). */
+  .dialog-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: color-mix(in srgb, var(--color-brand) 45%, transparent);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition:
+      opacity var(--transition-duration-base) var(--ease-out-soft),
+      display var(--transition-duration-base) allow-discrete;
+  }
+  .dialog-backdrop.is-open {
+    display: block;
+    opacity: 1;
+  }
+  @starting-style {
+    .dialog-backdrop.is-open {
+      opacity: 0;
+    }
+  }
+  .dialog-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+  }
+
+  /* Text/number/email/tel + textarea fields across both dialog forms. */
+  .form-input {
+    width: 100%;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--refinery-color-border);
+    background-color: #fff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-brand);
+    transition: border-color var(--transition-duration-fast) var(--ease-out-soft);
+  }
+  .form-input::placeholder {
+    color: #94a3b8;
+  }
+  .form-input:focus-visible {
+    border-color: var(--color-brand-accent);
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 1px;
+  }
+
+  /* Locks background scroll while a dialog is open — <dialog> traps focus
+     and keyboard scroll on its own, but not touch/wheel scroll of the page
+     behind it (notably on iOS Safari). Toggled by ContactDialogs.astro's
+     script alongside showModal()/close(). */
+  html.dialog-open {
+    overflow: hidden;
+  }
+
   /* Hides the native scrollbar on carousel tracks — the prev/next buttons
      and touch/trackpad swipe remain the way to scroll, a visible
      system scrollbar underneath them just reads as visual noise. */
@@ -330,6 +493,13 @@
   }
   html.js-reveal [data-reveal] {
     opacity: 1;
+    transform: none;
+  }
+  .btn:hover {
+    transform: none;
+  }
+  .dialog-panel,
+  .dialog-panel[open] {
     transform: none;
   }
 }

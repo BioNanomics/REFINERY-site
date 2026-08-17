@@ -2,23 +2,27 @@
 interface Props {
   href: string;
   variant?: 'primary' | 'secondary';
+  /**
+   * Opens the matching contact popup instead of following `href` — but only
+   * once the popup script decides it can (a delivery endpoint is configured,
+   * and the browser supports <dialog>). `href` stays a real mailto: link the
+   * whole time, so this is additive: with JS off, or with forms.ts left
+   * blank, the button behaves exactly as if this prop were never set.
+   */
+  dialog?: 'contact';
+  /**
+   * A `ContactTopic` value from src/config/contact-forms.ts. Sets what the popup
+   * is about — its heading, subject line and which questions it asks — and hides
+   * the "what is this about?" question, since this button already answered it.
+   * Leave unset for a general-purpose contact button.
+   */
+  topic?: string;
 }
 
-const { href, variant = 'primary' } = Astro.props;
-
-const styles = {
-  primary: 'bg-brand-accent text-brand-light border-brand-accent hover:brightness-110',
-  secondary: 'bg-white text-brand border-brand hover:bg-slate-100',
-};
+const { href, variant = 'primary', dialog, topic } = Astro.props;
 ---
 
-<a
-  href={href}
-  class:list={[
-    'inline-flex items-center justify-center rounded-control border-2 px-6 py-3 text-sm font-semibold transition duration-base ease-out-soft hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent',
-    styles[variant],
-  ]}
->
+<a href={href} data-contact-open={dialog} data-contact-topic={topic} class:list={['btn', `btn-${variant}`]}>
   {/* The label lives in one span so it stays a single flex item. Labels that contain inline
       markup — the italic <First /> mark, for instance — would otherwise split into separate
       flex items and lose the spaces around them. */}

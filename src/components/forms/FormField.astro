@@ -1,0 +1,134 @@
+---
+import type { Field } from '../../config/contact-forms';
+
+interface Props {
+  field: Field;
+  /** Prefix so ids stay unique when the same field name appears twice. */
+  idPrefix: string;
+}
+
+const { field, idPrefix } = Astro.props;
+const fieldId = `${idPrefix}-${field.key ?? field.name}`;
+const errorId = `${fieldId}-error`;
+const hintId = field.hint ? `${fieldId}-hint` : undefined;
+// Both ids, so a screen reader reads the guidance along with the control rather
+// than leaving it stranded as nearby text.
+const describedBy = [hintId, errorId].filter(Boolean).join(' ');
+
+// Radio and checkbox share the fieldset/legend layout below. Two things differ.
+//
+// Pre-checking: only an explicit `default` ever pre-selects a radio, and a
+// checkbox group always opens empty. Nothing is checked on the visitor's behalf,
+// because a pre-selected answer they never looked at submits as though they had.
+// A required group with no default therefore opens invalid, which is the point —
+// the browser makes them answer it.
+//
+// `required`: on a checkbox group, putting it on every box would demand ALL of
+// them, not one. It's rendered on each box so an untouched group is invalid, and
+// syncCheckboxGroups() in ContactDialogs.astro clears it across the group as soon
+// as any box is ticked.
+const radioDefault = field.type === 'radio' ? field.default : undefined;
+
+// Topic-scoped questions ship hidden and disabled; applyTopic() in
+// ContactDialogs.astro turns on the ones the current topic calls for. Disabled
+// is the part that matters — it's what keeps an off-topic question out of both
+// constraint validation and the submitted payload. Starting from "off" also
+// means no flash of the wrong questions before the dialog is ever opened.
+const scoped = field.topics !== undefined;
+---
+
+<div class="field" data-field={field.name} data-topics={field.topics?.join('|')} hidden={scoped}>
+  {
+    field.type === 'radio' || field.type === 'checkbox' ? (
+      <fieldset>
+        <legend class="text-sm font-medium text-slate-700">
+          {field.label}
+          {field.required && (
+            <span class="text-brand-accent" aria-hidden="true">
+              {' '}
+              *
+            </span>
+          )}
+        </legend>
+        {field.hint && (
+          <p id={hintId} class="mt-1 text-xs text-slate-500">
+            {field.hint}
+          </p>
+        )}
+        <div
+          class="mt-2 flex flex-wrap gap-x-4 gap-y-2"
+          role={field.type === 'radio' ? 'radiogroup' : 'group'}
+          aria-describedby={describedBy}
+          data-checkbox-group={field.type === 'checkbox' && field.required ? field.name : undefined}
+        >
+          {field.options.map((option, i) => {
+            const optionId = `${fieldId}-${i}`;
+            const checked = field.type === 'radio' && option.value === radioDefault;
+            return (
+              <label for={optionId} class="flex items-center gap-1.5 text-sm text-slate-600">
+                <input
+                  type={field.type}
+                  id={optionId}
+                  name={field.name}
+                  value={option.value}
+                  checked={checked}
+                  disabled={scoped}
+                  required={field.required}
+                  class:list={[
+                    'h-4 w-4 accent-brand-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-accent',
+                    field.type === 'checkbox' && 'rounded-sm',
+                  ]}
+                />
+                {option.label}
+              </label>
+            );
+          })}
+        </div>
+        <p id={errorId} class="mt-1 hidden text-xs text-red-600" data-field-error />
+      </fieldset>
+    ) : (
+      <>
+        <label for={fieldId} class="text-sm font-medium text-slate-700">
+          {field.label}
+          {field.required && (
+            <span class="text-brand-accent" aria-hidden="true">
+              {' '}
+              *
+            </span>
+          )}
+        </label>
+        {field.hint && (
+          <p id={hintId} class="mt-1 text-xs text-slate-500">
+            {field.hint}
+          </p>
+        )}
+        {field.type === 'textarea' ? (
+          <textarea
+            id={fieldId}
+            name={field.name}
+            required={field.required}
+            disabled={scoped}
+            rows={field.rows ?? 4}
+            placeholder={field.placeholder}
+            aria-describedby={describedBy}
+            class="form-input mt-1 resize-y"
+          />
+        ) : (
+          <input
+            type={field.type}
+            id={fieldId}
+            name={field.name}
+            required={field.required}
+            disabled={scoped}
+            placeholder={field.placeholder}
+            autocomplete={field.autocomplete}
+            inputmode={field.type === 'tel' ? 'tel' : field.type === 'number' ? 'numeric' : undefined}
+            aria-describedby={describedBy}
+            class="form-input mt-1"
+          />
+        )}
+        <p id={errorId} class="mt-1 hidden text-xs text-red-600" data-field-error />
+      </>
+    )
+  }
+</div>
