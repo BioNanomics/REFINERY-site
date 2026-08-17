@@ -1,10 +1,9 @@
 ---
 import FormDialog from './FormDialog.astro';
-import { contactForm, startTeamForm } from '../../config/contact-forms';
+import { contactForm } from '../../config/contact-forms';
 ---
 
 <FormDialog form={contactForm} />
-<FormDialog form={startTeamForm} />
 
 {/* hCaptcha widget loader — scans the page for [data-captcha] and swaps in the challenge.
    Free-tier Web3Forms accounts use their shared site key automatically (no signup or key
@@ -14,6 +13,15 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
 
 <script>
   import { isFormConfigured, formDelivery, CONTACT_EMAIL } from '../../config/forms';
+  import { contactForm } from '../../config/contact-forms';
+
+  const topicsByValue = new Map(contactForm.topics.map((topic) => [topic.value, topic]));
+
+  // A topic the VISITOR chose from the radio group, as opposed to one a trigger
+  // imposed. Only their own choice survives a close-and-reopen from a generic
+  // button — inheriting the Partner button's topic into a plain "Contact Us"
+  // would open the popup titled for a conversation they never asked to have.
+  let visitorChosenTopic: string | null = null;
 
   // Popups only ever open when there's somewhere for a submission to go.
   // With a blank config in a production build, every [data-contact-open]
@@ -52,6 +60,71 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
     });
   }
 
+  // A required checkbox group means "tick at least one", but HTML's `required`
+  // on a checkbox means "tick THIS one". FormField.astro renders every box in the
+  // group as required so an untouched group blocks submit with native validation;
+  // this clears the attribute across the group the moment any box is ticked, and
+  // restores it if they're all un-ticked again.
+  function syncCheckboxGroups(root: ParentNode) {
+    root.querySelectorAll<HTMLElement>('[data-checkbox-group]').forEach((group) => {
+      const boxes = group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+      const anyChecked = Array.from(boxes).some((box) => box.checked);
+      boxes.forEach((box) => {
+        box.required = !anyChecked;
+      });
+    });
+  }
+
+  // The topic drives everything that used to differ between two separate dialogs:
+  // the heading, the intro, the subject line, the button and success copy, and
+  // which questions are on screen. Called on open and again whenever someone
+  // changes the topic themselves, so the popup always describes what it's for.
+  //
+  // `lockTopic` hides the topic question — used when a trigger already declared
+  // its topic, since there's nothing to ask. It's hidden but NOT disabled: the
+  // answer still has to reach the payload.
+  function applyTopic(dialog: HTMLDialogElement, topicValue: string, lockTopic: boolean) {
+    const topic = topicsByValue.get(topicValue) ?? topicsByValue.get(contactForm.defaultTopic);
+    if (!topic) return;
+
+    const form = dialog.querySelector<HTMLFormElement>('[data-contact-form]');
+    if (!form) return;
+
+    const radio = form.querySelector<HTMLInputElement>(
+      `input[name="topic"][value="${CSS.escape(topic.value)}"]`,
+    );
+    if (radio) radio.checked = true;
+
+    const setText = (selector: string, text: string) => {
+      const el = dialog.querySelector<HTMLElement>(selector);
+      if (el) el.textContent = text;
+    };
+    setText('[data-dialog-title]', topic.title);
+    setText('[data-dialog-intro]', topic.intro);
+    setText('[data-submit-button]', topic.submitLabel ?? contactForm.submitLabel);
+    setText('[data-success-title]', topic.successTitle ?? contactForm.successTitle);
+    setText('[data-success-body]', topic.successBody ?? contactForm.successBody);
+    form.dataset.subject = topic.subject;
+
+    const topicField = form.querySelector<HTMLElement>('[data-field="topic"]');
+    if (topicField) topicField.hidden = lockTopic;
+
+    form.querySelectorAll<HTMLElement>('[data-topics]').forEach((field) => {
+      const onTopic = (field.dataset.topics ?? '').split('|').includes(topic.value);
+      field.hidden = !onTopic;
+      // Disabling is what actually scopes the question — a disabled control is
+      // skipped by both checkValidity() and FormData, so an off-topic required
+      // field can neither block submit nor land in the email.
+      field
+        .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea, select')
+        .forEach((control) => {
+          control.disabled = !onTopic;
+        });
+    });
+
+    syncCheckboxGroups(form);
+  }
+
   function openDialog(dialog: HTMLDialogElement) {
     if (dialog.open) return;
     lastFocusedTrigger = document.activeElement as HTMLElement;
@@ -84,13 +157,15 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
 
       e.preventDefault();
 
-      const topic = trigger.dataset.contactTopic;
-      if (topic) {
-        const radio = dialog.querySelector<HTMLInputElement>(
-          `input[name="topic"][value="${CSS.escape(topic)}"]`,
-        );
-        if (radio) radio.checked = true;
-      }
+      // No topic on the trigger means a generic entry point ("Contact Us"): leave
+      // the question on screen to be asked, restoring their own earlier answer if
+      // they had one and otherwise starting from the default.
+      const declaredTopic = trigger.dataset.contactTopic;
+      applyTopic(
+        dialog,
+        declaredTopic ?? visitorChosenTopic ?? contactForm.defaultTopic,
+        Boolean(declaredTopic),
+      );
 
       openDialog(dialog);
     });
@@ -109,6 +184,20 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
 
       backdropFor(dialog)?.addEventListener('click', () => closeDialog(dialog));
 
+      form.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        // Only reachable while the topic question is visible, which is exactly when
+        // it isn't locked to a trigger's topic — hence lockTopic: false.
+        if (target.name === 'topic') {
+          visitorChosenTopic = target.value;
+          applyTopic(dialog, target.value, false);
+        } else if (target.type === 'checkbox') {
+          syncCheckboxGroups(form);
+        }
+      });
+      // 'reset' fires before the fields actually revert, so re-sync on the next task.
+      form.addEventListener('reset', () => setTimeout(() => syncCheckboxGroups(form)));
+
       dialog.querySelectorAll<HTMLButtonElement>('[data-dialog-close]').forEach((btn) => {
         btn.addEventListener('click', () => closeDialog(dialog));
       });
@@ -116,8 +205,8 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
       dialog.addEventListener('close', () => {
         const backdrop = backdropFor(dialog);
         backdrop?.classList.remove('is-open');
-        // Only clear inert/dialog-open if no OTHER dialog is still open — defensive, since
-        // only one of the two ever opens at a time through this UI, but cheap to guard.
+        // Only clear inert/dialog-open if no OTHER dialog is still open — defensive,
+        // since this popup is currently the only one on the page, but cheap to guard.
         if (!document.querySelector('dialog[open]')) {
           document.documentElement.classList.remove('dialog-open');
           setBackgroundInert(false);
@@ -132,6 +221,7 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
         // was in the middle of writing.
         if (!success.classList.contains('hidden')) {
           form.reset();
+          visitorChosenTopic = null; // a sent message is finished business, not a choice to restore
           form.classList.remove('hidden');
           success.classList.add('hidden');
           success.classList.remove('flex');
@@ -164,7 +254,7 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
         const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit-button]');
 
         if (!isFormConfigured) {
-          statusEl.textContent = `Form delivery isn't configured yet — email us directly at ${CONTACT_EMAIL}.`;
+          statusEl.textContent = `Form delivery isn't configured yet. Please email us directly at ${CONTACT_EMAIL}.`;
           statusEl.classList.add('text-red-600');
           return;
         }
@@ -172,7 +262,9 @@ import { contactForm, startTeamForm } from '../../config/contact-forms';
         const payload: Record<string, string> = {};
         new FormData(form).forEach((value, key) => {
           if (key === 'website') return;
-          payload[key] = String(value);
+          // Checkbox groups repeat one key per ticked box — collapse them into a
+          // single readable value instead of letting the last one win.
+          payload[key] = payload[key] ? `${payload[key]}, ${value}` : String(value);
         });
         payload[formDelivery.subjectKey] = form.dataset.subject ?? '';
         Object.assign(payload, formDelivery.hiddenFields);

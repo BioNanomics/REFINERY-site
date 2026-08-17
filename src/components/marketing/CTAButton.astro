@@ -9,8 +9,13 @@ interface Props {
    * whole time, so this is additive: with JS off, or with forms.ts left
    * blank, the button behaves exactly as if this prop were never set.
    */
-  dialog?: 'contact' | 'start-a-team';
-  /** Preselects a "what is this about?" option in the contact dialog. */
+  dialog?: 'contact';
+  /**
+   * A `ContactTopic` value from src/config/contact-forms.ts. Sets what the popup
+   * is about — its heading, subject line and which questions it asks — and hides
+   * the "what is this about?" question, since this button already answered it.
+   * Leave unset for a general-purpose contact button.
+   */
   topic?: string;
 }
 

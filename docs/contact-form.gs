@@ -24,10 +24,10 @@
  *     defense stopped them or how to work around it.
  *
  * Both popup forms POST here with 'formdata' encoding, so every submitted field arrives in
- * e.parameter. Nothing is hardcoded per-form beyond the required name/email/message — other
- * fields (topic, organization, city, role, program, studentsExpected, ...) just get listed
- * in the email body, so adding a question to either form in src/config/contact-forms.ts
- * doesn't require touching this file.
+ * e.parameter. Nothing is hardcoded per-form beyond the required name/email — other
+ * fields (topic, organization, role, ageGroup, message, ...) just get listed in the email
+ * body, so adding a question to either form in src/config/contact-forms.ts doesn't require
+ * touching this file.
  */
 
 var DESTINATION_EMAIL = 'info@refineryrobotics.org';
@@ -53,8 +53,8 @@ function doPost(e) {
 
     var name = sanitizeLine(params.name);
     var email = sanitizeLine(params.email);
-    var message = String(params.message || '').trim();
-    if (!name || !email || !message || !isPlausibleEmail(email)) return response;
+    // Only name + email are universal — the start-a-team form's message field is optional.
+    if (!name || !email || !isPlausibleEmail(email)) return response;
 
     var keys = Object.keys(params).filter(function (key) {
       return key !== 'subject' && key !== 'secret' && String(params[key] || '').trim() !== '';
