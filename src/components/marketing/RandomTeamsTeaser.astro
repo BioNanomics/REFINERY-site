@@ -43,7 +43,7 @@ const orderedTeams = [...teams].sort(sortByNumber);
     >
       {orderedTeams.map((team) => (
         <div data-team-card data-team-program={team.data.program} class:list={[!defaultIds.has(team.id) && 'hidden']}>
-          <TeamCard team={team} />
+          <TeamCard team={team} forceReg />
         </div>
       ))}
     </div>

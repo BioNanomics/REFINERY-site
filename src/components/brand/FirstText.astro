@@ -1,7 +1,7 @@
 ---
 /**
- * Renders arbitrary copy with FIRST® / LEGO® trademarks styled per the FIRST Branding &
- * Design Guidelines. Use this for strings that arrive as props — content-collection
+ * Renders arbitrary copy with FIRST® / FRC® / FTC® / LEGO® trademarks styled per FIRST's
+ * trademark policy. Use this for strings that arrive as props — content-collection
  * frontmatter, card labels, section headings — where the author can't wrap the mark
  * themselves. Markdown and MDX bodies are handled by rehype-first-marks.mjs instead.
  */
@@ -26,7 +26,8 @@ const segments = tokenizeFirst(text).map((segment) => {
 {
   segments.map((segment) =>
     segment.type === 'mark' ? (
-      /* Only FIRST is italicized; LEGO is all caps but roman (guidelines p. 20). */
+      /* Only the word "FIRST" is italicized; FRC, FTC, and LEGO are separate marks that
+         stay all caps and roman. */
       <Fragment>{segment.token === 'FIRST' ? <i class="first-mark">{segment.value}</i> : segment.value}{segment.registered && <sup class="first-reg">®</sup>}</Fragment>
     ) : (
       segment.value

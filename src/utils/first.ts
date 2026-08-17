@@ -1,15 +1,18 @@
 /**
- * FIRST® trademark styling, per the FIRST Branding & Design Guidelines (FI084, p. 8/20):
- * the marks must always appear in all capitals and italics, with a superscript registered
- * symbol on first use in a heading/title and again on first use in body copy.
+ * FIRST® trademark styling, per FIRST's "Policy on the Use of FIRST Trademarks and
+ * Copyrighted Materials" (rev. 04/19/25): word marks get a superscript registered symbol on
+ * first use in a heading/title and again on first use in body copy; the FIRST word mark
+ * itself must always appear in all capitals and italics (Section III.A.5) — FRC, FTC, and
+ * LEGO are separate registered marks in their own right (Attachment A) but that italics
+ * requirement is specific to the word "FIRST", so they stay roman.
  *
  * Matching is case-sensitive on the all-caps token, so ordinary prose ("our first season")
- * and lowercase URLs (firstinspires.org) are never touched. Authors just type FIRST in
- * caps and the mark is styled for them — see rehype-first-marks.mjs for Markdown/MDX.
+ * and lowercase URLs (firstinspires.org) are never touched. Authors just type FIRST/FRC/FTC
+ * in caps and the mark is styled for them — see rehype-first-marks.mjs for Markdown/MDX.
  */
 
-/** Tokens FIRST owns or co-owns. LEGO gets the same ® treatment but is not italicized. */
-export const FIRST_TOKENS = ['FIRST', 'LEGO'] as const;
+/** Tokens FIRST owns or co-owns. Only FIRST is italicized — see FirstText.astro. */
+export const FIRST_TOKENS = ['FIRST', 'FRC', 'FTC', 'LEGO'] as const;
 
 export type FirstToken = (typeof FIRST_TOKENS)[number];
 

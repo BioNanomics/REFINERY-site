@@ -5,6 +5,16 @@ import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   team: CollectionEntry<'teams'>;
+  /**
+   * Forces this card's own ® rather than deferring to the page's shared first-use registry.
+   * Needed wherever a card might render into the DOM but stay hidden (RandomTeamsTeaser
+   * renders the full team pool and reveals a random few client-side) — the registry claims
+   * happen at server-render time against ALL cards, visible or not, so a hidden card can
+   * silently consume the page's one-time claim and leave every visible mention unmarked.
+   * The full /about/teams/ listing never hides cards, so it omits this and keeps the
+   * minimal first-occurrence marking the policy prefers.
+   */
+  forceReg?: boolean;
 }
 
 // The schema's FRC/FTC values are internal data keys. A card badge is a standalone label
@@ -16,7 +26,7 @@ const programNames: Record<CollectionEntry<'teams'>['data']['program'], string> 
   FTC: 'FIRST Tech Challenge',
 };
 
-const { team } = Astro.props;
+const { team, forceReg } = Astro.props;
 const { number, name, program, organization, community, logo, description, highlight, links, socials, newTeam } = team.data;
 
 // Rendered in a fixed, predictable order regardless of frontmatter key order; only
@@ -51,13 +61,13 @@ const socialLinks = socials
     {logo && <Image src={logo} alt={`${name} logo`} class="h-12 w-auto max-w-[5rem] shrink-0 object-contain" />}
     <div>
       <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
-        <FirstText text={programNames[program]} /> {number}
+        <FirstText text={programNames[program]} reg={forceReg} /> {number}
       </p>
       <h3 class="font-heading text-base font-bold text-slate-900">{name}</h3>
     </div>
   </div>
   <p class="mt-2 text-xs text-slate-500">{organization} &middot; {community}</p>
-  <p class="mt-2 text-sm text-slate-600"><FirstText text={description} /></p>
+  <p class="mt-2 text-sm text-slate-600"><FirstText text={description} reg={forceReg} /></p>
   {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
   {
     links.length > 0 && (
