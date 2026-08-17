@@ -8,7 +8,21 @@ import ImpactStats from '../components/marketing/ImpactStats.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
 import { withBase } from '../utils/base';
+import { firstPlain } from '../utils/first';
+import { organization } from '../utils/schema';
+import logoFullColor from '../assets/logo-full-color.svg';
 import heroImage from '../assets/refinery-shop-1.jpeg';
+
+const metaDescription =
+  "The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with funding, parts, tools, facilities, training, and community.";
+
+// The homepage carries the site's Organization node. Every value traces to something already
+// published — see the sourcing notes in src/utils/schema.ts.
+const orgSchema = organization({
+  logo: new URL(logoFullColor.src, Astro.site).href,
+  image: new URL(withBase('images/og-default.jpeg'), Astro.site).href,
+  description: firstPlain(metaDescription),
+});
 
 const whatWeProvide = [
   {
@@ -89,10 +103,7 @@ const beyondNortheastIndiana = [
 ] as const;
 ---
 
-<MarketingLayout
-  title="Home"
-  description="The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with funding, parts, tools, facilities, training, and community."
->
+<MarketingLayout title="Home" description={metaDescription} jsonLd={orgSchema}>
   <Hero
     eyebrow="The REFINERY"
     title="Shared infrastructure for stronger robotics teams"

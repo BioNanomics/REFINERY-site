@@ -8,14 +8,15 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  jsonLd?: object | object[];
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, image, jsonLd } = Astro.props;
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} image={image} />
+    <BaseHead title={title} description={description} image={image} jsonLd={jsonLd} />
     <script is:inline>
       // Only opt into the reveal system when JS runs AND the user hasn't
       // asked for reduced motion. If either is false, this class is never

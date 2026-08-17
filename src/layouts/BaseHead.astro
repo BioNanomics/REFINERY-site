@@ -8,9 +8,18 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  // A schema.org node (or array of them) to emit as JSON-LD. Optional, so pages that
+  // have nothing worth describing simply don't pass it. Build these with the helpers in
+  // src/utils/schema.ts rather than hand-writing objects at the call site.
+  jsonLd?: object | object[];
 }
 
-const { title: rawTitle, description: rawDescription, image = withBase('images/og-default.jpeg') } = Astro.props;
+const {
+  title: rawTitle,
+  description: rawDescription,
+  image = withBase('images/og-default.jpeg'),
+  jsonLd,
+} = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 // <title> and meta content can't carry italics, so FIRST® gets the closest compliant
@@ -34,6 +43,8 @@ const description = firstPlain(rawDescription);
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.site)} />
 <meta name="twitter:card" content="summary_large_image" />
+
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />}
 
 {/*
   Self-hosted — families are declared in astro.config.mjs. Preloads are limited to the faces
