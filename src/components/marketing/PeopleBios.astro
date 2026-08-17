@@ -52,13 +52,21 @@ function linkedinProfiles(person: CollectionEntry<'people'>) {
               ]}
             >
               {person.data.photo ? (
+                /* The frame is a fixed 192px from sm up but full-column below it — around
+                   327px on a phone, up to ~591px just under the breakpoint. `densities`
+                   couldn't express that: it pinned the srcset to 192/384, so the mobile
+                   frame was fed a 384px file for a 327px box and looked soft on any
+                   retina screen no matter how good the source was. widths + sizes lets the
+                   browser pick against the real rendered width instead.
+                   width/height here only fix the 4:5 ratio and the largest variant. */
                 <Image
                   src={person.data.photo}
                   alt={person.data.name}
                   class="h-full w-full object-cover"
-                  width={192}
-                  height={240}
-                  densities={[1, 2]}
+                  width={768}
+                  height={960}
+                  widths={[192, 384, 576, 768]}
+                  sizes="(min-width: 640px) 192px, calc(100vw - 3rem)"
                 />
               ) : (
                 <div class="flex h-full w-full items-center justify-center bg-brand font-heading text-3xl font-bold text-white">
