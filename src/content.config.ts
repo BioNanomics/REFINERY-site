@@ -57,12 +57,26 @@ const teams = defineCollection({
       number: z.string(),
       name: z.string(),
       program: z.enum(['FRC', 'FTC']),
-      school: z.string(),
+      // The team's parent organization — a school for most teams, but also 4-H clubs,
+      // nonprofits, libraries, and other community groups.
+      organization: z.string(),
       community: z.string(),
       logo: image().optional(),
       description: z.string(),
       highlight: z.string().optional(),
       links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
+      socials: z
+        .object({
+          instagram: z.string().url().optional(),
+          facebook: z.string().url().optional(),
+          twitter: z.string().url().optional(),
+          tiktok: z.string().url().optional(),
+          youtube: z.string().url().optional(),
+          github: z.string().url().optional(),
+          tumblr: z.string().url().optional(),
+          website: z.string().url().optional(),
+        })
+        .optional(),
       featured: z.boolean().default(false),
       newTeam: z.boolean().default(false),
       draft: z.boolean().default(false),

@@ -73,7 +73,7 @@ See `src/content/news/example-external-story.mdx` for a working (draft) example.
 number: "1501"
 name: "Team name"
 program: FRC          # FRC | FTC
-school: "School or host organization"
+organization: "Parent organization — school, 4-H club, nonprofit, etc."
 community: "City, State"
 logo: ../../assets/teams/1501.svg   # optional
 description: "One or two sentences about the team."
