@@ -18,7 +18,7 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
 >
   <section class="section-tight section">
     <div class="section-inner">
-      <SectionHeading eyebrow="About" title="Meet the Teams" align="left" />
+      <SectionHeading as="h1" eyebrow="About" title="Meet the Teams" align="left" />
       {
         allTeams.length === 0 && (
           <p class="mt-10 text-sm text-slate-500">Team directory coming soon.</p>
