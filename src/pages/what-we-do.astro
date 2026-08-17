@@ -4,15 +4,16 @@ import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
 import FirstText from '../components/brand/FirstText.astro';
+import { withBase } from '../utils/base';
 ---
 
 <MarketingLayout
-  title="What We Do"
-  description="How The REFINERY supports robotics teams: team launch, funding, parts, tools, facilities, training, community, and our contributions to the wider FIRST community."
+  title="Funding, Parts, Tools & Training for Teams"
+  description="How The REFINERY supports robotics teams: team launch, funding, parts, tools, facilities, training, community, and what we give back to FIRST."
 >
   <section class="section-tight section">
     <div class="section-inner">
-      <SectionHeading eyebrow="What We Do" title="The full picture of how we support teams" align="left" />
+      <SectionHeading as="h1" eyebrow="What We Do" title="The full picture of how we support teams" align="center" />
     </div>
   </section>
 
@@ -37,6 +38,10 @@ import FirstText from '../components/brand/FirstText.astro';
           ))
         }
       </ul>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Teams that started this way are now competing across the region. See{' '}
+        <a href={withBase('about/teams/')} class="text-brand-accent hover:underline">the teams we support</a>.
+      </p>
       <div class="mt-6" data-reveal>
         <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" variant="secondary" dialog="contact" topic="Starting a team">
           Talk With Us About Starting a Team

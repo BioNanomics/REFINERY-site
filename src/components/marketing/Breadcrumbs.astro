@@ -1,0 +1,57 @@
+---
+/**
+ * The visible breadcrumb trail. Presentational only — the matching BreadcrumbList JSON-LD is
+ * emitted by MarketingLayout from the same `breadcrumbs` array, so structured data stays in
+ * <head> where BaseHead can keep it to one script tag per page.
+ *
+ * Only the layouts instantiate this. Pages pass `breadcrumbs` and never import it directly.
+ */
+import FirstText from '../brand/FirstText.astro';
+import type { Crumb } from '../../utils/breadcrumbs';
+
+interface Props {
+  items: Crumb[];
+  /** Matches the narrower measure ArticleLayout uses, so the trail lines up with the prose. */
+  narrow?: boolean;
+}
+
+const { items, narrow = false } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <nav aria-label="Breadcrumb" class:list={['section-inner pt-6', narrow && 'section-inner-narrow']}>
+      <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-slate-500">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          // items-baseline, not items-center: a long crumb (news headlines) wraps to two lines,
+          // and centering would float the separator against the middle of the block instead of
+          // sitting on the first line with the text.
+          return (
+            <li class="flex items-baseline gap-2">
+              {index > 0 && (
+                <span aria-hidden="true" class="text-slate-300">
+                  &rsaquo;
+                </span>
+              )}
+              {/*
+                claim={false} keeps this out of the page's first-use ® registry. The trail
+                renders before the <h1> and the last crumb often repeats it verbatim, so
+                claiming here would leave the real heading without its ®.
+              */}
+              {isLast || !item.href ? (
+                <span aria-current="page">
+                  <FirstText text={item.label} claim={false} reg={false} />
+                </span>
+              ) : (
+                <a href={item.href} class="font-semibold text-brand-accent hover:underline">
+                  <FirstText text={item.label} claim={false} reg={false} />
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  )
+}

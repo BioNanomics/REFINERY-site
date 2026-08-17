@@ -2,9 +2,14 @@
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import CTAButton from '../../components/marketing/CTAButton.astro';
 import { getCollection, render } from 'astro:content';
+import { firstPlain } from '../../utils/first';
+import { event as eventSchema } from '../../utils/schema';
+import { withBase } from '../../utils/base';
 
 export async function getStaticPaths() {
-  const events = await getCollection('events', ({ data }) => data.featured);
+  // Deliberately no date filter. Past events stop appearing on the listing page, but keep
+  // their URL — an indexed page or a shared link shouldn't turn into a 404 the morning after.
+  const events = await getCollection('events', ({ data }) => data.featured && !data.draft);
   return events.map((event) => ({
     params: { id: event.id },
     props: { event },
@@ -12,16 +17,47 @@ export async function getStaticPaths() {
 }
 
 const { event } = Astro.props;
-const { title, summary, dateStart, location, registrationUrl, draft } = event.data;
+const { title, summary, dateStart, dateEnd, location, venueAddress, registrationUrl, isFree, draft } =
+  event.data;
 const { Content } = await render(event);
+
+// Only events with a structured venue address get Event schema — see src/utils/schema.ts.
+const jsonLd = venueAddress
+  ? eventSchema({
+      name: firstPlain(title),
+      description: firstPlain(summary),
+      url: new URL(Astro.url.pathname, Astro.site).href,
+      startDate: dateStart,
+      endDate: dateEnd,
+      venueName: location,
+      venueAddress,
+      isFree,
+      registrationUrl,
+    })
+  : undefined;
 ---
 
-<ArticleLayout title={title} summary={summary} pubDate={dateStart} author={location} isDraft={draft}>
+<ArticleLayout
+  title={title}
+  summary={summary}
+  pubDate={dateStart}
+  author={location}
+  isDraft={draft}
+  jsonLd={jsonLd}
+  breadcrumbs={[
+    { label: 'Home', href: withBase('/') },
+    { label: 'Programs & Events', href: withBase('programs-events/') },
+    { label: title },
+  ]}
+>
   <Content />
   {
-    registrationUrl && (
-      <div class="not-prose mt-8">
-        <CTAButton href={registrationUrl}>Register</CTAButton>
+    (registrationUrl || isFree) && (
+      <div class="not-prose mt-8 flex flex-wrap items-center gap-4">
+        {registrationUrl && <CTAButton href={registrationUrl}>Register</CTAButton>}
+        {/* Stated on the page, not just in the Event structured data — markup shouldn't
+            claim free admission where a reader can't see it. */}
+        {isFree && <p class="font-mono text-sm font-medium text-brand-accent">Free to attend</p>}
       </div>
     )
   }

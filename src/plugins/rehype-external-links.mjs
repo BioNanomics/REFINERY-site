@@ -8,10 +8,10 @@
  * gap here keeps content authors writing plain Markdown instead of hand-rolling raw HTML
  * with the right attributes, and means new content is marked by default.
  *
- * Deciding what counts as external is easy in this repo: CONTRIBUTING requires internal
- * links in body content to be relative, because the site is served under a base path. So an
- * absolute http(s) href in content is off-site by definition. Anything else is left alone —
- * relative paths, in-page anchors, and mailto:/tel:, none of which open a tab.
+ * Deciding what counts as external is easy in this repo: CONTRIBUTING requires internal links
+ * in body content to be relative, which keeps them portable if the site ever moves to a
+ * subpath. So an absolute http(s) href in content is off-site by definition. Anything else is
+ * left alone — relative paths, in-page anchors, and mailto:/tel:, none of which open a tab.
  *
  * Existing target/rel are preserved, so an author who writes raw HTML deliberately keeps it.
  */

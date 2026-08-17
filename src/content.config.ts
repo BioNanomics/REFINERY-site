@@ -28,8 +28,20 @@ const news = defineCollection({
     z.object({
       title: z.string(),
       summary: z.string().max(280),
+      // Overrides `summary` for the <meta name="description"> and the Article schema on a
+      // detail page. `summary` is sized for a news card (280 is a comfortable blurb), but
+      // search results cut off near 160 — so a summary long enough to read well on the grid
+      // gets visibly truncated in the SERP. Optional: entries whose summary is already short
+      // need nothing, and the 25 curated external entries have no detail page at all.
+      metaDescription: z.string().max(160).optional(),
       pubDate: z.coerce.date(),
       author: z.string().default('The REFINERY'),
+      // Only meaningful for a first-party post (no sourceUrl): its Article JSON-LD types
+      // `author` from this, since "The REFINERY" and a staffer's byline aren't the same
+      // schema.org type. Curated external entries never reach that builder, so this is a
+      // no-op for them regardless of what's set. Defaults to 'organization' to match the
+      // one first-party entry that exists today without needing a frontmatter change.
+      authorType: z.enum(['organization', 'person']).default('organization'),
       heroImage: image().optional(),
       heroImageAlt: z.string().optional(),
       category: newsCategories,
@@ -97,10 +109,27 @@ const events = defineCollection({
       summary: z.string(),
       dateStart: z.coerce.date(),
       dateEnd: z.coerce.date().optional(),
+      // Display name of the venue, shown on the card and the detail page.
       location: z.string(),
+      // Structured street address for the venue. Optional, but Google requires a full
+      // address under Event.location before it will consider an event for rich results, so
+      // an event without this gets no Event schema at all — see src/utils/schema.ts.
+      // `location` above supplies the venue name, so it is deliberately not repeated here.
+      venueAddress: z
+        .object({
+          streetAddress: z.string(),
+          addressLocality: z.string(),
+          addressRegion: z.string(),
+          postalCode: z.string(),
+        })
+        .optional(),
       audience: z.array(audienceEnum).default([]),
       featured: z.boolean().default(false),
       registrationUrl: z.string().url().optional(),
+      // Set true for a free event. Left undefined when admission terms aren't known — the
+      // detail page then says nothing about cost and the Event schema omits `offers`, rather
+      // than either of them guessing. See src/utils/schema.ts.
+      isFree: z.boolean().optional(),
       draft: z.boolean().default(false),
     }),
 });
@@ -137,6 +166,11 @@ const people = defineCollection({
         .optional(),
       order: z.number().default(0),
       featured: z.boolean().default(false),
+      // Marks an entry as a founder of The REFINERY, which the homepage's Organization schema
+      // reads to fill its `founder` property. Deliberately explicit rather than inferred from
+      // `role` or `order`: role is display copy that can be reworded, and order is display
+      // position, so neither is a safe stand-in for "this person founded the organization".
+      founder: z.boolean().default(false),
       draft: z.boolean().default(false),
     }),
 });

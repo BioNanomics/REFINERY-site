@@ -1,8 +1,9 @@
 ---
 import FirstText from '../components/brand/FirstText.astro';
 import MarketingLayout from './MarketingLayout.astro';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import type { Crumb } from '../utils/breadcrumbs';
 
 interface Props {
   title: string;
@@ -12,9 +13,37 @@ interface Props {
   heroImage?: ImageMetadata;
   heroImageAlt?: string;
   isDraft?: boolean;
+  jsonLd?: object | object[];
+  // og:type. Left to the caller because this layout serves both news posts and events.
+  type?: 'website' | 'article';
+  // article:published_time. Only news should pass this — `pubDate` doubles as the event date
+  // on the event route, and when an event happens isn't when its page was published.
+  publishedTime?: Date;
+  // Forwarded to MarketingLayout, which renders the trail and emits the matching JSON-LD.
+  breadcrumbs?: Crumb[];
 }
 
-const { title, summary, pubDate, author, heroImage, heroImageAlt, isDraft } = Astro.props;
+const {
+  title,
+  summary,
+  pubDate,
+  author,
+  heroImage,
+  heroImageAlt,
+  isDraft,
+  jsonLd,
+  type,
+  publishedTime,
+  breadcrumbs,
+} = Astro.props;
+
+// The hero was never forwarded to BaseHead, so every article and event page fell back to the
+// site-wide OG card even when the entry had its own image. Resolve it to an absolute URL so
+// the social card matches the article, and reuse the resolved dimensions for og:image:width
+// and :height rather than recomputing them.
+const heroOg = heroImage ? await getImage({ src: heroImage, width: 1200 }) : undefined;
+const ogImage = heroOg ? new URL(heroOg.src, Astro.site).href : undefined;
+
 
 // timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
 // Without this, formatting in a behind-UTC locale renders the previous day.
@@ -26,8 +55,22 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 });
 ---
 
-<MarketingLayout title={title} description={summary}>
-  <article class="section-inner section-inner-narrow section">
+<MarketingLayout
+  title={title}
+  description={summary}
+  image={ogImage}
+  jsonLd={jsonLd}
+  type={type}
+  publishedTime={publishedTime}
+  imageAlt={heroImageAlt}
+  imageWidth={heroOg ? Number(heroOg.attributes.width) : undefined}
+  imageHeight={heroOg ? Number(heroOg.attributes.height) : undefined}
+  breadcrumbs={breadcrumbs}
+  breadcrumbsNarrow
+>
+  {/* With a trail above, the section's full 4.5rem top padding would leave the breadcrumb
+      stranded in whitespace; pt-6 matches the gap the trail already sets above itself. */}
+  <article class:list={['section-inner section-inner-narrow section', breadcrumbs?.length && 'pt-6']}>
     {
       isDraft && (
         <p class="mb-6 rounded-control border border-amber-400 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800">

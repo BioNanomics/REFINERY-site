@@ -6,15 +6,23 @@ interface Props {
   title: string;
   description?: string;
   align?: 'left' | 'center';
+  // Pass as="h1" on the FIRST heading of a page. Defaults to h2 because most call sites are
+  // mid-page section headings. Purely semantic — the class list is identical either way, so
+  // there is no visual difference.
+  //
+  // One caveat if you write new as="h1" copy: FirstText claims the first-use ® per
+  // token+context key in render order (see src/utils/first.ts). Putting FIRST in a new h1
+  // above an existing heading that contains it will move the ® to the h1.
+  as?: 'h1' | 'h2';
 }
 
-const { eyebrow, title, description, align = 'left' } = Astro.props;
+const { eyebrow, title, description, align = 'left', as: Tag = 'h2' } = Astro.props;
 ---
 
 <div class:list={['max-w-2xl', align === 'center' && 'mx-auto text-center']} data-reveal>
   {eyebrow && <p class="eyebrow-tag text-brand-accent"><FirstText text={eyebrow} context="heading" /></p>}
-  <h2 class="mt-2 font-heading text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+  <Tag class="mt-2 font-heading text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
     <FirstText text={title} context="heading" />
-  </h2>
+  </Tag>
   {description && <p class="mt-3 text-base text-slate-600"><FirstText text={description} /></p>}
 </div>

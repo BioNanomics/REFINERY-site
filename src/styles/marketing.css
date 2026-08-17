@@ -23,9 +23,13 @@
   --color-brand-accent-light: #a1d18b;
   --color-surface-dark: #18181b;
   --color-surface-card: #232326;
-  --font-heading: 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Fonts are self-hosted and declared in astro.config.mjs's `fonts` array; Astro exposes
+     each family's full stack (family name + optimized metric fallbacks) as the cssVariable
+     named there. Referencing those here keeps one source of truth, so weights, subsets, and
+     fallbacks are configured in exactly one place. */
+  --font-heading: var(--font-inter);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 
   /* Radius — semantic names so cards/controls/media can move together
      later without touching every call site. Tailwind's own --radius-sm
@@ -443,6 +447,16 @@
   }
   .section-loose {
     padding-block: 7rem;
+  }
+
+  /* A breadcrumb trail already supplies the gap below the header, so the first section
+     underneath one must not stack its own full padding on top. MarketingLayout sets this
+     class on <main> whenever it renders a trail; ArticleLayout applies the equivalent pt-6
+     to its own <article> directly. Both land the heading block 1.5rem under the trail, so a
+     breadcrumbed page's h1 sits where a reader expects it rather than 40px lower than its
+     siblings. Applies to the first section only — later sections keep the normal rhythm. */
+  .has-breadcrumb-trail > section:first-of-type {
+    padding-top: 1.5rem;
   }
 
   .section-inner {

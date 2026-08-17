@@ -1,11 +1,17 @@
 ---
 import ArticleLayout from '../../../layouts/ArticleLayout.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import { firstPlain } from '../../../utils/first';
+import { article } from '../../../utils/schema';
+import { withBase } from '../../../utils/base';
+import logoFullColor from '../../../assets/logo-full-color.svg';
 
 export async function getStaticPaths() {
   // Only internally-authored stories get a detail page; entries with a
   // sourceUrl link straight to the original publisher from the news grid.
-  const posts = await getCollection('news', ({ data }) => !data.sourceUrl);
+  // Drafts are excluded outright, so an unreviewed story has no URL to index.
+  const posts = await getCollection('news', ({ data }) => !data.sourceUrl && !data.draft);
   return posts.map((post) => ({
     params: { id: post.id },
     props: { post },
@@ -13,18 +19,47 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { title, summary, pubDate, author, heroImage, heroImageAlt, draft } = post.data;
+const { title, summary, metaDescription, pubDate, author, authorType, heroImage, heroImageAlt, draft, category } =
+  post.data;
 const { Content } = await render(post);
+
+// `summary` is the card blurb and may run to 280 characters; metaDescription is the shorter
+// search-facing copy when an entry needs it. Passed raw to the layout — BaseHead applies
+// firstPlain() itself, and firstPlain() doesn't detect an existing ®, so marking it here too
+// would stamp a second one.
+const searchDescription = metaDescription ?? summary;
+
+const articleSchema = article({
+  headline: firstPlain(title),
+  description: firstPlain(searchDescription),
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  datePublished: pubDate,
+  author,
+  authorType,
+  image: heroImage
+    ? new URL((await getImage({ src: heroImage, width: 1200 })).src, Astro.site).href
+    : undefined,
+  publisherLogo: new URL(logoFullColor.src, Astro.site).href,
+  sections: category,
+});
 ---
 
 <ArticleLayout
   title={title}
-  summary={summary}
+  summary={searchDescription}
   pubDate={pubDate}
   author={author}
   heroImage={heroImage}
   heroImageAlt={heroImageAlt}
   isDraft={draft}
+  jsonLd={articleSchema}
+  type="article"
+  publishedTime={pubDate}
+  breadcrumbs={[
+    { label: 'Home', href: withBase('/') },
+    { label: 'News', href: withBase('news/') },
+    { label: title },
+  ]}
 >
   <Content />
 </ArticleLayout>

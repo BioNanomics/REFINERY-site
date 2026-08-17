@@ -16,12 +16,12 @@ const outcomes = [
 ---
 
 <MarketingLayout
-  title="Donate"
+  title="Donate to Northeast Indiana Robotics"
   description="Give to The REFINERY and help fund the infrastructure robotics teams across Northeast Indiana can't build alone."
 >
   <section class="section-tight section text-center">
     <div class="section-inner section-inner-narrow">
-      <SectionHeading eyebrow="Donate" title="Your gift builds infrastructure teams share" align="center" />
+      <SectionHeading as="h1" eyebrow="Donate" title="Your gift builds infrastructure teams share" align="center" />
       <p class="mx-auto mt-4 max-w-2xl text-slate-600" data-reveal>
         Every gift to The REFINERY goes toward the funding, parts, tools, facilities, and training
         that keep robotics teams across Northeast Indiana running, and helps us launch new teams
@@ -62,8 +62,12 @@ const outcomes = [
             ></iframe>
           </div>
         </div>
+        {/* defer, so a third-party DNS lookup + handshake + download can't block parsing on
+            the one page whose whole purpose is converting. The embed initialises on DOM ready
+            and the onerror fallback below still fires either way. */}
         <script
           is:inline
+          defer
           src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
           onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach(function(f){f.src=f.getAttribute('data-zeffy-embed-src');});});"
         ></script>
