@@ -108,6 +108,10 @@ interface EventOptions {
     addressRegion: string;
     postalCode: string;
   };
+  /** True for a free event. Undefined means admission terms are unknown. */
+  isFree?: boolean;
+  /** Registration URL, used as the Offer url when the event is free. */
+  registrationUrl?: string;
 }
 
 /**
@@ -123,13 +127,19 @@ interface EventOptions {
  *   eventAttendanceMode — offline, since the venue is a physical address.
  *   eventStatus         — scheduled, the schema.org default reading for a listed event.
  *
+ * `offers` is emitted only for an event marked `isFree`, as a zero-price Offer — the standard
+ * way to signal free admission. An event with unknown admission terms gets no offers node,
+ * since an Offer requires a price and guessing one would misstate the cost of attending.
+ * `availability` is left off deliberately: it is a point-in-time claim baked into a static
+ * build, so a sold-out or closed registration would keep advertising InStock until someone
+ * redeployed. The detail page states free admission visibly whenever this is set, so the
+ * markup never claims something a reader can't see.
+ *
  * Not emitted, for want of a source:
- *   offers      — registrationUrl exists, but an Offer needs a price and none is published.
- *                 Adding a price (or isAccessibleForFree) would unlock more rich-result
- *                 coverage.
  *   image       — the events collection has no image field, unlike news. Falling back to the
  *                 site-wide OG card would attach a generic photo to a specific event.
  *   performer   — no data.
+ *   validFrom   — no published registration-opening date.
  */
 export function event({
   name,
@@ -139,6 +149,8 @@ export function event({
   endDate,
   venueName,
   venueAddress,
+  isFree,
+  registrationUrl,
 }: EventOptions) {
   return {
     '@context': 'https://schema.org',
@@ -165,6 +177,17 @@ export function event({
       name: 'The REFINERY',
       url: `${SITE}/`,
     },
+    ...(isFree
+      ? {
+          isAccessibleForFree: true,
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+            ...(registrationUrl ? { url: registrationUrl } : {}),
+          },
+        }
+      : {}),
   };
 }
 

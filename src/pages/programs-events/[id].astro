@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { event } = Astro.props;
-const { title, summary, dateStart, dateEnd, location, venueAddress, registrationUrl, draft } =
+const { title, summary, dateStart, dateEnd, location, venueAddress, registrationUrl, isFree, draft } =
   event.data;
 const { Content } = await render(event);
 
@@ -28,6 +28,8 @@ const jsonLd = venueAddress
       endDate: dateEnd,
       venueName: location,
       venueAddress,
+      isFree,
+      registrationUrl,
     })
   : undefined;
 ---
@@ -42,9 +44,12 @@ const jsonLd = venueAddress
 >
   <Content />
   {
-    registrationUrl && (
-      <div class="not-prose mt-8">
-        <CTAButton href={registrationUrl}>Register</CTAButton>
+    (registrationUrl || isFree) && (
+      <div class="not-prose mt-8 flex flex-wrap items-center gap-4">
+        {registrationUrl && <CTAButton href={registrationUrl}>Register</CTAButton>}
+        {/* Stated on the page, not just in the Event structured data — markup shouldn't
+            claim free admission where a reader can't see it. */}
+        {isFree && <p class="font-mono text-sm font-medium text-brand-accent">Free to attend</p>}
       </div>
     )
   }

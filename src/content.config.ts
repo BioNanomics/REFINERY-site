@@ -113,6 +113,10 @@ const events = defineCollection({
       audience: z.array(audienceEnum).default([]),
       featured: z.boolean().default(false),
       registrationUrl: z.string().url().optional(),
+      // Set true for a free event. Left undefined when admission terms aren't known — the
+      // detail page then says nothing about cost and the Event schema omits `offers`, rather
+      // than either of them guessing. See src/utils/schema.ts.
+      isFree: z.boolean().optional(),
       draft: z.boolean().default(false),
     }),
 });
