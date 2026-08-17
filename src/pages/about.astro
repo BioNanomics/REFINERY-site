@@ -49,9 +49,9 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
       <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
       <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Mission</h2>
       <p class="mt-4 text-slate-600" data-reveal>
-        {/* DRAFT — placeholder mission/vision statement pending final language from the client. */}
-        The REFINERY exists so that no robotics team in Northeast Indiana has to build its
-        infrastructure alone. We provide the funding, parts, tools, facilities, training, and
+        {/* DRAFT — placeholder mission statement pending final language from the client. */}
+        The REFINERY exists so that no <First /> robotics team in Northeast Indiana has to build
+        its infrastructure alone. We provide the funding, parts, tools, facilities, training, and
         community that let teams start, grow, and succeed.
       </p>
     </div>
@@ -91,7 +91,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   <section id="impact" class="section-rule scroll-mt-6 section">
     <div class="section-inner section-inner-narrow">
       <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact & Reports</h2>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact</h2>
       <div class="mt-6">
         <ImpactStats>
         </ImpactStats>
@@ -166,9 +166,9 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
   <section id="contact" class="section-rule section-loose scroll-mt-6 section">
     <div class="section-inner section-inner-narrow">
       <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Contact & Policies</h2>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Policies</h2>
       <p class="mt-4 text-slate-600" data-reveal>
-        The REFINERY follows and enforces the{' '}
+        The REFINERY follows the{' '}
         <a
           href="https://www.firstinspires.org/programs/youth-protection-program"
           target="_blank"
@@ -191,9 +191,6 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
         </a>
         , covering safety, supervision, tool use, and facility conduct.
       </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton href="mailto:info@refineryrobotics.org?subject=General%20Inquiry" variant="secondary" dialog="contact">Contact Us</CTAButton>
-      </div>
     </div>
   </section>
 </MarketingLayout>

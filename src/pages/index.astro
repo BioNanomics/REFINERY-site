@@ -80,6 +80,12 @@ const beyondNortheastIndiana = [
     description: 'Live parts inventory at events, helping teams get back on the field when issues come up.',
     icon: 'map-pin',
   },
+  {
+    title: 'Shop & Practice Field Access',
+    description:
+      'Teams outside The REFINERY can utilize our CNC router, fabrication equipment, and full-size practice field by appointment.',
+    icon: 'facilities',
+  },
 ] as const;
 ---
 
@@ -140,14 +146,28 @@ const beyondNortheastIndiana = [
         description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community. We share what we build, document what we learn, and partner to solve challenges teams face everywhere."
         align="left"
       />
-      {/* 2x2 at lg, but on a 5-col track so each row splits 3/2 — and the wide
-          card swaps sides between rows, so the pair of rows reads as a zigzag
-          rather than one column of wide cards next to a column of narrow ones. */}
+      {/* Two 3/2 rows at lg on a 5-col track, with the wide card swapping sides
+          between them so the pair reads as a zigzag rather than one column of wide
+          cards beside a column of narrow ones. The odd fifth card then spans the full
+          track instead of sitting alone in a 2-col stub — same reason it spans both
+          columns at sm, and the same treatment it gets on What We Do. */}
       <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5" data-reveal-group>
         {
-          beyondNortheastIndiana.map((item, i) => (
-            <SummaryCard {...item} class={i === 0 || i === 3 ? 'lg:col-span-3' : 'lg:col-span-2'} />
-          ))
+          beyondNortheastIndiana.map((item, i) => {
+            const isLastOdd = i === beyondNortheastIndiana.length - 1 && i % 2 === 0;
+            return (
+              <SummaryCard
+                {...item}
+                class={
+                  isLastOdd
+                    ? 'sm:col-span-2 lg:col-span-5'
+                    : i === 0 || i === 3
+                      ? 'lg:col-span-3'
+                      : 'lg:col-span-2'
+                }
+              />
+            );
+          })
         }
       </div>
       <div class="mt-8" data-reveal>

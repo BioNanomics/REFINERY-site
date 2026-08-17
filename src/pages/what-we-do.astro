@@ -222,6 +222,23 @@ import FirstText from '../components/brand/FirstText.astro';
             issues occur.
           </p>
         </div>
+        {/* Spans both columns: an odd fifth card would otherwise sit alone on its own
+            row, and this is the section's only open invitation rather than a project. */}
+        <div class="card card-pad sm:col-span-2">
+          <h3 class="font-heading text-base font-bold text-slate-900">Shop & Practice Field Access</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            Our shop and full-size practice field are open to teams outside The REFINERY by
+            appointment. Visiting teams can utilize our CNC router and other fabrication
+            equipment and drive, tune, and practice on our field before competition.
+          </p>
+          <a
+            href="mailto:info@refineryrobotics.org?subject=Visiting%20The%20REFINERY"
+            data-contact-open="contact"
+            class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+          >
+            Ask about visiting &rarr;
+          </a>
+        </div>
       </div>
 
       <h3 class="mt-10 font-heading text-lg font-bold text-slate-900" data-reveal>Sharing what we learn</h3>
