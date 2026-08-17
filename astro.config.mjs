@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 import rehypeFirstMarks from './src/plugins/rehype-first-marks.mjs';
 import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
@@ -28,5 +29,11 @@ export default defineConfig({
     rehypePlugins: [rehypeFirstMarks, rehypeExternalLinks],
   },
 
-  integrations: [mdx()],
+  // /404/ is filtered out: GitHub Pages serves 404.html with a real 404 status, so it must
+  // never be advertised as a crawlable URL. Nothing else needs excluding — draft entries get
+  // no page at all (see the getStaticPaths filters), so they can't reach the sitemap.
+  // No lastmod, changefreq, or priority. Google ignores the latter two, and the only honest
+  // date available is a news pubDate — an event's dateStart is in the future, and a build-time
+  // stamp is worse than no date at all.
+  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404') })],
 });
