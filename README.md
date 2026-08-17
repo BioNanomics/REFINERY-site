@@ -26,16 +26,13 @@ npm run dev       # http://localhost:4321
 
 ## Updating the impact stats
 
-The "Teams supported / Students reached / New teams launched / Funding provided" numbers shown
-on the homepage and on the About page's Impact & Reports section aren't pulled from anywhere —
-they're plain numbers typed directly into the page code, so update both places by hand when the
-figures change:
+The impact numbers shown on the homepage and in the About page's Impact section live in **one
+place**: `src/data/impact.ts`. Both pages render `<ImpactStats />`, which reads that file, so
+editing it updates both and they can't drift apart.
 
-- **Homepage**: `src/pages/index.astro`, the `impactMetrics` array near the top of the file.
-- **About page**: `src/pages/about.astro`, the stat tiles inside the `id="impact"` section.
-
-Just edit the `value` (or the number in each stat tile on About) and redeploy — no other code
-changes needed.
+Edit the `value` of the clause you want to change and redeploy — no other code changes needed.
+The numbers are also repeated in prose in `public/llms.txt`, which is not generated from
+`impact.ts`, so update that too if a figure changes.
 
 ## Deployment
 
@@ -54,9 +51,22 @@ deployed artifact and claims the custom domain from it, so don't enable Pages be
    to fall into; it has already caught us once.
 3. Confirm the custom domain registered, then enable **Enforce HTTPS**.
 4. In Cloudflare, 301 `www.refineryrobotics.org` → the apex (both currently resolve).
-5. Verify `/robots.txt` and `/sitemap-index.xml` serve 200 at the domain root, and that a few
-   canonical URLs resolve 200.
-6. Verify `refineryrobotics.org` as a **domain property** in Search Console, and submit the
+5. In Cloudflare, add security response headers via Transform Rules → Modify Response Header.
+   GitHub Pages can't set these, so Cloudflare is the only place they can come from. Do this
+   **after** step 3 — HSTS before a working certificate locks visitors out:
+   - `Strict-Transport-Security: max-age=31536000; includeSubDomains` — start with a short
+     `max-age` and raise it once you're confident HTTPS is stable, since the value is cached
+     by browsers and hard to walk back.
+   - `X-Content-Type-Options: nosniff`
+   - `Referrer-Policy: strict-origin-when-cross-origin`
+6. Verify `/robots.txt`, `/llms.txt`, and `/sitemap-index.xml` serve 200 at the domain root,
+   and that a few canonical URLs resolve 200. Cloudflare appends its own content-signals block
+   to `robots.txt`, so confirm the `Sitemap:` line survives the merge.
+7. Verify `refineryrobotics.org` as a **domain property** in Search Console, and submit the
    sitemap.
+8. Run the [Rich Results Test](https://search.google.com/test/rich-results) against the
+   homepage, `/news/re-blitz-summer-build-kickoff/`, and `/programs-events/monster-match/` to
+   validate the Organization, Article, and Event structured data. This needs a live URL, so it
+   is the one check that can't be done before launch.
 
 `site` in `astro.config.mjs` and `public/CNAME` must always agree.
