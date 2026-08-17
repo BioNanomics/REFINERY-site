@@ -39,7 +39,24 @@ changes needed.
 
 ## Deployment
 
-Deploys to GitHub Pages automatically via `.github/workflows/deploy.yml` on every push to
-`main`. Before the first deploy, confirm in the repo's Settings → Pages that the source is set
-to "GitHub Actions", and check the `site`/`base` values in `astro.config.mjs` match the actual
-GitHub org/repo (or custom domain) this is hosted under.
+**Not deployed yet, on purpose.** GitHub Pages should be set to Source: **None** until launch.
+`site` in `astro.config.mjs` is `https://refineryrobotics.org` and DNS already points there via
+Cloudflare, but `public/CNAME` is deliberately absent, so nothing claims the domain. Pushes to
+`main` will fail `.github/workflows/deploy.yml` while Pages is off — expected, not a regression.
+
+Launch order, when ready. Step 1 is the arming step: GitHub Pages reads `CNAME` from the
+deployed artifact and claims the custom domain from it, so don't enable Pages before it.
+
+1. Create `public/CNAME` containing `refineryrobotics.org`, and merge to `main`.
+2. Settings → Pages → Source: **GitHub Actions**. Not "Deploy from a branch" — that runs
+   Jekyll against the repo root, which has no built HTML (`dist/` is gitignored), and it
+   doesn't satisfy `actions/deploy-pages`, so the workflow keeps failing. This is an easy trap
+   to fall into; it has already caught us once.
+3. Confirm the custom domain registered, then enable **Enforce HTTPS**.
+4. In Cloudflare, 301 `www.refineryrobotics.org` → the apex (both currently resolve).
+5. Verify `/robots.txt` and `/sitemap-index.xml` serve 200 at the domain root, and that a few
+   canonical URLs resolve 200.
+6. Verify `refineryrobotics.org` as a **domain property** in Search Console, and submit the
+   sitemap.
+
+`site` in `astro.config.mjs` and `public/CNAME` must always agree.
