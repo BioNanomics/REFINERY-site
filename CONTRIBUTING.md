@@ -221,9 +221,12 @@ the `withBase()` helper from `src/utils/base.ts` instead.
 
 ## Draft content
 
-Set `draft: true` on any content entry to keep it out of production listings while you work on
-it. Entries with their own detail page (news, featured events, projects) stay fully accessible
-if you know the direct URL, so it's safe to preview before flipping `draft` to `false`. This
-site currently ships with several example entries (a team, a partner, staff bios, programs,
-events) marked `draft: true` as placeholders — replace them with real content and un-draft
-when ready, or delete them if not needed.
+Set `draft: true` on any content entry to keep it out of listings **and out of the build**. A
+draft entry gets no detail page at all, so there is no URL for a search engine to index or for
+anyone to stumble onto — the `getStaticPaths` filters in `src/pages/news/[id]/index.astro` and
+`src/pages/programs-events/[id].astro` exclude drafts outright. To preview a draft, flip
+`draft: false` locally while you work on it.
+
+This site currently ships with several example entries (a team, a partner, staff bios, programs,
+events) marked `draft: true` as placeholders — replace them with real content and un-draft when
+ready, or delete them if not needed.

@@ -5,7 +5,8 @@ import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
   // Only internally-authored stories get a detail page; entries with a
   // sourceUrl link straight to the original publisher from the news grid.
-  const posts = await getCollection('news', ({ data }) => !data.sourceUrl);
+  // Drafts are excluded outright, so an unreviewed story has no URL to index.
+  const posts = await getCollection('news', ({ data }) => !data.sourceUrl && !data.draft);
   return posts.map((post) => ({
     params: { id: post.id },
     props: { post },

@@ -4,7 +4,7 @@ import CTAButton from '../../components/marketing/CTAButton.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const events = await getCollection('events', ({ data }) => data.featured);
+  const events = await getCollection('events', ({ data }) => data.featured && !data.draft);
   return events.map((event) => ({
     params: { id: event.id },
     props: { event },
