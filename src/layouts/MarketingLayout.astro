@@ -9,14 +9,46 @@ interface Props {
   description: string;
   image?: string;
   jsonLd?: object | object[];
+  fullTitle?: string;
+  type?: 'website' | 'article';
+  index?: boolean;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  publishedTime?: Date;
 }
 
-const { title, description, image, jsonLd } = Astro.props;
+// Pass-through to BaseHead; see the prop docs there.
+const {
+  title,
+  description,
+  image,
+  jsonLd,
+  fullTitle,
+  type,
+  index,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  publishedTime,
+} = Astro.props;
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} image={image} jsonLd={jsonLd} />
+    <BaseHead
+      title={title}
+      description={description}
+      image={image}
+      jsonLd={jsonLd}
+      fullTitle={fullTitle}
+      type={type}
+      index={index}
+      imageAlt={imageAlt}
+      imageWidth={imageWidth}
+      imageHeight={imageHeight}
+      publishedTime={publishedTime}
+    />
     <script is:inline>
       // Only opt into the reveal system when JS runs AND the user hasn't
       // asked for reduced motion. If either is false, this class is never

@@ -13,16 +13,37 @@ interface Props {
   heroImageAlt?: string;
   isDraft?: boolean;
   jsonLd?: object | object[];
+  // og:type. Left to the caller because this layout serves both news posts and events.
+  type?: 'website' | 'article';
+  // article:published_time. Only news should pass this — `pubDate` doubles as the event date
+  // on the event route, and when an event happens isn't when its page was published.
+  publishedTime?: Date;
 }
 
-const { title, summary, pubDate, author, heroImage, heroImageAlt, isDraft, jsonLd } = Astro.props;
+const {
+  title,
+  summary,
+  pubDate,
+  author,
+  heroImage,
+  heroImageAlt,
+  isDraft,
+  jsonLd,
+  type,
+  publishedTime,
+} = Astro.props;
 
 // The hero was never forwarded to BaseHead, so every article and event page fell back to the
 // site-wide OG card even when the entry had its own image. Resolve it to an absolute URL so
-// the social card matches the article.
-const ogImage = heroImage
-  ? new URL((await getImage({ src: heroImage, width: 1200 })).src, Astro.site).href
-  : undefined;
+// the social card matches the article, and reuse the resolved dimensions for og:image:width
+// and :height rather than recomputing them.
+const heroOg = heroImage ? await getImage({ src: heroImage, width: 1200 }) : undefined;
+const ogImage = heroOg ? new URL(heroOg.src, Astro.site).href : undefined;
+
+// A headline plus " | The REFINERY" often runs past the ~60 characters search results show,
+// and the truncated tail is always the brand. Spend the characters on the headline instead;
+// og:site_name still carries the brand for social cards.
+const fullTitle = title;
 
 // timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
 // Without this, formatting in a behind-UTC locale renders the previous day.
@@ -34,7 +55,18 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
 });
 ---
 
-<MarketingLayout title={title} description={summary} image={ogImage} jsonLd={jsonLd}>
+<MarketingLayout
+  title={title}
+  description={summary}
+  image={ogImage}
+  jsonLd={jsonLd}
+  fullTitle={fullTitle}
+  type={type}
+  publishedTime={publishedTime}
+  imageAlt={heroImageAlt}
+  imageWidth={heroOg ? Number(heroOg.attributes.width) : undefined}
+  imageHeight={heroOg ? Number(heroOg.attributes.height) : undefined}
+>
   <article class="section-inner section-inner-narrow section">
     {
       isDraft && (
