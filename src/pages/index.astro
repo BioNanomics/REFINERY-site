@@ -103,7 +103,14 @@ const beyondNortheastIndiana = [
 ] as const;
 ---
 
-<MarketingLayout title="Home" description={metaDescription} jsonLd={orgSchema}>
+{/* Not "Home": the title is the single most valuable slot on the site, and this is the page
+    most likely to rank for the service plus the region. Renders as 58 characters with the
+    brand suffix, inside the ~60 search results show. */}
+<MarketingLayout
+  title="FIRST Robotics Support in Northeast Indiana"
+  description={metaDescription}
+  jsonLd={orgSchema}
+>
   <Hero
     eyebrow="The REFINERY"
     title="Shared infrastructure for stronger robotics teams"

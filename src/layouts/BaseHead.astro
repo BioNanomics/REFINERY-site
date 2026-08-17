@@ -50,7 +50,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 // treatment the medium allows: capitals plus a registered symbol on first use.
 const title = firstPlain(rawTitle);
 const description = firstPlain(rawDescription);
-const documentTitle = fullTitle ? firstPlain(fullTitle) : `${title} | The REFINERY`;
+
+// Append the brand unless doing so would push the title past what search results show. When
+// it would, the tail that gets cut is always the brand, so it is better spent on the page's
+// own words — og:site_name still carries the brand for social cards. This mainly affects long
+// article headlines; every hand-written page title is comfortably inside the budget.
+const TITLE_SUFFIX = ' | The REFINERY';
+const MAX_TITLE_LENGTH = 60;
+const suffixedTitle = `${title}${TITLE_SUFFIX}`;
+const documentTitle = fullTitle
+  ? firstPlain(fullTitle)
+  : suffixedTitle.length <= MAX_TITLE_LENGTH
+    ? suffixedTitle
+    : title;
 ---
 
 <meta charset="utf-8" />

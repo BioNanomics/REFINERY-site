@@ -40,10 +40,6 @@ const {
 const heroOg = heroImage ? await getImage({ src: heroImage, width: 1200 }) : undefined;
 const ogImage = heroOg ? new URL(heroOg.src, Astro.site).href : undefined;
 
-// A headline plus " | The REFINERY" often runs past the ~60 characters search results show,
-// and the truncated tail is always the brand. Spend the characters on the headline instead;
-// og:site_name still carries the brand for social cards.
-const fullTitle = title;
 
 // timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
 // Without this, formatting in a behind-UTC locale renders the previous day.
@@ -60,7 +56,6 @@ const formattedDate = pubDate.toLocaleDateString('en-US', {
   description={summary}
   image={ogImage}
   jsonLd={jsonLd}
-  fullTitle={fullTitle}
   type={type}
   publishedTime={publishedTime}
   imageAlt={heroImageAlt}
