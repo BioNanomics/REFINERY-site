@@ -1,7 +1,6 @@
 # Contributing to The REFINERY website
 
-This site is built with [Astro](https://astro.build), [Starlight](https://starlight.astro.build)
-(for `/resources`, the Documentation section), and [Tailwind CSS](https://tailwindcss.com).
+This site is built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com).
 Content lives in Markdown/MDX files under `src/content/`, so most updates don't require
 touching any code.
 
@@ -181,45 +180,11 @@ draft: false
 Body content in Markdown/MDX.
 ```
 
-### App — `src/content/apps/*.mdx`
-
-```md
----
-name: "App name"
-summary: "One sentence describing what it does."
-icon: ../../assets/apps/my-app-icon.svg   # optional
-externalUrl: "https://example.com"
-status: live   # live | beta | coming-soon
-order: 2        # lower numbers sort first
----
-```
-
-The Apps page body content isn't rendered — only the frontmatter is used on the card. Leave
-the body empty or use it for your own notes.
-
-### Mentor guide / technical deep-dive — `src/content/docs/resources/mentor-guides/*.mdx` or `.../technical/*.mdx`
-
-```md
----
-title: "Guide title"
-description: "One sentence, used for the page's meta description and search."
----
-
-Body content in Markdown/MDX. Starlight adds the sidebar, search, and prev/next nav
-automatically based on the file's location.
-```
-
-**Important:** every file under `src/content/docs/` must stay inside the `resources/`
-subfolder (either `resources/mentor-guides/` or `resources/technical/`, or add a new
-subfolder and register it in the `sidebar` array in `astro.config.mjs`). Adding a file
-directly under `src/content/docs/` (outside `resources/`) will leak a Starlight route outside
-`/resources/*`.
-
 ## Images
 
 Don't hotlink or reuse other organizations' photography without confirmed permission — see
 `docs/placeholder-images.md` for the current placeholder policy. Real photos should
-be added under `src/assets/{blog,projects,apps}/` and referenced by relative path in
+be added under `src/assets/{news,teams,people,partners}/` and referenced by relative path in
 frontmatter, so Astro can optimize them.
 
 ## Writing FIRST and program names
@@ -244,10 +209,6 @@ Mechanics, if you need them: `src/utils/first.ts` holds the term table,
 `<FirstText text={...} />` for strings that arrive as props. Plain-text contexts that can't
 hold markup (`<title>`, meta descriptions, `alt`) go through `firstPlain()` in
 `src/layouts/BaseHead.astro`, which yields `FIRST®` without italics.
-
-One gap to know about: Starlight renders `/resources` frontmatter `title` and `description`
-as plain strings, outside all of the above. Avoid putting `FIRST` in a docs page title, and
-write `FIRST®` literally in a docs `description`.
 
 ## Internal links inside Markdown/MDX body content
 

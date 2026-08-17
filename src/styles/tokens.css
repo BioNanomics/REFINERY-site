@@ -13,9 +13,8 @@
  *
  * IMPORTANT: Tailwind v4's `@theme` block (in marketing.css) requires static
  * literal values, it can't consume var() reliably for utility generation.
- * If you change a value here, mirror it into:
- *   - src/styles/marketing.css  (@theme block)
- *   - src/styles/global.css    (:root --sl-* overrides)
+ * If you change a value here, mirror it into src/styles/marketing.css's
+ * `@theme` block.
  */
 :root {
   --refinery-color-primary: #134b70;
@@ -43,9 +42,8 @@
 }
 
 /**
- * FIRST® trademark presentation. Lives here rather than in marketing.css because both
- * stylesheets import this file, so the marketing pages and Starlight's /resources render
- * the marks identically — a trademark rule, not a per-surface design choice.
+ * FIRST® trademark presentation. Kept alongside the design tokens rather than in
+ * marketing.css because it's a trademark rule, not a per-surface design choice.
  *
  * Per the FIRST Branding & Design Guidelines (FI084, p. 8): FIRST is always capitals and
  * italics, and "should not be bolded unless part of a longer phrase where all of the text
