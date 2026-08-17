@@ -128,11 +128,51 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
       </div>
       <div>
       <p class="text-slate-600" data-reveal>
-        {/* DRAFT — placeholder pending real facility photos, capabilities, parking, and accessibility details. */}
-        Photos, capabilities, parking, and accessibility information for The REFINERY's shop will
-        be published here.
+        The REFINERY doesn't keep regular hours, so every visit is by appointment — including
+        visits from teams outside The REFINERY. Get in touch and we'll find a time.
       </p>
-      <div class="card mt-6 overflow-hidden" data-reveal>
+      <a
+        href="mailto:info@refineryrobotics.org?subject=Visiting%20The%20REFINERY"
+        data-contact-open="contact"
+        class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+        data-reveal
+      >
+        Request a visit &rarr;
+      </a>
+
+      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>In the shop</h3>
+      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
+        {
+          [
+            'Full practice field',
+            'CNC router',
+            'Drill press',
+            'Hydraulic press',
+            'Shear, press brake, and slip roll combo',
+            '14" vertical bandsaw',
+          ].map((item) => (
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
+          ))
+        }
+      </ul>
+
+      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>Parking</h3>
+      <p class="mt-2 text-slate-600" data-reveal>
+        Parking is free on either side of Broadway, and there's a loading zone the size of two
+        spaces directly outside our door. If you need somewhere else to put a trailer or a team's
+        worth of cars, Electric Works publishes a{' '}
+        <a
+          href="https://fortwayneelectricworks.com/parking-map/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-brand-accent hover:underline"
+        >
+          parking map
+        </a>{' '}
+        with more options.
+      </p>
+
+      <div class="card mt-8 overflow-hidden" data-reveal>
         <iframe
           src={facilityMapEmbedUrl}
           title="Map showing The REFINERY's location"
