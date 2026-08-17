@@ -4,6 +4,7 @@ import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
 import FirstText from '../components/brand/FirstText.astro';
+import { withBase } from '../utils/base';
 ---
 
 <MarketingLayout
@@ -37,6 +38,10 @@ import FirstText from '../components/brand/FirstText.astro';
           ))
         }
       </ul>
+      <p class="mt-4 text-slate-600" data-reveal>
+        Teams that started this way are now competing across the region. See{' '}
+        <a href={withBase('about/teams/')} class="text-brand-accent hover:underline">the teams we support</a>.
+      </p>
       <div class="mt-6" data-reveal>
         <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" variant="secondary" dialog="contact" topic="Starting a team">
           Talk With Us About Starting a Team

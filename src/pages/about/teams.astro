@@ -4,6 +4,7 @@ import SectionHeading from '../../components/marketing/SectionHeading.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
 import First from '../../components/brand/First.astro';
 import { getCollection } from 'astro:content';
+import { withBase } from '../../utils/base';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 const sortByNumber = (a: (typeof allTeams)[number], b: (typeof allTeams)[number]) =>
@@ -15,6 +16,11 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
 <MarketingLayout
   title="FRC & FTC Teams in Northeast Indiana"
   description="FIRST Robotics Competition and FIRST Tech Challenge teams supported by The REFINERY across Northeast Indiana."
+  breadcrumbs={[
+    { label: 'Home', href: withBase('/') },
+    { label: 'About', href: withBase('about/') },
+    { label: 'Meet the Teams' },
+  ]}
 >
   <section class="section-tight section">
     <div class="section-inner">
@@ -24,6 +30,10 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
           <p class="mt-10 text-sm text-slate-500">Team directory coming soon.</p>
         )
       }
+      <p class="mt-4 max-w-2xl text-slate-600" data-reveal>
+        Looking for a team for your student, or want to start one where there isn't one yet?{' '}
+        <a href={withBase('get-involved/')} class="text-brand-accent hover:underline">Get involved</a>.
+      </p>
     </div>
   </section>
 
