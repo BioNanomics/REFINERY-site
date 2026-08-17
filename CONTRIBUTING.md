@@ -103,15 +103,31 @@ title: "Event name"
 summary: "One or two sentences."
 dateStart: 2026-09-12
 dateEnd: 2026-09-13             # optional
-location: "The REFINERY, Fort Wayne, IN"
+location: "Venue name"          # display name, shown on the card and detail page
+venueAddress:                   # optional, but see note below
+  streetAddress: "9100 Winchester Rd"
+  addressLocality: "Fort Wayne"
+  addressRegion: "IN"
+  postalCode: "46819"
 audience: [students, teams]
 featured: false                 # set true to give this event its own detail page
-registrationUrl: "https://..."  # optional, only shown on featured event pages
+registrationUrl: "https://..."  # optional, renders a Register button on featured event pages
 draft: false
 ---
 
 Body content in Markdown/MDX — only used if `featured: true`.
 ```
+
+**Fill in `venueAddress` for any public event.** Google won't consider an event for rich
+results (the date/venue card in search results) without a complete street address, so a
+featured event that omits it gets no `Event` structured data at all — see
+`src/utils/schema.ts`. Don't repeat the venue name inside `venueAddress`; `location` above is
+the single source for it.
+
+Two things worth knowing when you add an event: dates are published date-only, because
+frontmatter carries no time of day and inventing one would tell search engines the wrong start
+time. And there's no `image` field on events yet, so nothing event-specific appears in the
+structured data or the social card.
 
 ### Partner — `src/content/partners/*.mdx`
 

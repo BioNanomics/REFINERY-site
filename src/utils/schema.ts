@@ -7,11 +7,11 @@
  * property costs a little rich-result eligibility, an invented one is a false statement.
  *
  * Deliberately omitted, because no source exists anywhere in the repo:
- *   legalName, taxID/EIN, foundingDate, geo coordinates, postalCode, telephone,
- *   openingHours, and any Facebook/X/TikTok profile.
+ *   legalName, taxID/EIN, foundingDate, geo coordinates, telephone, openingHours,
+ *   and any Facebook/X/TikTok profile.
  *
- * Two of those are worth re-visiting once someone can confirm them: postalCode and
- * telephone would complete the PostalAddress and enable a ContactPoint.
+ * `telephone` is the one remaining gap worth closing — supply a public number and this can
+ * grow a ContactPoint.
  *
  * On the entity itself: The REFINERY is typed as a plain `Organization`, NOT
  * `NonprofitOrganization` with a nonprofitStatus. src/pages/donate.astro states that
@@ -64,6 +64,7 @@ export function organization({ logo, image, description }: OrgOptions) {
       streetAddress: '1750 Broadway',
       addressLocality: 'Fort Wayne',
       addressRegion: 'IN',
+      postalCode: '46802',
       addressCountry: 'US',
     },
     areaServed: {
@@ -86,6 +87,84 @@ export function organization({ logo, image, description }: OrgOptions) {
       'https://youtube.com/@therefinery-in',
       'https://www.linkedin.com/company/the-refinery-robotics',
     ],
+  };
+}
+
+interface EventOptions {
+  /** Already run through firstPlain(). */
+  name: string;
+  /** Already run through firstPlain(). */
+  description: string;
+  /** Canonical URL of the event page. */
+  url: string;
+  startDate: Date;
+  endDate?: Date;
+  /** Venue display name, from the entry's `location`. */
+  venueName: string;
+  /** Structured venue address, from the entry's `venueAddress`. */
+  venueAddress: {
+    streetAddress: string;
+    addressLocality: string;
+    addressRegion: string;
+    postalCode: string;
+  };
+}
+
+/**
+ * A physical event. Only call this when the entry has a `venueAddress` — Google treats a
+ * missing `location.address` as an error for Event rich results, so a Place with just a name
+ * would publish an incomplete claim and earn nothing.
+ *
+ * Dates are emitted date-only. Frontmatter carries bare YYYY-MM-DD, and no start time is
+ * published for these events; a fabricated 00:00 would tell search engines the event begins
+ * at midnight.
+ *
+ * Two properties are conventional inferences rather than repo facts, and are marked as such:
+ *   eventAttendanceMode — offline, since the venue is a physical address.
+ *   eventStatus         — scheduled, the schema.org default reading for a listed event.
+ *
+ * Not emitted, for want of a source:
+ *   offers      — registrationUrl exists, but an Offer needs a price and none is published.
+ *                 Adding a price (or isAccessibleForFree) would unlock more rich-result
+ *                 coverage.
+ *   image       — the events collection has no image field, unlike news. Falling back to the
+ *                 site-wide OG card would attach a generic photo to a specific event.
+ *   performer   — no data.
+ */
+export function event({
+  name,
+  description,
+  url,
+  startDate,
+  endDate,
+  venueName,
+  venueAddress,
+}: EventOptions) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name,
+    description,
+    url,
+    startDate: startDate.toISOString().slice(0, 10),
+    ...(endDate ? { endDate: endDate.toISOString().slice(0, 10) } : {}),
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location: {
+      '@type': 'Place',
+      name: venueName,
+      address: {
+        '@type': 'PostalAddress',
+        ...venueAddress,
+        addressCountry: 'US',
+      },
+    },
+    organizer: {
+      '@type': 'Organization',
+      '@id': ORG_ID,
+      name: 'The REFINERY',
+      url: `${SITE}/`,
+    },
   };
 }
 

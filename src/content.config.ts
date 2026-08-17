@@ -96,7 +96,20 @@ const events = defineCollection({
       summary: z.string(),
       dateStart: z.coerce.date(),
       dateEnd: z.coerce.date().optional(),
+      // Display name of the venue, shown on the card and the detail page.
       location: z.string(),
+      // Structured street address for the venue. Optional, but Google requires a full
+      // address under Event.location before it will consider an event for rich results, so
+      // an event without this gets no Event schema at all — see src/utils/schema.ts.
+      // `location` above supplies the venue name, so it is deliberately not repeated here.
+      venueAddress: z
+        .object({
+          streetAddress: z.string(),
+          addressLocality: z.string(),
+          addressRegion: z.string(),
+          postalCode: z.string(),
+        })
+        .optional(),
       audience: z.array(audienceEnum).default([]),
       featured: z.boolean().default(false),
       registrationUrl: z.string().url().optional(),
