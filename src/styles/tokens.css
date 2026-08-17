@@ -39,9 +39,13 @@
      .band is a two-line change rather than a re-derivation. */
   --refinery-color-surface-tint: rgb(19 75 112 / 0.06); /* translucent brand navy */
 
-  /* Motion geometry read by .reveal rules in marketing.css. */
+  /* Motion geometry read by .reveal rules in marketing.css.
+     Stagger multiplies against --reveal-i, which MarketingLayout caps — so the
+     worst-case pre-delay is cap x stagger, paid by every item past the cap in a
+     long grid (the news page runs 25 cards in one group). Keep that product
+     well under ~150ms or scrolling feels laggy rather than choreographed. */
   --refinery-reveal-distance: 14px;
-  --refinery-reveal-stagger: 70ms;
+  --refinery-reveal-stagger: 45ms;
 }
 
 /**

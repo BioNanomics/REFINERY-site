@@ -47,7 +47,7 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --transition-duration-fast: 150ms;
   --transition-duration-base: 240ms;
-  --transition-duration-reveal: 620ms;
+  --transition-duration-reveal: 460ms;
 }
 
 /**
@@ -125,12 +125,40 @@
     mask-composite: intersect;
   }
 
-  /* Subtle blueprint grid texture background. */
+  /* Engineering graph paper — a fine minor grid nested inside a heavier major
+     one, the way a drafting sheet is ruled. Chosen over a plain square grid
+     (the generic web texture), a schematic dot grid, and 45° section hatching.
+
+     The element carries the texture's alpha via `text-brand/[…]` in
+     MarketingLayout, so that class stays the single knob for how strong the
+     whole thing reads. It sets the MAJOR line weight; the minor lines derive
+     from it at 50% via color-mix, which is what gives the two-tier drafting
+     look from one value.
+
+     That color-mix is DELIBERATE — do not "simplify" it to bare currentColor.
+     (An earlier version of this rule wrapped currentColor in a color-mix by
+     mistake, multiplying two alphas together and rendering the texture at
+     ~0.6% — painted, but invisible. This one is the intended 1:2 minor:major
+     ratio, not that bug.)
+
+     Coverage is much higher than the patterns this replaced: the 8px minor
+     grid alone is ~23% ink versus ~5% for hatching, so the alpha here is
+     doing very different work and the two values aren't comparable. If this
+     reads too strong at full width, widen --grid-minor before touching the
+     alpha — the minor grid is what carries the density. */
   .grid-texture {
+    --grid-minor: 0.5rem;
+    --grid-major: 2.5rem;
     background-image:
-      linear-gradient(to right, color-mix(in srgb, currentColor 8%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in srgb, currentColor 8%, transparent) 1px, transparent 1px);
-    background-size: 2.5rem 2.5rem;
+      linear-gradient(to right, color-mix(in srgb, currentColor 50%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, currentColor 50%, transparent) 1px, transparent 1px),
+      linear-gradient(to right, currentColor 1px, transparent 1px),
+      linear-gradient(to bottom, currentColor 1px, transparent 1px);
+    background-size:
+      var(--grid-minor) var(--grid-minor),
+      var(--grid-minor) var(--grid-minor),
+      var(--grid-major) var(--grid-major),
+      var(--grid-major) var(--grid-major);
   }
 
   /* ── Card: the single box primitive ─────────────────────────────────
