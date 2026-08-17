@@ -438,6 +438,25 @@
   .section-inner-narrow {
     max-width: 52rem;
   }
+
+  /* Two-column section body: a heading rail on the left, prose on the right.
+     Lets a prose section fill the full .section-inner width without running
+     text to a ~150-character measure — the right column lands near 48rem at
+     desktop, which is the measure a capped paragraph would have had anyway.
+     Sections whose content is a grid (teams, people, partners) don't use this;
+     their heading sits above full-width content. Either way the heading starts
+     at the container's left edge, so headings stay aligned down the page.
+     Collapses to a single stacked column below lg. */
+  .section-split {
+    display: grid;
+    gap: 0.5rem 3rem;
+  }
+  @media (width >= 64rem) {
+    .section-split {
+      grid-template-columns: 18rem minmax(0, 1fr);
+      gap: 0 3rem;
+    }
+  }
   .section-inner-wide {
     max-width: 80rem;
   }
