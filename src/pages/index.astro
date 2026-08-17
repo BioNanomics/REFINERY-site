@@ -6,9 +6,7 @@ import SummaryCard from '../components/marketing/SummaryCard.astro';
 import Carousel from '../components/marketing/Carousel.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
-import NewsCard from '../components/cards/NewsCard.astro';
 import First from '../components/brand/First.astro';
-import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
 import heroImage from '../assets/refinery-shop-1.jpeg';
 
@@ -57,40 +55,32 @@ const whatWeProvide = [
   },
 ] as const;
 
+// Deliberately link-less: every one of these would point at the same What We Do
+// section as the "See Our Contributions" button below them, so the button is the
+// section's single path and these stay plain descriptive cards.
 const beyondNortheastIndiana = [
   {
     title: 'Robot in 3 Days',
     description: "A documented rapid-build immediately following each year's FIRST Robotics Competition game reveal.",
-    href: withBase('what-we-do/#beyond-northeast-indiana'),
     icon: 'robot',
   },
   {
     title: 'KitBot in 3 Days',
     description: 'A rapid, documented KitBot build to help developing teams assemble, program, and iterate.',
-    href: withBase('what-we-do/#beyond-northeast-indiana'),
     icon: 'kit',
   },
   {
     title: 'TIMS',
-    description: 'Inventory and tool-management software built for The REFINERY, open to any FIRST team.',
-    href: withBase('what-we-do/#beyond-northeast-indiana'),
+    description: 'Inventory and tool-management software built for The REFINERY, and built to be open to any FIRST team.',
+    status: 'Currently beta testing',
     icon: 'clipboard',
   },
   {
     title: 'Event Parts Support',
     description: 'Live parts inventory at events, helping teams get back on the field when issues come up.',
-    href: withBase('what-we-do/#beyond-northeast-indiana'),
     icon: 'map-pin',
   },
 ] as const;
-
-const allNews = await getCollection('news', ({ data }) => !data.draft);
-const latestNews = allNews.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
-
-const allEvents = await getCollection('events', ({ data }) => !data.draft);
-const upcomingEvents = allEvents
-  .sort((a, b) => a.data.dateStart.valueOf() - b.data.dateStart.valueOf())
-  .slice(0, 3);
 ---
 
 <MarketingLayout
@@ -174,52 +164,6 @@ const upcomingEvents = allEvents
       <SectionHeading eyebrow="Impact" title="Impact snapshot" align="left" />
       <div class="mt-8">
         <ImpactStats />
-      </div>
-    </div>
-  </section>
-
-  <!-- Latest News -->
-  <section class="section">
-    <div class="section-inner">
-      <SectionHeading eyebrow="News" title="Latest from The REFINERY and the region" align="left" />
-      {
-        latestNews.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {latestNews.map((post) => <NewsCard post={post} />)}
-          </div>
-        ) : (
-          <p class="mt-8 text-sm text-slate-500">No news published yet. Check back soon.</p>
-        )
-      }
-      <div class="mt-8" data-reveal>
-        <CTAButton href={withBase('news/')} variant="secondary">View All News</CTAButton>
-      </div>
-    </div>
-  </section>
-
-  <!-- Upcoming -->
-  <section class="section band">
-    <div class="section-inner">
-      <SectionHeading eyebrow="Upcoming" title="Upcoming programs and events" align="left" />
-      {
-        upcomingEvents.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {upcomingEvents.map((event) => (
-              <div class="card card-pad">
-                <time class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
-                  {event.data.dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
-                </time>
-                <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{event.data.title}</h3>
-                <p class="mt-2 text-sm text-slate-600">{event.data.summary}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p class="mt-8 text-sm text-slate-500">No upcoming events posted yet. Check back soon.</p>
-        )
-      }
-      <div class="mt-8" data-reveal>
-        <CTAButton href={withBase('programs-events/')} variant="secondary">View Programs & Events</CTAButton>
       </div>
     </div>
   </section>

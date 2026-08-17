@@ -5,19 +5,28 @@ import FirstText from '../brand/FirstText.astro';
 interface Props {
   title: string;
   description: string;
-  href: string;
+  /**
+   * Omit to render a plain, non-interactive card. Used where a group of cards
+   * would all point at the same destination as a CTA button beside them — the
+   * button is the single path, and a card offering the same jump is noise.
+   */
+  href?: string;
   cta?: string;
+  /** Short status label shown beside the title — e.g. a beta/in-progress note. */
+  status?: string;
   icon?: IconName;
   offset?: boolean;
   class?: string;
 }
 
-const { title, description, href, cta = 'Explore', icon, offset = false, class: className } = Astro.props;
+const { title, description, href, cta = 'Explore', status, icon, offset = false, class: className } = Astro.props;
+
+const Tag = href ? 'a' : 'div';
 ---
 
-<a
+<Tag
   href={href}
-  class:list={['card card-link card-pad-lg group', { 'sm:mt-8': offset }, className]}
+  class:list={['card card-pad-lg', href && 'card-link group', { 'sm:mt-8': offset }, className]}
   data-reveal
 >
   {
@@ -27,7 +36,14 @@ const { title, description, href, cta = 'Explore', icon, offset = false, class: 
       </div>
     )
   }
-  <h3 class="font-heading text-lg font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
+  <div class="flex flex-wrap items-center gap-2">
+    <h3 class="font-heading text-lg font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
+    {status && <span class="status-tag">{status}</span>}
+  </div>
   <p class="mt-2 card-fill text-sm text-slate-600"><FirstText text={description} /></p>
-  <span class="mt-4 font-mono text-sm font-semibold text-brand-accent group-hover:underline">{cta} &rarr;</span>
-</a>
+  {
+    href && (
+      <span class="mt-4 font-mono text-sm font-semibold text-brand-accent group-hover:underline">{cta} &rarr;</span>
+    )
+  }
+</Tag>
