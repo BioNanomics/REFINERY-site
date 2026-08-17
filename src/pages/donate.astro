@@ -62,8 +62,12 @@ const outcomes = [
             ></iframe>
           </div>
         </div>
+        {/* defer, so a third-party DNS lookup + handshake + download can't block parsing on
+            the one page whose whole purpose is converting. The embed initialises on DOM ready
+            and the onerror fallback below still fires either way. */}
         <script
           is:inline
+          defer
           src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
           onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach(function(f){f.src=f.getAttribute('data-zeffy-embed-src');});});"
         ></script>
