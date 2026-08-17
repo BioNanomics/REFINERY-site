@@ -3,6 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import { unified } from '@astrojs/markdown-remark';
 import rehypeFirstMarks from './src/plugins/rehype-first-marks.mjs';
 import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
@@ -60,8 +61,14 @@ export default defineConfig({
   // rehypeFirstMarks styles FIRST® trademarks, so authors just type FIRST in capitals.
   // rehypeExternalLinks marks absolute links as external, so a plain Markdown link picks up
   // the same new-tab behaviour and ↗ indicator as one written in an .astro template.
+  //
+  // Plugins go through `processor: unified({...})` rather than the old top-level
+  // markdown.rehypePlugins, which Astro deprecates in favour of configuring the processor
+  // directly. `unified()` keeps GFM and SmartyPants on by default, matching prior behaviour.
   markdown: {
-    rehypePlugins: [rehypeFirstMarks, rehypeExternalLinks],
+    processor: unified({
+      rehypePlugins: [rehypeFirstMarks, rehypeExternalLinks],
+    }),
   },
 
   // /404/ is filtered out: GitHub Pages serves 404.html with a real 404 status, so it must
