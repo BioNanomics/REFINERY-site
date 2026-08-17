@@ -4,7 +4,8 @@ import CTAButton from '../components/marketing/CTAButton.astro';
 import { withBase } from '../utils/base';
 ---
 
-<MarketingLayout title="Page not found" description="This page doesn't exist.">
+{/* index={false}: noindex, and no self-canonical inviting this URL to be treated as real. */}
+<MarketingLayout title="Page not found" description="This page doesn't exist." index={false}>
   <section class="section-loose section flex flex-col items-center text-center">
     <div class="section-inner section-inner-narrow flex flex-col items-center">
       <p class="eyebrow-tag text-brand-accent">ERROR_404</p>

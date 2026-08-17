@@ -3,20 +3,89 @@ import BaseHead from './BaseHead.astro';
 import SiteHeader from '../components/nav/SiteHeader.astro';
 import SiteFooter from '../components/nav/SiteFooter.astro';
 import ContactDialogs from '../components/forms/ContactDialogs.astro';
+import Breadcrumbs from '../components/marketing/Breadcrumbs.astro';
+import { breadcrumbList } from '../utils/schema';
+import { firstPlain } from '../utils/first';
+import type { Crumb } from '../utils/breadcrumbs';
 
 interface Props {
   title: string;
   description: string;
   image?: string;
   jsonLd?: object | object[];
+  fullTitle?: string;
+  type?: 'website' | 'article';
+  index?: boolean;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  publishedTime?: Date;
+  /**
+   * Breadcrumb trail, root first, current page last. Drives BOTH the visible <nav> and the
+   * BreadcrumbList JSON-LD below, which is the point — one array, so the two can't disagree.
+   *
+   * Only for pages nested below the top level. A depth-1 page would render "Home › About",
+   * which tells a reader nothing the primary nav doesn't already say.
+   */
+  breadcrumbs?: Crumb[];
+  /** Narrower measure, to match ArticleLayout's prose column. Set by that layout, not by pages. */
+  breadcrumbsNarrow?: boolean;
 }
 
-const { title, description, image, jsonLd } = Astro.props;
+// Pass-through to BaseHead; see the prop docs there.
+const {
+  title,
+  description,
+  image,
+  jsonLd,
+  fullTitle,
+  type,
+  index,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  publishedTime,
+  breadcrumbs,
+  breadcrumbsNarrow = false,
+} = Astro.props;
+
+// Absolute URLs are resolved here rather than in schema.ts, matching how every other builder
+// is fed: the builders stay pure and URL-agnostic, callers own Astro.site. The last crumb
+// deliberately gets no URL — see breadcrumbList().
+const crumbNode = breadcrumbs?.length
+  ? breadcrumbList(
+      breadcrumbs.map(({ label, href }, i) => ({
+        name: firstPlain(label),
+        url: i < breadcrumbs.length - 1 && href ? new URL(href, Astro.site).href : undefined,
+      })),
+    )
+  : undefined;
+
+// Normalize whatever the page passed (nothing, one node, or several) and append the trail.
+// Collapsing a single node back to a bare object keeps output byte-identical for every page
+// that passes no breadcrumbs, so adding this feature can't quietly reformat existing markup.
+const nodes = [
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []),
+  ...(crumbNode ? [crumbNode] : []),
+];
+const jsonLdOut = nodes.length === 0 ? undefined : nodes.length === 1 ? nodes[0] : nodes;
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} image={image} jsonLd={jsonLd} />
+    <BaseHead
+      title={title}
+      description={description}
+      image={image}
+      jsonLd={jsonLdOut}
+      fullTitle={fullTitle}
+      type={type}
+      index={index}
+      imageAlt={imageAlt}
+      imageWidth={imageWidth}
+      imageHeight={imageHeight}
+      publishedTime={publishedTime}
+    />
     <script is:inline>
       // Only opt into the reveal system when JS runs AND the user hasn't
       // asked for reduced motion. If either is false, this class is never
@@ -31,7 +100,11 @@ const { title, description, image, jsonLd } = Astro.props;
     {/* The alpha here is the single knob for how strong the texture reads — see .grid-texture. */}
     <div class="grid-texture pointer-events-none fixed inset-0 -z-10 text-brand/[0.055]" aria-hidden="true"></div>
     <SiteHeader />
-    <main class="flex-1">
+    {/* has-breadcrumb-trail tightens the first section's top padding, since the trail already
+        provides that gap — see the rule in marketing.css. Keeps a breadcrumbed page's heading
+        at the same height as its siblings' instead of pushing it down by the trail's height. */}
+    <main class:list={['flex-1', breadcrumbs?.length && 'has-breadcrumb-trail']}>
+      {breadcrumbs && <Breadcrumbs items={breadcrumbs} narrow={breadcrumbsNarrow} />}
       <slot />
     </main>
     <SiteFooter />

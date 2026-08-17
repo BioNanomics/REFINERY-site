@@ -1,0 +1,74 @@
+# The REFINERY
+
+> The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with
+> funding, parts, tools, facilities, training, and community.
+
+## Mission
+
+The REFINERY exists so that no FIRST robotics team in Northeast Indiana has to build its
+infrastructure alone. We provide the funding, parts, tools, facilities, training, and
+community that let teams start, grow, and succeed.
+
+## About
+
+The REFINERY is a nonprofit robotics makerspace and regional infrastructure organization in
+Fort Wayne, Indiana, supporting FIRST Robotics Competition (FRC) and FIRST Tech Challenge
+(FTC) teams across Northeast Indiana. It operates as a program of BioNanomics, which holds
+the 501(c)(3) status that donations are received under.
+
+Young robotics teams have long faced the same challenge: building a competitive program takes
+far more than a robot, and few schools or communities can build all of that infrastructure
+alone. The REFINERY grew out of a shared makerspace built to close that gap, and has since
+evolved from just a physical facility into a regional infrastructure organization supporting
+many teams across the region.
+
+## What The REFINERY provides
+
+- **Team launch and organizational support** — helping new and developing teams build the
+  organizational foundation they need to last.
+- **Funding and financial infrastructure** — moving money to the teams that need it.
+- **Parts and inventory** — a shared pool teams draw on instead of each buying their own.
+- **Tools and fabrication** — machines and shop capacity most teams cannot own individually.
+- **Facilities and field access** — shop space and practice field time.
+- **Training and technical support** — workshops and hands-on technical help.
+- **Community and student experience** — events, mentoring, and the wider regional community.
+
+## Reach
+
+Across Northeast Indiana, The REFINERY has backed 15 robotics teams, put tools and mentors in
+front of roughly 200 students, helped launch 5 new teams from scratch, and moved $75,000 in
+funding to the teams that needed it.
+
+## Pages
+
+- [Home](https://refineryrobotics.org/): What The REFINERY does and who it serves.
+- [What We Do](https://refineryrobotics.org/what-we-do/): The full set of support offered to
+  teams — funding, parts, tools, facilities, training, community, and contributions back to
+  the wider FIRST community.
+- [Programs & Events](https://refineryrobotics.org/programs-events/): Upcoming events, the
+  public events calendar, and ongoing programs.
+- [Monster Match](https://refineryrobotics.org/programs-events/monster-match/): An offseason
+  FRC competition and college and career fair with trick or treating, free and open to the
+  public, on 31 October 2026 at Wayne High School in Fort Wayne.
+- [News](https://refineryrobotics.org/news/): Updates from The REFINERY, its teams, and
+  robotics coverage from across the region.
+- [Get Involved](https://refineryrobotics.org/get-involved/): How to volunteer, partner as an
+  organization or business, start or host a team, give, or find a team for a student.
+- [About](https://refineryrobotics.org/about/): History, the teams and partners involved, the
+  people behind it, and the Fort Wayne facility.
+- [Meet the Teams](https://refineryrobotics.org/about/teams/): The FRC and FTC teams The
+  REFINERY supports across Northeast Indiana.
+- [Donate](https://refineryrobotics.org/donate/): What giving funds, and how to give.
+
+## Contact
+
+- Email: info@refineryrobotics.org
+- Facility: 1750 Broadway, Fort Wayne, IN 46802. The facility does not keep regular hours —
+  visits are by appointment.
+- Sitemap: https://refineryrobotics.org/sitemap-index.xml
+
+## Notes
+
+FIRST, FIRST Robotics Competition, FIRST Tech Challenge, FRC, and FTC are registered
+trademarks of FIRST (www.firstinspires.org), which is not overseeing, involved with, or
+responsible for this activity, product, or service.

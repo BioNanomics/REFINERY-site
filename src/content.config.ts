@@ -28,6 +28,12 @@ const news = defineCollection({
     z.object({
       title: z.string(),
       summary: z.string().max(280),
+      // Overrides `summary` for the <meta name="description"> and the Article schema on a
+      // detail page. `summary` is sized for a news card (280 is a comfortable blurb), but
+      // search results cut off near 160 — so a summary long enough to read well on the grid
+      // gets visibly truncated in the SERP. Optional: entries whose summary is already short
+      // need nothing, and the 25 curated external entries have no detail page at all.
+      metaDescription: z.string().max(160).optional(),
       pubDate: z.coerce.date(),
       author: z.string().default('The REFINERY'),
       heroImage: image().optional(),
@@ -153,6 +159,11 @@ const people = defineCollection({
         .optional(),
       order: z.number().default(0),
       featured: z.boolean().default(false),
+      // Marks an entry as a founder of The REFINERY, which the homepage's Organization schema
+      // reads to fill its `founder` property. Deliberately explicit rather than inferred from
+      // `role` or `order`: role is display copy that can be reworded, and order is display
+      // position, so neither is a safe stand-in for "this person founded the organization".
+      founder: z.boolean().default(false),
       draft: z.boolean().default(false),
     }),
 });

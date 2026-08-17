@@ -166,6 +166,12 @@ draft: false
 Body content in Markdown/MDX — only used if `featured: true`.
 ```
 
+**Past events hide themselves.** Once `dateEnd` (or `dateStart`, if there's no `dateEnd`) is
+behind us in Fort Wayne time, the event stops appearing on `/programs-events/` — no need to
+delete it or set `draft: true`. Its detail page stays live, so old links and indexed URLs
+don't turn into 404s. Because the site is static, this takes effect at the next build; the
+nightly schedule in `.github/workflows/deploy.yml` is there so that happens on its own.
+
 **Fill in `venueAddress` for any public event.** Google won't consider an event for rich
 results (the date/venue card in search results) without a complete street address, so a
 featured event that omits it gets no `Event` structured data at all — see
@@ -279,3 +285,6 @@ draft entry gets no detail page at all, so there is no URL for a search engine t
 anyone to stumble onto — the `getStaticPaths` filters in `src/pages/news/[id]/index.astro` and
 `src/pages/programs-events/[id].astro` exclude drafts outright. To preview a draft, flip
 `draft: false` locally while you work on it.
+
+This is different from how a past event drops off the listing: that one keeps its detail page
+on purpose, because the page was already published and linked. See the Event section above.

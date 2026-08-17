@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Events auto-hide from /programs-events/ once their date passes, but that is decided at
+  # build time on a static site. Rebuild just after local midnight (00:30 EST / 01:30 EDT)
+  # so an event disappears the morning after it happens rather than at the next push.
+  schedule:
+    - cron: '30 5 * * *'
   workflow_dispatch:
 
 permissions:
@@ -30,4 +35,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -13,13 +13,28 @@ interface Props {
   context?: FirstContext;
   /** Force or suppress the ® when document render order needs overriding. */
   reg?: boolean;
+  /**
+   * false opts out of the page's first-use registry entirely: this instance neither takes the
+   * ® nor spends the once-per-page claim, leaving it for whatever renders next.
+   *
+   * For chrome that repeats a heading's words *above* that heading — breadcrumbs being the
+   * case this exists for. Such a component renders first, so it would otherwise claim the ®
+   * and leave the real <h1> bare.
+   *
+   * Note this is not the same as `reg={false}`, which suppresses the glyph but still spends
+   * the claim. That distinction is load-bearing: TeamCard's `forceReg` path depends on the
+   * claim happening so a later body mention can't stamp a second ®.
+   */
+  claim?: boolean;
 }
 
-const { text, context = 'body', reg } = Astro.props;
+const { text, context = 'body', reg, claim = true } = Astro.props;
 
 const segments = tokenizeFirst(text).map((segment) => {
   if (segment.type !== 'mark') return { ...segment, registered: false };
-  const claimed = claimRegisteredMark(Astro.locals.firstMarks, segment.token!, context);
+  const claimed = claim
+    ? claimRegisteredMark(Astro.locals.firstMarks, segment.token!, context)
+    : false;
   return { ...segment, registered: reg ?? claimed };
 });
 ---

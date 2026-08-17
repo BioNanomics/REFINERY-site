@@ -21,12 +21,34 @@
  *
  * Strings that may contain FIRST/FRC/FTC must be passed through firstPlain() by the caller,
  * since JSON-LD carries no markup and the raw source text expects the mark to be styled.
+ *
+ * Organization.description uses the homepage meta description rather than the About page's
+ * mission statement. Both are approved copy now, but the meta description is the tighter
+ * one-liner and is already what search engines display, so the two stay consistent. The
+ * mission statement is carried in full by public/llms.txt.
  */
+
+import { FACILITY_ADDRESS } from './facility';
 
 const SITE = 'https://refineryrobotics.org';
 
 /** Stable @id so other nodes can reference the org rather than duplicating it. */
 export const ORG_ID = `${SITE}/#organization`;
+
+/** Stable @id for the Fort Wayne building, distinct from the organization that occupies it. */
+export const FACILITY_ID = `${SITE}/#facility`;
+
+/**
+ * Stable @id for a person, keyed on their people-collection entry id.
+ *
+ * Person nodes get identifiers where a BreadcrumbList doesn't because a person is a real
+ * external entity that other nodes point at: the homepage's Organization names its founder,
+ * and the full Person node describing that same human lives on /about/. Without a shared @id
+ * those are two unrelated nodes that happen to carry the same name string.
+ */
+export function personId(entryId: string) {
+  return `${SITE}/#person-${entryId}`;
+}
 
 interface OrgOptions {
   /** Absolute URL to the logo asset. */
@@ -35,18 +57,25 @@ interface OrgOptions {
   image: string;
   /** Already run through firstPlain(). */
   description: string;
+  /**
+   * The founder, read from the people collection by the caller rather than written here, so
+   * one name doesn't live in two files. `id` must be personId() of the same entry that
+   * produces the full Person node on /about/ — that shared identifier is what makes the two
+   * nodes one entity instead of two lookalikes. Omitted entirely when no entry is flagged.
+   */
+  founder?: { name: string; id: string };
 }
 
 /**
  * The REFINERY as an Organization. Sources, all current as of writing:
  *   name, alternateName, sameAs  -> src/components/nav/SiteFooter.astro
  *   email                        -> src/components/nav/SiteFooter.astro
- *   address                      -> src/pages/about.astro (facilityAddress)
+ *   address                      -> src/utils/facility.ts (shared with the visible copy on /about/)
  *   parentOrganization           -> src/pages/donate.astro, README.md
  *   founder                      -> src/content/people/doug-and-kim-horner.mdx
  *   description                  -> the page's own meta description
  */
-export function organization({ logo, image, description }: OrgOptions) {
+export function organization({ logo, image, description, founder }: OrgOptions) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -61,20 +90,17 @@ export function organization({ logo, image, description }: OrgOptions) {
     email: 'info@refineryrobotics.org',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '1750 Broadway',
-      addressLocality: 'Fort Wayne',
-      addressRegion: 'IN',
-      postalCode: '46802',
-      addressCountry: 'US',
+      ...FACILITY_ADDRESS,
     },
     areaServed: {
       '@type': 'AdministrativeArea',
       name: 'Northeast Indiana',
     },
-    founder: {
-      '@type': 'Person',
-      name: 'Doug and Kim Horner',
-    },
+    // Name and @id both come from the people collection entry, so this node and the full
+    // Person node on /about/ are the same entity by identifier, not just by matching strings.
+    ...(founder
+      ? { founder: { '@type': 'Person', '@id': founder.id, name: founder.name } }
+      : {}),
     parentOrganization: {
       '@type': 'Organization',
       name: 'BioNanomics',
@@ -249,5 +275,143 @@ export function article({
     },
     ...(image ? { image } : {}),
     ...(sections?.length ? { articleSection: sections } : {}),
+  };
+}
+
+interface FacilityOptions {
+  /** Absolute URL of the page that describes the facility. */
+  url: string;
+  /** Absolute Google Maps URL — the same one the page links visibly. */
+  hasMap?: string;
+}
+
+/**
+ * The Fort Wayne facility, for the About page.
+ *
+ * Typed `Place`, NOT `LocalBusiness`. LocalBusiness asserts commercial premises and invites
+ * Google to expect openingHours and priceRange; this is an appointment-only nonprofit shop.
+ *
+ * schema.org gives Place no "occupied by" property, so the relationship is expressed the other
+ * way round: an Organization stub at ORG_ID carrying the building as `location`. That reuses
+ * the same stub-referencing-ORG_ID idiom as article()'s publisher, and it means the homepage's
+ * full Organization node and this one describe the same entity rather than competing.
+ *
+ * Deliberately omitted:
+ *   openingHours   — there are none. public/llms.txt: visits are by appointment.
+ *   geo            — no coordinates published anywhere on the site.
+ *   telephone      — still no public number; see the note at the top of this file.
+ *   publicAccess   — appointment-only is a scheduling arrangement, not a public/private flag.
+ *   amenityFeature — the "In the shop" list is equipment, not schema.org amenities.
+ *   image          — the only candidate is the site-wide OG card, which is a generic social
+ *                    image doing double duty rather than a photograph of this building.
+ */
+export function facility({ url, hasMap }: FacilityOptions) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': ORG_ID,
+    name: 'The REFINERY',
+    url: `${SITE}/`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    location: {
+      '@type': 'Place',
+      '@id': FACILITY_ID,
+      name: 'The REFINERY',
+      address: {
+        '@type': 'PostalAddress',
+        ...FACILITY_ADDRESS,
+      },
+      ...(hasMap ? { hasMap } : {}),
+    },
+  };
+}
+
+interface PersonOptions {
+  /** personId() of this entry, so the Organization's founder can point at the same node. */
+  id: string;
+  name: string;
+  /** The entry's `role`, verbatim. */
+  jobTitle?: string;
+  /** Already run through firstPlain(). */
+  description?: string;
+  /** Absolute URL to a portrait. */
+  image?: string;
+  /** Absolute profile URLs — LinkedIn today. */
+  sameAs?: string[];
+}
+
+/**
+ * A person on the About page. Every field traces to that page's own copy: name and role from
+ * the card, description from the entry's bio, image from the portrait, sameAs from the LinkedIn
+ * icon already rendered beside them.
+ *
+ * One caveat worth knowing about. The people collection lets a single entry cover more than one
+ * human — the founders share a card — and such an entry stays ONE node here, matching how the
+ * site presents them and how organization()'s `founder` already reads. A combined entity is
+ * also what makes the joint photo and joint bio honest to attach: both depict and describe the
+ * pair, which is exactly what the node claims. Splitting them into two Person nodes would mean
+ * dropping both fields, since neither is about either individual alone.
+ */
+export function person({ id, name, jobTitle, description, image, sameAs }: PersonOptions) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': id,
+    name,
+    ...(jobTitle ? { jobTitle } : {}),
+    ...(description ? { description } : {}),
+    ...(image ? { image } : {}),
+    ...(sameAs?.length ? { sameAs } : {}),
+    worksFor: { '@type': 'Organization', '@id': ORG_ID, name: 'The REFINERY' },
+  };
+}
+
+/**
+ * The site itself. Every value is either SITE or traceable: `name` from og:site_name and the
+ * footer, `inLanguage` from <html lang="en"> plus og:locale.
+ *
+ * No `potentialAction`/SearchAction. There is no site search, and declaring a query endpoint
+ * that doesn't exist is a promise Google tests and finds broken.
+ */
+export function website() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE}/#website`,
+    name: 'The REFINERY',
+    url: `${SITE}/`,
+    inLanguage: 'en-US',
+    publisher: { '@type': 'Organization', '@id': ORG_ID, name: 'The REFINERY' },
+  };
+}
+
+interface BreadcrumbItem {
+  /** Already run through firstPlain(). */
+  name: string;
+  /** Absolute URL. Omitted on the last item — see below. */
+  url?: string;
+}
+
+/**
+ * A breadcrumb trail. Built by MarketingLayout from its `breadcrumbs` prop, so the visible
+ * <nav> and this markup are always derived from the same array and can't drift apart.
+ *
+ * The final item gets a `name` but no `item`. Google allows this for the page the reader is
+ * already on, and it's the honest reading — that crumb renders as text, not a link, so
+ * pointing `item` at the current URL would assert a link the page doesn't contain.
+ *
+ * No `@id`: nothing else references a breadcrumb trail, so a stable identifier would just be
+ * noise. Contrast ORG_ID, which exists precisely because other nodes point at it.
+ */
+export function breadcrumbList(items: BreadcrumbItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map(({ name, url }, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name,
+      ...(url ? { item: url } : {}),
+    })),
   };
 }

@@ -4,8 +4,11 @@ import CTAButton from '../../components/marketing/CTAButton.astro';
 import { getCollection, render } from 'astro:content';
 import { firstPlain } from '../../utils/first';
 import { event as eventSchema } from '../../utils/schema';
+import { withBase } from '../../utils/base';
 
 export async function getStaticPaths() {
+  // Deliberately no date filter. Past events stop appearing on the listing page, but keep
+  // their URL — an indexed page or a shared link shouldn't turn into a 404 the morning after.
   const events = await getCollection('events', ({ data }) => data.featured && !data.draft);
   return events.map((event) => ({
     params: { id: event.id },
@@ -41,6 +44,11 @@ const jsonLd = venueAddress
   author={location}
   isDraft={draft}
   jsonLd={jsonLd}
+  breadcrumbs={[
+    { label: 'Home', href: withBase('/') },
+    { label: 'Programs & Events', href: withBase('programs-events/') },
+    { label: title },
+  ]}
 >
   <Content />
   {

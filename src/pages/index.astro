@@ -9,12 +9,18 @@ import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
 import { withBase } from '../utils/base';
 import { firstPlain } from '../utils/first';
-import { organization } from '../utils/schema';
+import { organization, website, personId } from '../utils/schema';
+import { getCollection } from 'astro:content';
 import logoFullColor from '../assets/logo-full-color.svg';
 import heroImage from '../assets/refinery-shop-1.jpeg';
 
 const metaDescription =
   "The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with funding, parts, tools, facilities, training, and community.";
+
+// Read from the collection rather than written out here, so the founder's name lives in exactly
+// one place and this node shares an @id with the Person node /about/ builds from the same entry.
+// No entry flagged means no founder property, rather than a guess.
+const founderEntry = (await getCollection('people', ({ data }) => data.founder && !data.draft))[0];
 
 // The homepage carries the site's Organization node. Every value traces to something already
 // published — see the sourcing notes in src/utils/schema.ts.
@@ -22,6 +28,9 @@ const orgSchema = organization({
   logo: new URL(logoFullColor.src, Astro.site).href,
   image: new URL(withBase('images/og-default.jpeg'), Astro.site).href,
   description: firstPlain(metaDescription),
+  founder: founderEntry
+    ? { name: founderEntry.data.name, id: personId(founderEntry.id) }
+    : undefined,
 });
 
 const whatWeProvide = [
@@ -103,7 +112,14 @@ const beyondNortheastIndiana = [
 ] as const;
 ---
 
-<MarketingLayout title="Home" description={metaDescription} jsonLd={orgSchema}>
+{/* Not "Home": the title is the single most valuable slot on the site, and this is the page
+    most likely to rank for the service plus the region. Renders as 58 characters with the
+    brand suffix, inside the ~60 search results show. */}
+<MarketingLayout
+  title="FIRST Robotics Support in Northeast Indiana"
+  description={metaDescription}
+  jsonLd={[orgSchema, website()]}
+>
   <Hero
     eyebrow="The REFINERY"
     title="Shared infrastructure for stronger robotics teams"

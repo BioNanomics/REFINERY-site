@@ -7,13 +7,18 @@ import ImpactStats from '../components/marketing/ImpactStats.astro';
 import PeopleBios from '../components/marketing/PeopleBios.astro';
 import First from '../components/brand/First.astro';
 import { firstPlain } from '../utils/first';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
+import { formatFacilityAddress } from '../utils/facility';
+import { facility, person, personId } from '../utils/schema';
+import { linkedinProfiles } from '../utils/people';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 
-const facilityAddress = '1750 Broadway, Fort Wayne, IN';
+// Derived from the structured address in src/utils/facility.ts, which the Organization and
+// facility JSON-LD also read — so the visible address and the markup can't disagree.
+const facilityAddress = formatFacilityAddress();
 // t=h is hybrid — satellite imagery with road and place labels drawn over it, which is
 // what Google's own "Satellite" toggle shows. Use t=k for bare imagery with no labels.
 // z=18 frames the building; satellite at the default zoom is too far out to be useful.
@@ -23,11 +28,42 @@ const facilityMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(
 const facilityMapLinkUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(facilityAddress)}`;
 const people = (await getCollection('people', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
 const partners = await getCollection('partners', ({ data }) => !data.draft);
+
+// The facility Place plus one Person per bio on this page. Not merged into a @graph: BaseHead
+// serializes whatever it's given, and each builder carries its own @context, so a plain array
+// of independent nodes is both valid and the shape the rest of the site already emits.
+//
+// 768 matches the largest variant PeopleBios renders, so getImage reuses that build artifact
+// instead of emitting another size just for the markup.
+const personNodes = await Promise.all(
+  people.map(async (profile) => {
+    const { name, role, photo, bio } = profile.data;
+    return person({
+      id: personId(profile.id),
+      name,
+      jobTitle: role,
+      description: bio ? firstPlain(bio) : undefined,
+      image: photo
+        ? new URL((await getImage({ src: photo, width: 768 })).src, Astro.site).href
+        : undefined,
+      sameAs: linkedinProfiles(profile).map(({ url }) => url),
+    });
+  }),
+);
+
+const aboutSchema = [
+  facility({
+    url: new URL(Astro.url.pathname, Astro.site).href,
+    hasMap: facilityMapLinkUrl,
+  }),
+  ...personNodes,
+];
 ---
 
 <MarketingLayout
-  title="About"
-  description="The REFINERY's story, mission, teams, people, facility, and partners."
+  title="Our Story, People & Facility"
+  description="How The REFINERY started, the teams and partners we work with, the people behind it, and the Fort Wayne facility and shop that teams across the region share."
+  jsonLd={aboutSchema}
 >
   <section class="section-tight section text-center">
     <div class="section-inner">
@@ -58,7 +94,6 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
         <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Mission</h2>
       </div>
       <p class="text-slate-600" data-reveal>
-        {/* DRAFT — placeholder mission statement pending final language from the client. */}
         The REFINERY exists so that no <First /> robotics team in Northeast Indiana has to build
         its infrastructure alone. We provide the funding, parts, tools, facilities, training, and
         community that let teams start, grow, and succeed.

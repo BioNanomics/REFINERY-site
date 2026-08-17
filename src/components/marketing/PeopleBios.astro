@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import FirstText from '../brand/FirstText.astro';
+import { linkedinProfiles } from '../../utils/people';
 
 interface Props {
   people: CollectionEntry<'people'>[];
@@ -21,14 +22,7 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-// `linkedin` is a bare URL for one person, or one {name, url} per person when an entry
-// covers several. Normalizing here means the template renders one shape either way, and
-// each icon gets its own accessible name rather than all of them claiming the entry's.
-function linkedinProfiles(person: CollectionEntry<'people'>) {
-  const { linkedin, name } = person.data;
-  if (!linkedin) return [];
-  return typeof linkedin === 'string' ? [{ name, url: linkedin }] : linkedin;
-}
+// Shared with about.astro's Person JSON-LD — see src/utils/people.ts.
 ---
 
 {
