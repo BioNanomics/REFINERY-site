@@ -36,7 +36,9 @@ const teams = defineCollection({
       number: z.string(),
       name: z.string(),
       program: z.enum(['FRC', 'FTC']),
-      school: z.string(),
+      // The team's parent organization — a school for most teams, but also 4-H clubs,
+      // nonprofits, libraries, and other community groups.
+      organization: z.string(),
       community: z.string(),
       logo: image().optional(),
       description: z.string(),

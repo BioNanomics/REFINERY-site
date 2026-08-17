@@ -17,7 +17,7 @@ const programNames: Record<CollectionEntry<'teams'>['data']['program'], string> 
 };
 
 const { team } = Astro.props;
-const { number, name, program, school, community, logo, description, highlight, links, socials, newTeam } = team.data;
+const { number, name, program, organization, community, logo, description, highlight, links, socials, newTeam } = team.data;
 
 // Rendered in a fixed, predictable order regardless of frontmatter key order; only
 // platforms a team actually has get a spot, so the row's width tracks what's real.
@@ -56,7 +56,7 @@ const socialLinks = socials
       <h3 class="font-heading text-base font-bold text-slate-900">{name}</h3>
     </div>
   </div>
-  <p class="mt-2 text-xs text-slate-500">{school} &middot; {community}</p>
+  <p class="mt-2 text-xs text-slate-500">{organization} &middot; {community}</p>
   <p class="mt-2 text-sm text-slate-600"><FirstText text={description} /></p>
   {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
   {
