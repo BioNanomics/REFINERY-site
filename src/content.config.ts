@@ -2,12 +2,33 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { docsLoader } from '@astrojs/starlight/loaders';
 import { docsSchema } from '@astrojs/starlight/schema';
+import { NEWS_CATEGORY_SLUGS } from './utils/news-categories';
 
 // NOTE: Starlight generates routes purely from this collection's file paths.
 // Every doc must live under src/content/docs/resources/** so that all
 // Starlight-rendered routes stay scoped to /resources/* — never add a file
 // directly under src/content/docs/ (outside resources/) or it will leak a
 // route elsewhere on the site.
+
+// A story can belong to more than one category. Frontmatter accepts any of:
+//   category: teams
+//   category: partnerships, teams        (bare YAML scalar, split on commas)
+//   category: [partnerships, teams]      (explicit YAML list)
+// All three normalize to an array, deduped, with order preserved — the first
+// entry is the story's primary category.
+//
+// The allowed values come from src/utils/news-categories.ts — add new categories
+// there, not here.
+const newsCategory = z.enum(NEWS_CATEGORY_SLUGS);
+const newsCategories = z.preprocess(
+  (value) => {
+    const list = typeof value === 'string' ? value.split(',') : value;
+    if (!Array.isArray(list)) return list;
+    const trimmed = list.map((entry) => (typeof entry === 'string' ? entry.trim() : entry));
+    return [...new Set(trimmed)];
+  },
+  z.array(newsCategory).nonempty(),
+);
 
 const news = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/news' }),
@@ -19,7 +40,7 @@ const news = defineCollection({
       author: z.string().default('The REFINERY'),
       heroImage: image().optional(),
       heroImageAlt: z.string().optional(),
-      category: z.enum(['refinery', 'teams', 'regional', 'partnerships', 'first-community']),
+      category: newsCategories,
       teamRefs: z.array(z.string()).default([]),
       // External curated stories link straight to the original publisher
       // instead of getting an internal detail page.

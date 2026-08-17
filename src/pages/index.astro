@@ -207,7 +207,7 @@ const upcomingEvents = allEvents
             {upcomingEvents.map((event) => (
               <div class="card card-pad">
                 <time class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
-                  {event.data.dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  {event.data.dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
                 </time>
                 <h3 class="mt-1 font-heading text-base font-bold text-slate-900">{event.data.title}</h3>
                 <p class="mt-2 text-sm text-slate-600">{event.data.summary}</p>

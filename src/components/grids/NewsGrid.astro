@@ -1,6 +1,7 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import NewsCard from '../cards/NewsCard.astro';
+import { NEWS_CATEGORIES } from '../../utils/news-categories';
 import FirstText from '../brand/FirstText.astro';
 
 interface Props {
@@ -9,36 +10,80 @@ interface Props {
 
 const { posts } = Astro.props;
 
+// Chips follow the order categories are declared in src/utils/news-categories.ts,
+// after the always-first "All".
 const categories = [
   { value: 'all', label: 'All' },
-  { value: 'refinery', label: 'The REFINERY' },
-  { value: 'teams', label: 'Teams' },
-  { value: 'regional', label: 'Regional News' },
-  { value: 'partnerships', label: 'Partnerships' },
-  { value: 'first-community', label: 'FIRST Community' },
+  ...NEWS_CATEGORIES.map((c) => ({ value: c.slug, label: c.label })),
 ];
+
+// Second-level chips shown only while the Teams filter is active. Built from the
+// teams that actually appear in a Teams story's teamRefs, so no chip can ever
+// filter down to an empty grid. Sorted by team number, FRC-style.
+const teamStoryRefs = new Set(
+  posts.filter((p) => p.data.category.includes('teams')).flatMap((p) => p.data.teamRefs),
+);
+const allTeams = await getCollection('teams', ({ data }) => !data.draft);
+const teamFilters = [
+  { value: 'all', label: 'All Teams' },
+  ...allTeams
+    .filter((t) => teamStoryRefs.has(t.data.number))
+    .sort((a, b) => Number(a.data.number) - Number(b.data.number))
+    .map((t) => ({ value: t.data.number, label: `${t.data.program} ${t.data.number}` })),
+];
+// Two visually distinct tiers. Category chips are the primary control: squared
+// corners, solid navy when active. Team chips are subordinate to Teams, so they
+// read quieter — smaller, pill-shaped, and tinted rather than filled when
+// active. Keeping both on navy (not the accent green) keeps small text above
+// the contrast floor.
+const categoryChip =
+  'rounded-control border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft';
+const categoryChipOn = 'border-brand bg-brand text-brand-light';
+const categoryChipOff = 'border-slate-300 text-slate-600 hover:border-brand';
+
+const teamChip =
+  'rounded-full border px-2.5 py-1 font-mono text-[0.65rem] font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft';
+const teamChipOn = 'border-brand bg-brand/10 text-brand';
+const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-brand hover:text-brand';
 ---
 
 {
   posts.length > 0 ? (
     <div class="news-grid">
-      <div class="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter news by category">
+      <div class="mb-4 flex flex-wrap gap-2" role="group" aria-label="Filter news by category">
         {categories.map((c, i) => (
           <button
             type="button"
             data-filter={c.value}
-            class:list={[
-              'news-filter-btn rounded-control border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft',
-              i === 0 ? 'border-brand bg-brand text-brand-light' : 'border-slate-300 text-slate-600 hover:border-brand',
-            ]}
+            aria-pressed={i === 0}
+            class:list={['news-filter-btn', categoryChip, i === 0 ? categoryChipOn : categoryChipOff]}
           >
             <FirstText text={c.label} />
           </button>
         ))}
       </div>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+      {teamFilters.length > 1 && (
+        <div
+          class="news-team-filters mb-8 hidden flex-wrap gap-2 border-l-2 border-brand/20 pl-3"
+          role="group"
+          aria-label="Filter team news by team"
+          hidden
+        >
+          {teamFilters.map((t, i) => (
+            <button
+              type="button"
+              data-team-filter={t.value}
+              aria-pressed={i === 0}
+              class:list={['news-team-filter-btn', teamChip, i === 0 ? teamChipOn : teamChipOff]}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+      <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
         {posts.map((post, i) => (
-          <div data-category={post.data.category}>
+          <div data-category={post.data.category.join(' ')} data-teams={post.data.teamRefs.join(' ')}>
             <NewsCard post={post} loading={i === 0 ? 'eager' : 'lazy'} />
           </div>
         ))}
@@ -52,26 +97,75 @@ const categories = [
 <script>
   const grid = document.querySelector('.news-grid');
   if (grid) {
-    const buttons = grid.querySelectorAll<HTMLButtonElement>('.news-filter-btn');
+    const categoryButtons = grid.querySelectorAll<HTMLButtonElement>('.news-filter-btn');
+    const teamButtons = grid.querySelectorAll<HTMLButtonElement>('.news-team-filter-btn');
+    const teamRow = grid.querySelector<HTMLElement>('.news-team-filters');
     const items = grid.querySelectorAll<HTMLElement>('[data-category]');
 
-    buttons.forEach((btn) => {
+    // The team chips narrow the Teams category only, so they stay hidden
+    // otherwise and reset whenever the category changes.
+    let activeCategory = 'all';
+    let activeTeam = 'all';
+
+    // Each tier has its own palette, so the on/off class sets are passed in
+    // rather than hardcoded. These must stay in sync with the *ChipOn/*ChipOff
+    // constants in the frontmatter above.
+    const CATEGORY_STATE = {
+      on: ['border-brand', 'bg-brand', 'text-brand-light'],
+      off: ['border-slate-300', 'text-slate-600', 'hover:border-brand'],
+    };
+    const TEAM_STATE = {
+      on: ['border-brand', 'bg-brand/10', 'text-brand'],
+      off: ['border-slate-200', 'bg-slate-50', 'text-slate-500', 'hover:border-brand', 'hover:text-brand'],
+    };
+
+    const markActive = (
+      buttons: NodeListOf<HTMLButtonElement>,
+      active: HTMLButtonElement | null,
+      state: { on: string[]; off: string[] },
+    ) => {
+      buttons.forEach((b) => {
+        const isActive = b === active;
+        b.setAttribute('aria-pressed', String(isActive));
+        state.on.forEach((c) => b.classList.toggle(c, isActive));
+        state.off.forEach((c) => b.classList.toggle(c, !isActive));
+      });
+    };
+
+    const apply = () => {
+      const showTeamRow = activeCategory === 'teams';
+      if (teamRow) {
+        teamRow.hidden = !showTeamRow;
+        teamRow.classList.toggle('hidden', !showTeamRow);
+        teamRow.classList.toggle('flex', showTeamRow);
+      }
+
+      items.forEach((item) => {
+        // data-category holds every category the story belongs to, space-separated;
+        // data-teams holds its teamRefs the same way.
+        const categories = item.dataset.category?.split(' ') ?? [];
+        const teams = item.dataset.teams?.split(' ').filter(Boolean) ?? [];
+        const categoryMatches = activeCategory === 'all' || categories.includes(activeCategory);
+        const teamMatches = !showTeamRow || activeTeam === 'all' || teams.includes(activeTeam);
+        item.classList.toggle('hidden', !(categoryMatches && teamMatches));
+      });
+    };
+
+    categoryButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        const filter = btn.dataset.filter;
+        activeCategory = btn.dataset.filter ?? 'all';
+        activeTeam = 'all';
+        markActive(categoryButtons, btn, CATEGORY_STATE);
+        markActive(teamButtons, teamButtons[0] ?? null, TEAM_STATE);
+        apply();
+      });
+    });
 
-        buttons.forEach((b) => {
-          const isActive = b === btn;
-          b.classList.toggle('bg-brand', isActive);
-          b.classList.toggle('text-brand-light', isActive);
-          b.classList.toggle('border-brand', isActive);
-          b.classList.toggle('text-slate-600', !isActive);
-          b.classList.toggle('border-slate-300', !isActive);
-        });
-
-        items.forEach((item) => {
-          const matches = filter === 'all' || item.dataset.category === filter;
-          item.classList.toggle('hidden', !matches);
-        });
+    teamButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeTeam = btn.dataset.teamFilter ?? 'all';
+        markActive(teamButtons, btn, TEAM_STATE);
+        apply();
       });
     });
   }

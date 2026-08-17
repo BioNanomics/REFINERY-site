@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { withBase } from '../../utils/base';
+import { NEWS_CATEGORY_BADGES } from '../../utils/news-categories';
 import FirstText from '../brand/FirstText.astro';
 
 interface Props {
@@ -9,17 +10,11 @@ interface Props {
   loading?: 'eager' | 'lazy';
 }
 
-const categoryLabels: Record<string, string> = {
-  refinery: 'The REFINERY',
-  teams: 'Teams',
-  regional: 'Regional',
-  partnerships: 'Partnerships',
-  'first-community': 'FIRST Community',
-};
-
 const { post, loading = 'lazy' } = Astro.props;
 const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, sourceName } = post.data;
-const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+// timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
+// Without this, formatting in a behind-UTC locale renders the previous day.
+const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 const href = sourceUrl ?? withBase(`news/${post.id}/`);
 const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
@@ -39,12 +34,16 @@ const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } :
     )
   }
   <div class="card-body card-pad">
-    <div class="flex items-center justify-between gap-2">
+    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
       <time datetime={pubDate.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-400">
         {formattedDate}
       </time>
-      <span class="rounded-control border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wide text-brand">
-        <FirstText text={categoryLabels[category]} />
+      <span class="flex flex-wrap justify-end gap-1">
+        {category.map((c) => (
+          <span class="rounded-control border border-brand/20 bg-brand/5 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wide text-brand">
+            <FirstText text={NEWS_CATEGORY_BADGES[c]} />
+          </span>
+        ))}
       </span>
     </div>
     <h3 class="mt-2 font-heading text-base font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
