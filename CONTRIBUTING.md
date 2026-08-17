@@ -25,12 +25,13 @@ appears on the site automatically — no code changes needed.
 ```md
 ---
 title: "Post title"
-summary: "One or two sentences, shown on the news index card."
+summary: "One or two sentences, shown on the news index card."   # max 280 characters
 pubDate: 2026-08-01
 author: "The REFINERY"        # optional, defaults to "The REFINERY"
 heroImage: ../../assets/news/my-post.svg   # optional
-heroImageAlt: "Alt text"                    # required if heroImage is set
-category: refinery   # refinery | teams | regional | partnerships | first-community
+heroImageAlt: "Alt text"                    # set whenever heroImage is set — see note below
+category: refinery   # refinery | teams | regional | partnerships | events | first-community
+                      # one or more — see "Categories" below
 teamRefs: ["1501"]            # optional, team numbers this story is about
 sourceUrl: "https://..."      # optional — if set, the card links straight to this URL
                                # instead of getting an internal detail page (use for
@@ -42,6 +43,31 @@ draft: false                  # set true to hide from the live site until ready
 
 Body content in Markdown/MDX. Omit the body entirely for sourceUrl entries.
 ```
+
+#### Categories
+
+The allowed slugs live in `src/utils/news-categories.ts` — that one list drives the schema's
+allowed values, the badge on each news card, and the filter chips on the news index. Add a
+category there, not in `src/content.config.ts`.
+
+A story can carry more than one. Write `category` in any one of these three forms — they all
+normalize to the same deduped list, and **the first entry is the story's primary category**
+(the one shown as the card badge):
+
+```md
+category: teams                    # a single slug
+category: partnerships, teams      # bare scalar, split on commas
+category: [partnerships, teams]    # explicit YAML list
+```
+
+Use one of them per file, not all three.
+
+#### Hero image alt text
+
+`heroImageAlt` isn't schema-enforced, but write one whenever you set `heroImage`. With it
+missing, `NewsCard.astro` and `ArticleLayout.astro` both fall back to `alt=""`, which tells a
+screen reader the image is decorative — fine for a gradient placeholder, wrong for a photo of
+a team.
 
 #### Featuring an external story
 
@@ -56,7 +82,7 @@ own `/news/<slug>/` page. This is the minimal version:
 title: "Headline as it should appear on the card"
 summary: "One or two sentences describing the story."
 pubDate: 2026-08-01
-category: regional   # refinery | teams | regional | partnerships | first-community
+category: regional   # refinery | teams | regional | partnerships | events | first-community
 sourceUrl: "https://example.com/the-actual-article"
 sourceName: "Publisher Name"   # shown on the card as "via Publisher Name"
 draft: false
@@ -77,12 +103,33 @@ community: "City, State"
 logo: ../../assets/teams/1501.svg   # optional
 description: "One or two sentences about the team."
 highlight: "2026 Regional Finalist"  # optional recent highlight
-links:
+links:                        # optional, defaults to none
   - label: "Team Website"
     url: "https://..."
+socials:                      # optional, all keys optional — see note below
+  instagram: "https://instagram.com/..."
+  facebook: "https://facebook.com/..."
+  twitter: "https://x.com/..."
+  tiktok: "https://tiktok.com/@..."
+  youtube: "https://youtube.com/@..."
+  tumblr: "https://teamname.tumblr.com"
+  github: "https://github.com/..."
+  website: "https://..."
+featured: false               # narrow effect — see note below
+newTeam: false                # set true to put a "New!" badge on the team card
 draft: false
 ---
 ```
+
+`socials` renders a row of platform icons on the team card, in the fixed order above
+(`TeamCard.astro`) — the key order you write in frontmatter doesn't matter. Include only the
+platforms a team actually uses; every key must be a full `https://` URL. Use `links` instead
+for anything that needs its own label, like a sponsor page or a build blog.
+
+`featured` does less than the name suggests: the "Meet the Teams" teaser on the About page
+picks its teams at random in the browser on every visit, so `featured` only decides the
+server-rendered default set that a visitor without JavaScript sees (`RandomTeamsTeaser.astro`).
+It has no effect on the full teams list at `/about/teams/`, which sorts by program and number.
 
 ### Program — `src/content/programs/*.mdx`
 
@@ -90,7 +137,7 @@ draft: false
 ---
 title: "Program name"
 summary: "One or two sentences."
-audience: [students, mentors]   # students | mentors | teams | volunteers | public
+audience: [students, mentors]   # optional; students | mentors | teams | volunteers | public
 draft: false
 ---
 ```
@@ -109,9 +156,10 @@ venueAddress:                   # optional, but see note below
   addressLocality: "Fort Wayne"
   addressRegion: "IN"
   postalCode: "46819"
-audience: [students, teams]
+audience: [students, teams]     # optional; students | mentors | teams | volunteers | public
 featured: false                 # set true to give this event its own detail page
 registrationUrl: "https://..."  # optional, renders a Register button on featured event pages
+isFree: true                    # optional — see note below
 draft: false
 ---
 
@@ -124,6 +172,12 @@ featured event that omits it gets no `Event` structured data at all — see
 `src/utils/schema.ts`. Don't repeat the venue name inside `venueAddress`; `location` above is
 the single source for it.
 
+**`isFree` is deliberately three-state.** Set `true` for a free event and the detail page says
+"Free to attend" and the `Event` schema gets a zero-price `offers`. **Leave it out entirely**
+when you don't know the admission terms — the page then says nothing about cost and `offers` is
+omitted, rather than guessing. Setting `false` claims the event is paid without saying a price,
+so prefer omitting it until you know.
+
 Two things worth knowing when you add an event: dates are published date-only, because
 frontmatter carries no time of day and inventing one would tell search engines the wrong start
 time. And there's no `image` field on events yet, so nothing event-specific appears in the
@@ -134,7 +188,7 @@ structured data or the social card.
 ```md
 ---
 name: "Partner name"
-logo: ../../assets/partners/example.svg
+logo: ../../assets/partners/example.svg   # required
 url: "https://..."       # optional
 description: "One sentence."  # optional
 draft: false
@@ -148,53 +202,36 @@ draft: false
 name: "Full name"
 role: "Title"
 photo: ../../assets/people/example.jpg   # optional
-bio: "One or two sentences."
-order: 1        # lower numbers sort first
+bio: "One or two sentences."             # optional
+quote: "A sentence in their own words."  # optional, rendered as a pull quote
+linkedin: "https://linkedin.com/in/..."  # optional — see note below
+order: 1        # optional, defaults to 0; lower numbers sort first
+featured: false # optional, gives this person a larger bracketed card
 draft: false
 ---
 ```
 
-### Project — `src/content/projects/*.mdx`
+`bio` and `quote` are both optional, but an entry with neither gets a plain photo-and-name
+card with no body — `PeopleBios.astro` only builds the card body when at least one is present.
+
+`linkedin` takes either form. A bare URL for one person:
 
 ```md
----
-title: "Project title"
-summary: "One or two sentences, shown on the projects index card."
-pubDate: 2026-08-01
-image: ../../assets/projects/my-project.svg   # required
-imageAlt: "Alt text"                          # required
-tags: [FRC, manufacturing]
-status: completed   # completed | in-progress | archived
-featured: false      # featured projects sort first
-links:
-  - label: "GitHub repo"
-    url: "https://github.com/..."
-draft: false
----
-
-Body content in Markdown/MDX.
+linkedin: "https://linkedin.com/in/example"
 ```
 
-### Project — `src/content/projects/*.mdx`
+Or one `{name, url}` pair per person when a single entry covers more than one — a founding
+couple sharing a card, say:
 
 ```md
----
-title: "Project title"
-summary: "One or two sentences, shown on the projects index card."
-pubDate: 2026-08-01
-image: ../../assets/projects/my-project.svg   # required
-imageAlt: "Alt text"                          # required
-tags: [FRC, manufacturing]
-status: completed   # completed | in-progress | archived
-featured: false      # featured projects sort first
-links:
-  - label: "GitHub repo"
-    url: "https://github.com/..."
-draft: false
----
-
-Body content in Markdown/MDX.
+linkedin:
+  - name: "First Person"
+    url: "https://linkedin.com/in/first"
+  - name: "Second Person"
+    url: "https://linkedin.com/in/second"
 ```
+
+Both normalize to a list internally, so existing single-URL entries need no change.
 
 ## Images
 
@@ -229,7 +266,7 @@ hold markup (`<title>`, meta descriptions, `alt`) go through `firstPlain()` in
 ## Internal links inside Markdown/MDX body content
 
 **Internal links inside Markdown/MDX body text must be relative**, not root-absolute — write
-`../../projects/` rather than `/projects/`. The site currently sits at a domain root, so a
+`../../news/` rather than `/news/`. The site currently sits at a domain root, so a
 root-absolute link would happen to work today, but relative links stay correct if it ever moves
 to a subpath, and this is the invariant `src/plugins/rehype-external-links.mjs` relies on to
 treat an absolute `http(s)` href as off-site. Links inside `.astro` component files should use
