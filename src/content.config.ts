@@ -36,6 +36,12 @@ const news = defineCollection({
       metaDescription: z.string().max(160).optional(),
       pubDate: z.coerce.date(),
       author: z.string().default('The REFINERY'),
+      // Only meaningful for a first-party post (no sourceUrl): its Article JSON-LD types
+      // `author` from this, since "The REFINERY" and a staffer's byline aren't the same
+      // schema.org type. Curated external entries never reach that builder, so this is a
+      // no-op for them regardless of what's set. Defaults to 'organization' to match the
+      // one first-party entry that exists today without needing a frontmatter change.
+      authorType: z.enum(['organization', 'person']).default('organization'),
       heroImage: image().optional(),
       heroImageAlt: z.string().optional(),
       category: newsCategories,

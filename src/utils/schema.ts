@@ -226,8 +226,10 @@ interface ArticleOptions {
   url: string;
   /** Publication date. */
   datePublished: Date;
-  /** Author name from frontmatter — organizational by default, not a person. */
+  /** Author name from frontmatter. */
   author: string;
+  /** From the entry's `authorType` — determines whether `author` is typed Organization or Person. */
+  authorType: 'organization' | 'person';
   /** Absolute URL to the hero image, when the entry has one. */
   image?: string;
   /** Absolute URL to the publisher logo. */
@@ -241,6 +243,11 @@ interface ArticleOptions {
  * updates, not journalism. The 25 curated third-party entries carry a sourceUrl and get no
  * page of their own, so they never reach this.
  *
+ * `authorType` decides whether `author` is typed Organization or Person — the two aren't
+ * interchangeable, and the frontmatter `author` string alone doesn't say which "The REFINERY"
+ * and a staffer's byline are. Defaulting the collection schema to 'organization' means this
+ * only needs setting when a first-party post is actually signed by a person.
+ *
  * dateModified is omitted on purpose. The news schema has no updatedDate field, and
  * astro.config.mjs already documents the same decision for sitemap lastmod — emitting
  * datePublished twice would assert a modification that never happened. Adding an optional
@@ -252,6 +259,7 @@ export function article({
   url,
   datePublished,
   author,
+  authorType,
   image,
   publisherLogo,
   sections,
@@ -266,7 +274,7 @@ export function article({
     // Bare YYYY-MM-DD frontmatter dates parse as UTC midnight, so only the date part is
     // meaningful — publishing a fabricated time would be a precision the source lacks.
     datePublished: datePublished.toISOString().slice(0, 10),
-    author: { '@type': 'Organization', name: author },
+    author: { '@type': authorType === 'person' ? 'Person' : 'Organization', name: author },
     publisher: {
       '@type': 'Organization',
       '@id': ORG_ID,
