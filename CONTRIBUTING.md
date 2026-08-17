@@ -279,7 +279,3 @@ draft entry gets no detail page at all, so there is no URL for a search engine t
 anyone to stumble onto — the `getStaticPaths` filters in `src/pages/news/[id]/index.astro` and
 `src/pages/programs-events/[id].astro` exclude drafts outright. To preview a draft, flip
 `draft: false` locally while you work on it.
-
-This site currently ships with several example entries (a team, a partner, staff bios, programs,
-events) marked `draft: true` as placeholders — replace them with real content and un-draft when
-ready, or delete them if not needed.
