@@ -125,7 +125,15 @@ const people = defineCollection({
       photo: image().optional(),
       bio: z.string().optional(),
       quote: z.string().optional(),
-      linkedin: z.string().url().optional(),
+      // A bare URL for one person, or one {name, url} per person when a single entry
+      // covers more than one (a founding couple sharing a card). PeopleBios normalizes
+      // both to an array, so existing single-URL entries need no change.
+      linkedin: z
+        .union([
+          z.string().url(),
+          z.array(z.object({ name: z.string(), url: z.string().url() })).nonempty(),
+        ])
+        .optional(),
       order: z.number().default(0),
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),
