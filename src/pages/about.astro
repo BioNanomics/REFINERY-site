@@ -128,7 +128,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
       </div>
       <div>
       <p class="text-slate-600" data-reveal>
-        The REFINERY doesn't keep regular hours, so every visit is by appointment — including
+        The REFINERY doesn't keep regular hours, so every visit is by appointment, including
         visits from teams outside The REFINERY. Get in touch and we'll find a time.
       </p>
       <a
@@ -189,7 +189,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
         rel="noopener noreferrer"
         class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
       >
-        {facilityAddress} &nearr;
+        {facilityAddress}
       </a>
       </div>
     </div>
@@ -210,6 +210,7 @@ const partners = await getCollection('partners', ({ data }) => !data.draft);
               <a
                 href={partner.data.url ?? '#'}
                 target={partner.data.url ? '_blank' : undefined}
+                data-no-external-arrow
                 rel={partner.data.url ? 'noopener noreferrer' : undefined}
                 class="transition duration-base ease-out-soft hover:-translate-y-0.5"
                 title={firstPlain(partner.data.name)}

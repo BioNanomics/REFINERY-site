@@ -73,6 +73,22 @@
     content: '// ';
   }
 
+  /* Automatic external-link indicator. Anything opening in a new tab is signposted,
+     so a new outbound link is marked by default instead of depending on whoever adds
+     it remembering a manual arrow (which is how several ended up unmarked).
+
+     Opt out with data-no-external-arrow where a generated ::after would land wrong:
+     icon-only links (social glyphs, the LinkedIn mark), image links (partner logos),
+     and whole-card anchors like NewsCard, which carries its own arrow beside the
+     source attribution rather than trailing the entire card. */
+  a[target='_blank']:not([data-no-external-arrow])::after {
+    content: '\2197';
+    display: inline-block;
+    margin-inline-start: 0.15em;
+    font-size: 0.85em;
+    line-height: 1;
+  }
+
   /* Small status label sitting beside a card title ("Currently beta testing").
      Tinted navy rather than the accent green — accent reads as an action or a
      win, and a status note is neither. Matches NewsCard's category badge. */

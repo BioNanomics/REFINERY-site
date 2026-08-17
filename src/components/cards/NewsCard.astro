@@ -16,7 +16,11 @@ const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, s
 // Without this, formatting in a behind-UTC locale renders the previous day.
 const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 const href = sourceUrl ?? withBase(`news/${post.id}/`);
-const linkProps = sourceUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+// data-no-external-arrow: the whole card is the anchor, so the automatic ::after would
+// trail the entire card. The arrow lives beside the source attribution below instead.
+const linkProps = sourceUrl
+  ? { target: '_blank', rel: 'noopener noreferrer', 'data-no-external-arrow': true }
+  : {};
 ---
 
 <a href={href} {...linkProps} class="card card-link group" data-reveal>

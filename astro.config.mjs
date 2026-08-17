@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import rehypeFirstMarks from './src/plugins/rehype-first-marks.mjs';
+import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,10 +18,12 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  // Styles FIRST® trademarks in every Markdown/MDX body. MDX inherits this via
-  // `extendMarkdownConfig`, so content authors just type FIRST in capitals.
+  // Both run over every Markdown/MDX body; MDX inherits them via `extendMarkdownConfig`.
+  // rehypeFirstMarks styles FIRST® trademarks, so authors just type FIRST in capitals.
+  // rehypeExternalLinks marks absolute links as external, so a plain Markdown link picks up
+  // the same new-tab behaviour and ↗ indicator as one written in an .astro template.
   markdown: {
-    rehypePlugins: [rehypeFirstMarks],
+    rehypePlugins: [rehypeFirstMarks, rehypeExternalLinks],
   },
 
   integrations: [mdx()],
