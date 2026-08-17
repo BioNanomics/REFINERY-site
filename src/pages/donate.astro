@@ -68,13 +68,19 @@ const outcomes = [
           onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach(function(f){f.src=f.getAttribute('data-zeffy-embed-src');});});"
         ></script>
       </div>
-      <p class="mt-4 text-xs text-slate-500" data-reveal>
-        Prefer another way to give? <a
+      {/* The actionable ask sits above the legal note — a major gift shouldn't read as
+          fine print, and the form above is sized for everyday giving. */}
+      <p class="mt-6 max-w-xl text-sm text-slate-600" data-reveal>
+        Planning a larger gift, or prefer to give another way? <a
           href="mailto:info@refineryrobotics.org?subject=Donating%20to%20The%20REFINERY"
           data-contact-open="contact"
           data-contact-topic="Donating"
-          class="underline hover:text-brand-accent"
-        >Contact us</a>.
+          class="font-medium text-brand-accent underline hover:no-underline"
+        >Get in touch</a> and we'll take it from there.
+      </p>
+      <p class="mt-4 max-w-xl text-xs text-slate-500" data-reveal>
+        Donations are received by BioNanomics, a registered 501(c)(3) nonprofit, and are
+        tax-deductible to the extent allowed by law.
       </p>
     </div>
   </section>
