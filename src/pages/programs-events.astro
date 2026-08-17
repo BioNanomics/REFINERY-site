@@ -4,8 +4,11 @@ import SectionHeading from '../components/marketing/SectionHeading.astro';
 import EventCard from '../components/cards/EventCard.astro';
 import ProgramCard from '../components/cards/ProgramCard.astro';
 import { getCollection } from 'astro:content';
+import { SITE_TIMEZONE, isPastEvent } from '../utils/events';
 
-const allEvents = await getCollection('events', ({ data }) => !data.draft);
+// Past events drop off this listing at the next build, but keep their detail page — see
+// programs-events/[id].astro.
+const allEvents = await getCollection('events', ({ data }) => !data.draft && !isPastEvent(data));
 const upcomingEvents = allEvents.sort((a, b) => a.data.dateStart.valueOf() - b.data.dateStart.valueOf());
 const featuredEvents = upcomingEvents.filter((e) => e.data.featured);
 
@@ -15,8 +18,7 @@ const allPrograms = await getCollection('programs', ({ data }) => !data.draft);
 // in the `events` content collection. Featured events (above) still come
 // from `events` since those need their own detail pages/registration CTAs.
 const GOOGLE_CALENDAR_ID = 'c_e4ec5bdacbab2baa6d08664ad32fc45136f38c763f265b9fdd1f9dc24bb2085f@group.calendar.google.com';
-const GOOGLE_CALENDAR_TZ = 'America/Indiana/Indianapolis';
-const calendarEmbedUrl = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(GOOGLE_CALENDAR_ID)}&ctz=${encodeURIComponent(GOOGLE_CALENDAR_TZ)}`;
+const calendarEmbedUrl = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(GOOGLE_CALENDAR_ID)}&ctz=${encodeURIComponent(SITE_TIMEZONE)}`;
 const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(GOOGLE_CALENDAR_ID)}`;
 ---
 
