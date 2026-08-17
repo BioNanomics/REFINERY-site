@@ -3,6 +3,14 @@
 > The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with
 > funding, parts, tools, facilities, training, and community.
 
+## Mission
+
+The REFINERY exists so that no FIRST robotics team in Northeast Indiana has to build its
+infrastructure alone. We provide the funding, parts, tools, facilities, training, and
+community that let teams start, grow, and succeed.
+
+## About
+
 The REFINERY is a nonprofit robotics makerspace and regional infrastructure organization in
 Fort Wayne, Indiana, supporting FIRST Robotics Competition (FRC) and FIRST Tech Challenge
 (FTC) teams across Northeast Indiana. It operates as a program of BioNanomics, which holds

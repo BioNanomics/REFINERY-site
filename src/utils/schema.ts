@@ -21,6 +21,11 @@
  *
  * Strings that may contain FIRST/FRC/FTC must be passed through firstPlain() by the caller,
  * since JSON-LD carries no markup and the raw source text expects the mark to be styled.
+ *
+ * Organization.description uses the homepage meta description rather than the About page's
+ * mission statement. Both are approved copy now, but the meta description is the tighter
+ * one-liner and is already what search engines display, so the two stay consistent. The
+ * mission statement is carried in full by public/llms.txt.
  */
 
 const SITE = 'https://refineryrobotics.org';
