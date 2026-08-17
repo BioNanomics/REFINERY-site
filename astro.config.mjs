@@ -7,12 +7,14 @@ import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-  // TODO: confirm the actual GitHub org/username this repo lives under and
-  // update `site` below. `base` must exactly match the repo name unless/until
-  // a custom domain is configured (in which case: set `site` to the domain,
-  // drop `base`, and add public/CNAME).
-  site: 'https://crey-09.github.io',
-  base: '/refinery-website',
+  // Served from the apex domain root, so there is no `base`. If this ever moves to a Pages
+  // project subpath, re-add `base` — withBase() in src/utils/base.ts routes every internal
+  // link through one place, so that stays a one-line change.
+  //
+  // public/CNAME is deliberately absent until launch: GitHub Pages reads that file from the
+  // deployed artifact and claims the custom domain from it, so creating it is the act of going
+  // live. See the Deployment section in README.md.
+  site: 'https://refineryrobotics.org',
 
   vite: {
     plugins: [tailwindcss()],

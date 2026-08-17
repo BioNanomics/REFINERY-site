@@ -212,10 +212,12 @@ hold markup (`<title>`, meta descriptions, `alt`) go through `firstPlain()` in
 
 ## Internal links inside Markdown/MDX body content
 
-Because the site is deployed under a base path (`/refinery-website`, or your configured
-domain), **internal links inside Markdown/MDX body text must be relative**, not root-absolute.
-Write `../../projects/` rather than `/projects/`. Links inside `.astro` component files should
-use the `withBase()` helper from `src/utils/base.ts` instead.
+**Internal links inside Markdown/MDX body text must be relative**, not root-absolute — write
+`../../projects/` rather than `/projects/`. The site currently sits at a domain root, so a
+root-absolute link would happen to work today, but relative links stay correct if it ever moves
+to a subpath, and this is the invariant `src/plugins/rehype-external-links.mjs` relies on to
+treat an absolute `http(s)` href as off-site. Links inside `.astro` component files should use
+the `withBase()` helper from `src/utils/base.ts` instead.
 
 ## Draft content
 
