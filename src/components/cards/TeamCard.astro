@@ -1,7 +1,8 @@
 ---
 import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import FirstText from '../brand/FirstText.astro';
+import { withBase } from '../../utils/base';
 
 interface Props {
   team: CollectionEntry<'teams'>;
@@ -31,6 +32,20 @@ const { number, name, program, organization, community, logo, description, highl
 
 // Rendered in a fixed, predictable order regardless of frontmatter key order; only
 // platforms a team actually has get a spot, so the row's width tracks what's real.
+// The news page's team filter is keyed on team number, so a card can offer a deep link
+// into it. Only when the team is actually referenced somewhere — a chip that matches
+// nothing would land the visitor on an empty grid. The draft predicate must match
+// src/pages/news/index.astro, or the link can promise coverage the grid never renders.
+const newsPosts = await getCollection('news', ({ data }) => !data.draft);
+const hasNews = newsPosts.some((p) => p.data.teamRefs.includes(number));
+
+// Every item in the links row carries the divider; `last:` drops it from whichever
+// item ends up last in the DOM, so the rule never dangles whether the row is one
+// News link, one outbound link, or all of them. `gap-3` still separates the items;
+// the padding widens that gap on either side of the rule so it has room to read.
+const linkDivider =
+  'mr-1 border-r border-slate-200 pr-4 last:mr-0 last:border-r-0 last:pr-0';
+
 const socialLinks = socials
   ? (
       [
@@ -70,10 +85,23 @@ const socialLinks = socials
   <p class="mt-2 text-sm text-slate-600"><FirstText text={description} reg={forceReg} /></p>
   {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
   {
-    links.length > 0 && (
+    (hasNews || links.length > 0) && (
       <ul class="mt-4 flex flex-wrap gap-3">
+        {/* Leads the row: the one destination that stays on this site, so it takes
+            &rarr; where the team's own outbound links take &nearr;. */}
+        {hasNews && (
+          <li class={linkDivider}>
+            <a
+              href={withBase(`news/?team=${number}`)}
+              class="font-mono text-xs font-semibold text-brand-accent hover:underline"
+              aria-label={`News about ${name}`}
+            >
+              News &rarr;
+            </a>
+          </li>
+        )}
         {links.map((link) => (
-          <li>
+          <li class={linkDivider}>
             <a href={link.url} target="_blank" rel="noopener noreferrer" class="font-mono text-xs font-semibold text-brand-accent hover:underline">
               {link.label} &nearr;
             </a>

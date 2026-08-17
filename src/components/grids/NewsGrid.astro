@@ -17,12 +17,15 @@ const categories = [
   ...NEWS_CATEGORIES.map((c) => ({ value: c.slug, label: c.label })),
 ];
 
-// Second-level chips shown only while the Teams filter is active. Built from the
-// teams that actually appear in a Teams story's teamRefs, so no chip can ever
-// filter down to an empty grid. Sorted by team number, FRC-style.
-const teamStoryRefs = new Set(
-  posts.filter((p) => p.data.category.includes('teams')).flatMap((p) => p.data.teamRefs),
-);
+// Second-level chips, surfaced by the Teams category or by a ?team= deep link.
+// Built from every team a story references, regardless of how that story is
+// categorized — teamRefs means "this story is about these teams", which is
+// orthogonal to category, so a `regional` story still belongs to its teams.
+// Only teams that appear somewhere get a chip, so no chip can filter down to an
+// empty grid. This predicate must match the one TeamCard uses to decide whether
+// to show its News link, or that link can land on a team with no chip.
+// Sorted by team number, FRC-style.
+const teamStoryRefs = new Set(posts.flatMap((p) => p.data.teamRefs));
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 const teamFilters = [
   { value: 'all', label: 'All Teams' },
@@ -102,8 +105,9 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
     const teamRow = grid.querySelector<HTMLElement>('.news-team-filters');
     const items = grid.querySelectorAll<HTMLElement>('[data-category]');
 
-    // The team chips narrow the Teams category only, so they stay hidden
-    // otherwise and reset whenever the category changes.
+    // The two tiers are independent filters, AND-ed together. The team row is
+    // subordinate to Teams in the layout but not in the logic — a ?team= deep
+    // link (from a team card) narrows to that team across every category.
     let activeCategory = 'all';
     let activeTeam = 'all';
 
@@ -133,7 +137,10 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
     };
 
     const apply = () => {
-      const showTeamRow = activeCategory === 'teams';
+      // Revealed by the Teams category, but also by any active team filter, so a
+      // team narrowed via ?team= is never applied from a hidden row the visitor
+      // has no way to clear.
+      const showTeamRow = activeCategory === 'teams' || activeTeam !== 'all';
       if (teamRow) {
         teamRow.hidden = !showTeamRow;
         teamRow.classList.toggle('hidden', !showTeamRow);
@@ -146,18 +153,28 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
         const categories = item.dataset.category?.split(' ') ?? [];
         const teams = item.dataset.teams?.split(' ').filter(Boolean) ?? [];
         const categoryMatches = activeCategory === 'all' || categories.includes(activeCategory);
-        const teamMatches = !showTeamRow || activeTeam === 'all' || teams.includes(activeTeam);
+        const teamMatches = activeTeam === 'all' || teams.includes(activeTeam);
         item.classList.toggle('hidden', !(categoryMatches && teamMatches));
       });
+    };
+
+    // replaceState, not pushState: a chip click adjusts the current view rather
+    // than navigating, so Back should return to wherever the visitor came from
+    // instead of walking them backwards through filter states.
+    const syncUrl = () => {
+      const url = new URL(location.href);
+      const params = url.searchParams;
+      activeCategory === 'all' ? params.delete('category') : params.set('category', activeCategory);
+      activeTeam === 'all' ? params.delete('team') : params.set('team', activeTeam);
+      history.replaceState(null, '', url);
     };
 
     categoryButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         activeCategory = btn.dataset.filter ?? 'all';
-        activeTeam = 'all';
         markActive(categoryButtons, btn, CATEGORY_STATE);
-        markActive(teamButtons, teamButtons[0] ?? null, TEAM_STATE);
         apply();
+        syncUrl();
       });
     });
 
@@ -166,7 +183,28 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
         activeTeam = btn.dataset.teamFilter ?? 'all';
         markActive(teamButtons, btn, TEAM_STATE);
         apply();
+        syncUrl();
       });
     });
+
+    // Restore filters from the URL. Team cards link in as news/?team=<number>.
+    // A value with no matching chip — an unknown number, or a team whose only
+    // stories are drafts — is ignored rather than blanking the grid.
+    const restore = (
+      buttons: NodeListOf<HTMLButtonElement>,
+      attribute: 'filter' | 'teamFilter',
+      value: string | null,
+      state: { on: string[]; off: string[] },
+    ) => {
+      if (!value || value === 'all') return null;
+      const match = Array.from(buttons).find((b) => b.dataset[attribute] === value);
+      if (match) markActive(buttons, match, state);
+      return match ? value : null;
+    };
+
+    const params = new URLSearchParams(location.search);
+    activeCategory = restore(categoryButtons, 'filter', params.get('category'), CATEGORY_STATE) ?? 'all';
+    activeTeam = restore(teamButtons, 'teamFilter', params.get('team'), TEAM_STATE) ?? 'all';
+    apply();
   }
 </script>
