@@ -327,17 +327,12 @@
     transform: none;
     box-shadow: none;
   }
-  /* Fill keeps the untouched logo green; the label is near-black rather than near-white.
-     #0f172a on #40a578 is 5.84:1 — the old #eeeeee label was 2.63:1, the worst contrast
-     defect on the site, and it appeared on every page via the header Donate button.
-     Dark-on-green rather than a darker fill is what keeps the CTA reading as the brand. */
+  /* Brand navy fill, white label. #eeeeee on #134b70 is ~7.98:1 — clears AA. */
   .btn-primary {
-    border-color: var(--color-brand-accent-fill);
-    background-color: var(--color-brand-accent-fill);
-    color: #0f172a;
+    border-color: var(--color-brand);
+    background-color: var(--color-brand);
+    color: var(--color-brand-light);
   }
-  /* Safe to keep now, and mildly helpful: lightening the fill RAISES contrast against a dark
-     label. It only hurt back when the label was near-white. */
   .btn-primary:hover:not(:disabled) {
     filter: brightness(1.1);
   }
