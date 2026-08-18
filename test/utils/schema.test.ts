@@ -106,7 +106,7 @@ describe('event', () => {
       isFree: true,
       registrationUrl: 'https://example.com/register',
     });
-    expect(withRegistration.offers.url).toBe('https://example.com/register');
+    expect(withRegistration.offers!.url).toBe('https://example.com/register');
 
     // Registration URL without isFree must not leak into a fabricated offers node.
     const notFree = event({ ...base, registrationUrl: 'https://example.com/register' });
