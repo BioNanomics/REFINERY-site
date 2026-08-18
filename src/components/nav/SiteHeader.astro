@@ -15,7 +15,7 @@ const navLinks = [
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="sticky top-0 z-40 border-b-2 border-brand-accent bg-white/95 backdrop-blur">
+<header class="sticky top-0 z-40 border-b-2 border-brand-accent-fill bg-white/95 backdrop-blur">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
     <a href={withBase('/')} class="shrink-0">
       <Image src={logoFullColor} alt="The REFINERY" class="h-12 w-auto" loading="eager" />
@@ -35,14 +35,14 @@ const currentPath = Astro.url.pathname;
                 isActive ? 'text-brand-accent' : 'text-slate-600 hover:text-brand',
               ]}
             >
-              <span class="font-mono text-[0.65rem] text-slate-400 group-hover:text-brand-accent-light">
+              <span class="font-mono text-[0.65rem] text-slate-500 group-hover:text-brand-accent">
                 {String(index + 1).padStart(2, '0')}
               </span>
               <span class="flex items-center gap-1 whitespace-nowrap text-sm font-semibold">
                 {link.label}
                 <span
                   class:list={[
-                    'h-0.5 w-3 bg-brand-accent transition-transform duration-base ease-out-soft',
+                    'h-0.5 w-3 bg-brand-accent-fill transition-transform duration-base ease-out-soft',
                     isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100',
                   ]}
                   aria-hidden="true"
@@ -57,7 +57,7 @@ const currentPath = Astro.url.pathname;
     <div class="hidden shrink-0 items-center gap-4 lg:flex">
       <a
         href={withBase('donate/')}
-        class="rounded-control border-2 border-brand-accent bg-brand-accent px-4 py-2 text-sm font-semibold text-brand-light transition duration-base ease-out-soft hover:bg-white hover:text-brand-accent"
+        class="rounded-control border-2 border-brand-accent-fill bg-brand-accent-fill px-4 py-2 text-sm font-semibold text-slate-900 transition duration-base ease-out-soft hover:bg-white hover:text-brand-accent"
       >
         Donate
       </a>
@@ -65,11 +65,11 @@ const currentPath = Astro.url.pathname;
 
     <details class="shrink-0 lg:hidden">
       <summary class="eyebrow-tag cursor-pointer list-none text-brand">Menu</summary>
-      <nav aria-label="Primary mobile" class="absolute left-0 right-0 top-full flex flex-col gap-1 border-b-2 border-brand-accent bg-white px-6 pb-4">
+      <nav aria-label="Primary mobile" class="absolute left-0 right-0 top-full flex flex-col gap-1 border-b-2 border-brand-accent-fill bg-white px-6 pb-4">
         {
           navLinks.map((link, index) => (
             <a href={link.href} class="flex items-center gap-2 py-2 text-sm font-medium text-slate-600 hover:text-brand-accent">
-              <span class="font-mono text-[0.65rem] text-slate-400">{String(index + 1).padStart(2, '0')}</span>
+              <span class="font-mono text-[0.65rem] text-slate-500">{String(index + 1).padStart(2, '0')}</span>
               {link.label}
             </a>
           ))

@@ -18,7 +18,11 @@
      is an 8/6/5 delta, versus 13/10/8 at the ~5.5% (#f2f5f7) it came from. */
   --color-page: #f7f9fa;
   --color-brand: #134b70;
-  --color-brand-accent: #40a578;
+  /* Split by job, not by shade — see the ACCENT SPLIT note in tokens.css.
+     -accent is for anything read or seen (text, glyphs, focus rings, borders);
+     -accent-fill is the untouched logo green, for backgrounds only. */
+  --color-brand-accent: #2b7252;
+  --color-brand-accent-fill: #40a578;
   --color-brand-light: #eeeeee;
   --color-brand-accent-light: #a1d18b;
   --color-surface-dark: #18181b;
@@ -290,11 +294,17 @@
     transform: none;
     box-shadow: none;
   }
+  /* Fill keeps the untouched logo green; the label is near-black rather than near-white.
+     #0f172a on #40a578 is 5.84:1 — the old #eeeeee label was 2.63:1, the worst contrast
+     defect on the site, and it appeared on every page via the header Donate button.
+     Dark-on-green rather than a darker fill is what keeps the CTA reading as the brand. */
   .btn-primary {
-    border-color: var(--color-brand-accent);
-    background-color: var(--color-brand-accent);
-    color: var(--color-brand-light);
+    border-color: var(--color-brand-accent-fill);
+    background-color: var(--color-brand-accent-fill);
+    color: #0f172a;
   }
+  /* Safe to keep now, and mildly helpful: lightening the fill RAISES contrast against a dark
+     label. It only hurt back when the label was near-white. */
   .btn-primary:hover:not(:disabled) {
     filter: brightness(1.1);
   }
@@ -405,7 +415,9 @@
     transition: border-color var(--transition-duration-fast) var(--ease-out-soft);
   }
   .form-input::placeholder {
-    color: #94a3b8;
+    /* Placeholder copy is still text under 1.4.3. The old #94a3b8 was 2.56:1 on white;
+       this matches the slate-500 the rest of the site's secondary text now uses. */
+    color: #62748e;
   }
   .form-input:focus-visible {
     border-color: var(--color-brand-accent);
