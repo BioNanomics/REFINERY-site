@@ -98,12 +98,14 @@ const jsonLdOut = nodes.length === 0 ? undefined : nodes.length === 1 ? nodes[0]
   </head>
   <body class="relative flex min-h-screen flex-col bg-page font-body text-slate-900 antialiased">
     {/* The alpha here is the single knob for how strong the texture reads — see .grid-texture. */}
+    {/* First focusable thing on every page — see .skip-link in marketing.css. */}
+    <a href="#main" class="skip-link">Skip to main content</a>
     <div class="grid-texture pointer-events-none fixed inset-0 -z-10 text-brand/[0.055]" aria-hidden="true"></div>
     <SiteHeader />
     {/* has-breadcrumb-trail tightens the first section's top padding, since the trail already
         provides that gap — see the rule in marketing.css. Keeps a breadcrumbed page's heading
         at the same height as its siblings' instead of pushing it down by the trail's height. */}
-    <main class:list={['flex-1', breadcrumbs?.length && 'has-breadcrumb-trail']}>
+    <main id="main" tabindex="-1" class:list={['flex-1', breadcrumbs?.length && 'has-breadcrumb-trail']}>
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} narrow={breadcrumbsNarrow} />}
       <slot />
     </main>
@@ -145,10 +147,43 @@ const jsonLdOut = nodes.length === 0 ? undefined : nodes.length === 1 ? nodes[0]
         targets.forEach((el) => io.observe(el));
       }
 
+      // Every link that opens a new tab should say so before it does — a mid-sentence
+      // link (P2.1's underline fix) or a news card can otherwise send a screen reader
+      // user off-site with no warning. One central pass here covers every source: hand-
+      // written .astro templates AND MDX article bodies, since rehype-external-links.mjs
+      // (src/plugins/) already sets target="_blank" on off-site Markdown links before this
+      // ever runs — so nothing at either the template or content level needs to opt in.
+      //
+      // Icon-only links (the footer's social row, TeamCard's glyphs) carry an aria-label
+      // that already fully replaces the accessible name — appending a hidden span to their
+      // content would do nothing, so the label itself gets extended instead. Everything
+      // else gets a visually-hidden span; marketing.css's decorative ::after arrow stays
+      // untouched either way, since this is the programmatic warning, not the visual one.
+      //
+      // data-newtab-noted guards against double-appending on repeat astro:page-load runs
+      // (view transitions aren't in use today, but initReveal already future-proofs for
+      // them, so this matches).
+      function labelNewTabLinks() {
+        document.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]:not([data-newtab-noted])').forEach((a) => {
+          a.dataset.newtabNoted = 'true';
+          const label = a.getAttribute('aria-label');
+          if (label) {
+            a.setAttribute('aria-label', `${label} (opens in a new tab)`);
+          } else {
+            const note = document.createElement('span');
+            note.className = 'sr-only';
+            note.textContent = ' (opens in a new tab)';
+            a.append(note);
+          }
+        });
+      }
+
       initReveal();
+      labelNewTabLinks();
       // No-op today (no client-side router is in use), but keeps this
       // correct if view transitions are ever enabled later.
       document.addEventListener('astro:page-load', initReveal);
+      document.addEventListener('astro:page-load', labelNewTabLinks);
     </script>
   </body>
 </html>

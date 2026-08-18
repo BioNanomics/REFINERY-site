@@ -71,6 +71,39 @@ const outcomes = [
           src="https://www.zeffy.com/embed/v2/zeffy-embed.js"
           onerror="document.querySelectorAll('[data-zeffy-embed-fallback]').forEach(function(el){el.style.display='block';el.querySelectorAll('iframe[data-zeffy-embed-src]').forEach(function(f){f.src=f.getAttribute('data-zeffy-embed-src');});});"
         ></script>
+        {/* Names the iframe Zeffy's script injects into [data-zeffy-embed] at runtime.
+            That element is built by third-party JS and never exists in this repo, so the
+            title cannot be set in markup — an unnamed frame is announced as just "frame",
+            with nothing to say it is how you donate (WCAG 4.1.2). The fallback iframe above
+            carries its own title already; this only covers the injected one.
+
+            Only sets a title when there isn't one, so a future Zeffy release that names its
+            own frame wins. Fails quiet: if their markup changes, nothing matches and nothing
+            breaks. The observer stops at the first hit, and gives up after 15s so it can't
+            outlive the page load. */}
+        <script is:inline>
+          (function () {
+            var host = document.querySelector('[data-zeffy-embed]');
+            if (!host) return;
+            var TITLE = 'Donation form';
+            function name() {
+              var frame = host.querySelector('iframe');
+              if (!frame) return false;
+              if (!frame.getAttribute('title') && !frame.getAttribute('aria-label')) {
+                frame.setAttribute('title', TITLE);
+              }
+              return true;
+            }
+            if (name()) return;
+            var observer = new MutationObserver(function () {
+              if (name()) observer.disconnect();
+            });
+            observer.observe(host, { childList: true, subtree: true });
+            setTimeout(function () {
+              observer.disconnect();
+            }, 15000);
+          })();
+        </script>
       </div>
       {/* The actionable ask sits above the legal note — a major gift shouldn't read as
           fine print, and the form above is sized for everyday giving. */}

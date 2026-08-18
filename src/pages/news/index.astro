@@ -24,6 +24,11 @@ const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.
         description="The REFINERY's news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
         align="center"
       />
+      {/* The grid's cards are h3s, so without this the page jumps h1 -> h3. Visually hidden
+          rather than shown: the h1 and the filter controls already say what this list is, so a
+          visible "All stories" would be redundant to sighted readers while still giving screen
+          reader users an unbroken heading outline. */}
+      <h2 class="sr-only">All stories</h2>
       <div class="mt-10">
         <NewsGrid posts={posts} />
       </div>

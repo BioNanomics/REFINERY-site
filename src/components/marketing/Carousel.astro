@@ -27,6 +27,25 @@ const trackClass =
     <slot />
   </div>
   <div class="mt-4 flex justify-end gap-2">
+    {/* Hidden by initCarousels() when prefers-reduced-motion holds — autoplay never starts for
+       those users (see the early return below), so a toggle with nothing to toggle would be
+       worse than no control at all. Present by default so it isn't missing for a moment on
+       browsers evaluating the media query late. */}
+    <button
+      type="button"
+      class="flex h-9 w-9 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition-colors duration-base ease-out-soft hover:border-brand-accent hover:text-brand-accent"
+      data-carousel-toggle
+      aria-pressed="false"
+      aria-label={`Pause automatic scrolling: ${ariaLabel}`}
+    >
+      <svg data-icon-pause xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="7" y="5" width="3.5" height="14" rx="0.5" fill="currentColor" stroke="none" />
+        <rect x="13.5" y="5" width="3.5" height="14" rx="0.5" fill="currentColor" stroke="none" />
+      </svg>
+      <svg data-icon-play xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="hidden h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="7,5 19,12 7,19" fill="currentColor" stroke="none" />
+      </svg>
+    </button>
     <button
       type="button"
       class="flex h-9 w-9 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition-colors duration-base ease-out-soft hover:border-brand-accent hover:text-brand-accent disabled:pointer-events-none disabled:opacity-30"
@@ -61,7 +80,13 @@ const trackClass =
       const track = root.querySelector<HTMLElement>('[data-carousel-track]');
       const prevBtn = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
       const nextBtn = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
+      const toggleBtn = root.querySelector<HTMLButtonElement>('[data-carousel-toggle]');
       if (!track) return;
+
+      // Nothing to pause when autoplay never runs — pulled out from under the
+      // `if (prefersReducedMotion) return` below so it applies even though that return
+      // happens later in this same forEach pass.
+      if (prefersReducedMotion) toggleBtn?.remove();
 
       const step = () => {
         const card = track.querySelector<HTMLElement>(':scope > *');
@@ -75,11 +100,14 @@ const trackClass =
         if (nextBtn) nextBtn.disabled = track.scrollLeft >= max;
       };
 
-      // Two independent pause reasons compose with OR: hovering/focus pauses
-      // for as long as it lasts, a manual scroll/click pauses for a few
-      // seconds so autoplay doesn't fight the person's own input.
+      // Three independent pause reasons compose with OR: hovering/focus pauses for as long as
+      // it lasts, a manual scroll/click pauses for a few seconds so autoplay doesn't fight the
+      // person's own input, and the explicit toggle below is STICKY — unlike the other two it
+      // does not time out or clear on its own, since 2.2.2 (Pause, Stop, Hide) asks for a
+      // mechanism the visitor controls, not one that resumes behind their back.
       let hoverPaused = false;
       let interactionPaused = false;
+      let manuallyPaused = false;
       let resumeTimer: ReturnType<typeof setTimeout>;
       const pauseForInteraction = () => {
         interactionPaused = true;
@@ -88,6 +116,21 @@ const trackClass =
           interactionPaused = false;
         }, 3000);
       };
+
+      const pauseIcon = toggleBtn?.querySelector<SVGElement>('[data-icon-pause]');
+      const playIcon = toggleBtn?.querySelector<SVGElement>('[data-icon-play]');
+      // `ariaLabel` is an Astro prop — it only exists in frontmatter/template scope, not here in
+      // the client script, so the button's own attribute (set from that same prop at render
+      // time) is what this reads back rather than referencing the prop directly.
+      const carouselLabel = track.getAttribute('aria-label') ?? '';
+      const setToggleState = (paused: boolean) => {
+        manuallyPaused = paused;
+        toggleBtn?.setAttribute('aria-pressed', String(paused));
+        toggleBtn?.setAttribute('aria-label', `${paused ? 'Resume' : 'Pause'} automatic scrolling: ${carouselLabel}`);
+        pauseIcon?.classList.toggle('hidden', paused);
+        playIcon?.classList.toggle('hidden', !paused);
+      };
+      toggleBtn?.addEventListener('click', () => setToggleState(!manuallyPaused));
 
       prevBtn?.addEventListener('click', () => {
         pauseForInteraction();
@@ -135,7 +178,7 @@ const trackClass =
         lastTime = time;
 
         const max = track.scrollWidth - track.clientWidth;
-        if (hoverPaused || interactionPaused) {
+        if (hoverPaused || interactionPaused || manuallyPaused) {
           // Stay synced with wherever a manual scroll/button click left the
           // track, so resuming continues from there instead of jumping
           // back to the last position we drove ourselves.

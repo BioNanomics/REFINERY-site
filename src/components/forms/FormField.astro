@@ -9,11 +9,13 @@ interface Props {
 
 const { field, idPrefix } = Astro.props;
 const fieldId = `${idPrefix}-${field.key ?? field.name}`;
-const errorId = `${fieldId}-error`;
 const hintId = field.hint ? `${fieldId}-hint` : undefined;
-// Both ids, so a screen reader reads the guidance along with the control rather
-// than leaving it stranded as nearby text.
-const describedBy = [hintId, errorId].filter(Boolean).join(' ');
+// Points at the hint only. An error-message id used to sit here too, but nothing in
+// ContactDialogs.astro ever populated it — validation is entirely native reportValidity(),
+// which announces errors on its own — so it was a hidden, permanently empty paragraph every
+// field pointed a screen reader at. Removed rather than wired up, per the audit's steer that a
+// half-implemented custom-validation path invites the next person to assume it works.
+const describedBy = hintId;
 
 // Radio and checkbox share the fieldset/legend layout below. Two things differ.
 //
@@ -84,7 +86,6 @@ const scoped = field.topics !== undefined;
             );
           })}
         </div>
-        <p id={errorId} class="mt-1 hidden text-xs text-red-600" data-field-error />
       </fieldset>
     ) : (
       <>
@@ -127,7 +128,6 @@ const scoped = field.topics !== undefined;
             class="form-input mt-1"
           />
         )}
-        <p id={errorId} class="mt-1 hidden text-xs text-red-600" data-field-error />
       </>
     )
   }

@@ -18,7 +18,11 @@
      is an 8/6/5 delta, versus 13/10/8 at the ~5.5% (#f2f5f7) it came from. */
   --color-page: #f7f9fa;
   --color-brand: #134b70;
-  --color-brand-accent: #40a578;
+  /* Split by job, not by shade — see the ACCENT SPLIT note in tokens.css.
+     -accent is for anything read or seen (text, glyphs, focus rings, borders);
+     -accent-fill is the untouched logo green, for backgrounds only. */
+  --color-brand-accent: #2b7252;
+  --color-brand-accent-fill: #40a578;
   --color-brand-light: #eeeeee;
   --color-brand-accent-light: #a1d18b;
   --color-surface-dark: #18181b;
@@ -66,6 +70,39 @@
  * would require !important.
  */
 @layer components {
+  /* ── Skip link ──────────────────────────────────────────────────────
+     Bypass Blocks (WCAG 2.4.1). Every page opens with the logo plus six nav
+     links plus Donate — eight tab stops before <main>. Landmarks already let a
+     screen reader jump past that, but a sighted keyboard-only user (switch
+     access, motor impairment, no AT) had no way through at all.
+
+     Hidden by clipping rather than display:none or visibility:hidden — both of
+     those make an element unfocusable, so the link could never be reached by the
+     Tab press that is supposed to reveal it.
+
+     z-index must clear the sticky header (z-40 in SiteHeader.astro), or the link
+     receives focus and is then painted underneath it — visually identical to
+     having no skip link at all. */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 50;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-control);
+    background-color: #fff;
+    box-shadow: var(--shadow-float);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-brand);
+  }
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 2px;
+  }
+
   .eyebrow-tag {
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -290,9 +327,10 @@
     transform: none;
     box-shadow: none;
   }
+  /* Brand navy fill, white label. #eeeeee on #134b70 is ~7.98:1 — clears AA. */
   .btn-primary {
-    border-color: var(--color-brand-accent);
-    background-color: var(--color-brand-accent);
+    border-color: var(--color-brand);
+    background-color: var(--color-brand);
     color: var(--color-brand-light);
   }
   .btn-primary:hover:not(:disabled) {
@@ -405,7 +443,9 @@
     transition: border-color var(--transition-duration-fast) var(--ease-out-soft);
   }
   .form-input::placeholder {
-    color: #94a3b8;
+    /* Placeholder copy is still text under 1.4.3. The old #94a3b8 was 2.56:1 on white;
+       this matches the slate-500 the rest of the site's secondary text now uses. */
+    color: #62748e;
   }
   .form-input:focus-visible {
     border-color: var(--color-brand-accent);

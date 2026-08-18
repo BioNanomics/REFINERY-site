@@ -7,6 +7,27 @@
  * that sit directly on the dark surface color below (matches
  * src/assets/logo-reversed.svg).
  *
+ * ACCENT SPLIT — read before using a green.
+ *
+ * The logo green #40a578 cannot carry small text at AA on any background this site
+ * actually uses: 3.05:1 on white, 2.89:1 on --refinery-color-bg, 2.41:1 on the footer's
+ * zinc. So the accent is split by JOB, not by shade:
+ *
+ *   --refinery-color-accent       #2b7252  ANYTHING THAT MUST BE READ OR SEEN.
+ *                                          Text, links, icon glyphs, focus rings, borders.
+ *                                          5.48:1 on the page bg, 5.78:1 on white,
+ *                                          4.56:1 on the footer — clears AA everywhere.
+ *   --refinery-color-accent-fill  #40a578  BACKGROUNDS ONLY. The untouched logo green,
+ *                                          kept so buttons and badges still read as the
+ *                                          brand. Never put small text in this color.
+ *
+ * Anything filled with -fill needs a DARK label (#0f172a scores 5.84:1 on it); a near-white
+ * label on the fill is 2.63:1 and was the site's single worst contrast defect.
+ *
+ * #2b7252 specifically, rather than something shallower: the footer disclaimer link sits on
+ * bg-zinc-200 #e4e4e7, where #2f7d59 reaches only 3.94:1. #2b7252 is the lightest green that
+ * clears AA on every surface in use, so no call site needs a special case.
+ *
  * The header/footer/hero background is intentionally a neutral dark
  * grey/black (--refinery-color-surface-dark), not the navy brand color —
  * keeps the site reading as "dark mode" rather than "blue site".
@@ -22,7 +43,9 @@
  */
 :root {
   --refinery-color-primary: #134b70;
-  --refinery-color-accent: #40a578;
+  /* See the ACCENT SPLIT note above: -accent is for anything read, -accent-fill for fills. */
+  --refinery-color-accent: #2b7252;
+  --refinery-color-accent-fill: #40a578;
   --refinery-color-primary-light: #eeeeee;
   --refinery-color-accent-light: #a1d18b;
   --refinery-color-bg: #f7f9fa;
