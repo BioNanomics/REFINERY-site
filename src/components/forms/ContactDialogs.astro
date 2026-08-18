@@ -214,7 +214,9 @@ import { contactForm } from '../../config/contact-forms';
         lastFocusedTrigger?.focus();
 
         statusEl.textContent = '';
-        statusEl.className = 'text-sm';
+        // Rebuild the full class list, not just 'text-sm' — this is an assignment, so it drops
+        // every class the markup declared, and the mt-4 never came back after the first close.
+        statusEl.className = 'mt-4 text-sm';
 
         // Only clear the form once a submission actually succeeded — an
         // accidental Esc or backdrop click should never erase what someone
@@ -299,6 +301,12 @@ import { contactForm } from '../../config/contact-forms';
           form.classList.add('hidden');
           success.classList.remove('hidden');
           success.classList.add('flex');
+          // Focus follows the content. The element focus was on is inside the form we just
+          // hid, so without this focus is left on a display:none node — no announcement, and
+          // no way back into the dialog by keyboard. Keep the class toggle above exactly as
+          // it is: the 'close' handler reads success's `hidden` class as its "did this send
+          // succeed?" flag, so it is load-bearing state, not just styling.
+          success.focus();
         } catch {
           statusEl.innerHTML = `Something went wrong sending your message. <a href="mailto:${CONTACT_EMAIL}" class="underline hover:text-brand-accent">Email us directly</a>.`;
           statusEl.classList.add('text-red-600');

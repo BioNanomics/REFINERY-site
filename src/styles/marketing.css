@@ -70,6 +70,39 @@
  * would require !important.
  */
 @layer components {
+  /* ── Skip link ──────────────────────────────────────────────────────
+     Bypass Blocks (WCAG 2.4.1). Every page opens with the logo plus six nav
+     links plus Donate — eight tab stops before <main>. Landmarks already let a
+     screen reader jump past that, but a sighted keyboard-only user (switch
+     access, motor impairment, no AT) had no way through at all.
+
+     Hidden by clipping rather than display:none or visibility:hidden — both of
+     those make an element unfocusable, so the link could never be reached by the
+     Tab press that is supposed to reveal it.
+
+     z-index must clear the sticky header (z-40 in SiteHeader.astro), or the link
+     receives focus and is then painted underneath it — visually identical to
+     having no skip link at all. */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 50;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-control);
+    background-color: #fff;
+    box-shadow: var(--shadow-float);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-brand);
+  }
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 2px;
+  }
+
   .eyebrow-tag {
     font-family: var(--font-mono);
     font-size: 0.75rem;

@@ -32,10 +32,14 @@ The findings are concentrated in two places:
 
 **Findings: 0 Critical (P0), 6 Important (P1), 4 Minor (P2), 4 Polish (P3).**
 
-> **Status update — 2026-08-17.** Phase 1 of the remediation roadmap is complete. P1.1–P1.4 and
-> P3.4 are fixed and verified: **all 214 contrast violations are resolved**, confirmed by an
-> axe re-sweep across all 9 routes returning zero. The remaining open findings are P1.5–P1.8,
-> P2.1–P2.4 and P3.1–P3.3. See §9 for before/after counts.
+> **Status update — 2026-08-17.** All three remediation phases are complete.
+> **All 16 findings are fixed and verified** — every P0/P1/P2/P3 item, plus the carousel pause
+> control. An axe sweep across all 9 public routes plus a sampled MDX article page returns
+> **zero violations of any rule** (from 236 originally). The only work left in this document is
+> the verification gaps recorded in §12 (real screen-reader testing).
+>
+> **One audit finding was wrong and is corrected below: P1.6.** Its prescribed fix — "add a `title`
+> to the Zeffy iframe" — would have been a no-op. See the entry for what was actually required.
 
 Nothing found completely blocks a user flow, which is why there are no P0s. The P1 set is,
 however, enough to fail an AA conformance claim today, and the contrast issues sit directly on
@@ -279,7 +283,7 @@ behavior should be confirmed with NVDA and VoiceOver.
 ### P1.6 — Donation form `<iframe>` has no accessible name
 
 **WCAG:** 4.1.2 Name, Role, Value (A); 2.4.1 Bypass Blocks (A)
-**Where:** `src/pages/donate.astro:57`
+**Where:** `src/pages/donate.astro` — the `[data-zeffy-embed]` container
 **Confirmed by:** axe rule `frame-title`, serious impact.
 
 The Zeffy donation embed — the entire donation mechanism — renders as an unnamed frame. A screen
@@ -287,10 +291,26 @@ reader announces "frame" with no indication of what it contains or that entering
 donate.
 
 Notably, the *other* embeds on the site are done correctly: the Google Calendar iframe on
-`/programs-events/` has `title="The REFINERY events calendar"`, and hCaptcha supplies its own
-titles. This is an isolated omission.
+`/programs-events/` has `title="The REFINERY events calendar"`, the map on `/about/` is titled, and
+hCaptcha supplies its own.
 
-**Fix:** `<iframe title="Donation form" …>` (or "Secure donation form, provided by Zeffy").
+> **Correction (2026-08-17).** This finding originally prescribed "add a `title` attribute to the
+> iframe at `donate.astro:57`". **That would have been a no-op.** That iframe already carried
+> `title="Donation form powered by Zeffy"` — but it sits inside a `display:none` fallback wrapper
+> that only activates if Zeffy's script fails to load, so it was never the element axe was
+> reporting.
+>
+> The live DOM contains **three** iframes, and the unnamed one is **injected at runtime** by
+> `zeffy-embed.js` into `<div data-zeffy-embed>`. It does not exist in this repository and cannot
+> be given a title in markup.
+>
+> **Actual fix:** a `MutationObserver` in `donate.astro` that names the injected frame once it
+> appears. It only sets a title when none is present (so a future Zeffy release that names its own
+> frame wins), disconnects on the first hit, and gives up after 15s. Verified in Safari: the
+> injected iframe now reports `title="Donation form"`.
+>
+> The general lesson: for a third-party embed, the element axe reports may not be the element in
+> your source. Check the rendered DOM before writing the fix.
 
 ---
 
@@ -488,35 +508,64 @@ These are not code changes; they are the testing this audit could not perform.
 
 ## 9. Appendix A — Automated scan results
 
-axe-core 4.10.2, 1280×900, reveal animations forced visible. Counts **before → after Phase 1**:
+axe-core 4.10.2, 1280×900, reveal animations forced visible. Counts **original → after Phase 1 →
+after Phase 2 → after Phase 3**:
 
-| Route | color-contrast | heading-order | frame-title | link-in-text-block | Total |
-|---|---|---|---|---|---|
-| `/` | 21 → **0** | – | – | – | 21 → **0** |
-| `/what-we-do/` | 17 → **0** | – | – | – | 17 → **0** |
-| `/programs-events/` | 10 → **0** | – | – | – | 10 → **0** |
-| `/news/` | 56 → **0** | 1 | – | – | 57 → **1** |
-| `/get-involved/` | 13 → **0** | – | – | 1 | 14 → **1** |
-| `/about/` | 35 → **0** | – | – | – | 35 → **0** |
-| `/about/teams/` | 65 → **0** | – | – | – | 65 → **0** |
-| `/donate/` | 8 → **0** | – | 1 | – | 9 → **1** |
-| `/404` | 8 → **0** | – | – | – | 8 → **0** |
-| **Total** | **233 → 0** | **1** | **1** | **1** | **236 → 3** |
+| Route | Original | After Phase 1 | After Phase 2 | After Phase 3 |
+|---|---|---|---|---|
+| `/` | 21 | 0 | **0** | **0** |
+| `/what-we-do/` | 17 | 0 | **0** | **0** |
+| `/programs-events/` | 10 | 0 | **0** | **0** |
+| `/news/` | 57 | 1 (`heading-order`) | **0** | **0** |
+| `/get-involved/` | 14 | 1 (`link-in-text-block`) | **0** | **0** |
+| `/about/` | 35 | 0 | **0** | **0** |
+| `/about/teams/` | 65 | 0 | **0** | **0** |
+| `/donate/` | 9 | 1 (`frame-title`) | **0** | **0** |
+| `/404` | 8 | 0 | **0** | **0** |
+| **Total** | **236** | **3** | **0** | **0** |
 
-Phase 1 (contrast token remediation) landed 2026-08-17 and cleared the entire contrast category —
-233 raw / 214 distinct violations to **zero**, verified by re-sweep across all 9 routes. The three
-remaining violations are the Phase 2 items (P2.2, P1.6, P2.1) and were unchanged by the fix, which
-confirms no regression.
+**Phase 1** (2026-08-17) split the brand accent by job — `#2b7252` for anything read or seen,
+`#40a578` retained for fills — clearing all 233 raw contrast violations. Details in §9's earlier
+revision and commit `a137003`.
 
-**What changed.** The accent was split by job rather than shade: `--refinery-color-accent` now
-holds a deeper `#2b7252` for anything read or seen (text, glyphs, borders, focus rings), while a
-new `--refinery-color-accent-fill` retains the untouched logo green `#40a578` for backgrounds only.
-Primary-button labels moved from `#eeeeee` (2.63:1) to `#0f172a` (5.84:1), so CTAs keep the brand
-green. Metadata greys moved `slate-400 → slate-500`, the footer disclaimer `zinc-500 → zinc-600`,
-and the form placeholder `#94a3b8 → #62748e`. Two pre-existing token misuses were corrected in the
-same pass: the nav numerals were using the reversed dark-surface colour `#a1d18b` on a white header
-(1.75:1), and `.btn-primary:hover`'s `brightness(1.1)` had been lightening the fill beneath a
-near-white label.
+**Phase 2** (2026-08-17) cleared the remaining three and fixed four defects automated tooling
+cannot see: the contact form's silent success state (P1.5), the hero heading clipped at 320px
+(P1.8), the missing skip link (P2.3), and the nav's absent `aria-current` (P2.4). Two of those went
+beyond the audit's stated scope on the user's instruction — sentence links are now underlined
+sitewide, and the nav active state was repaired properly (it previously never fired on nested pages
+like `/news/an-article/`, and the mobile drawer had no active state at all).
+
+**Phase 3** (2026-08-17) closed the remaining polish items and the carousel pause control that had
+been scoped for Phase 2 but not yet built:
+
+- **P1.7** — the homepage carousel now has a sticky pause/play toggle beside prev/next. Unlike
+  the existing hover/focus pause (which lifts the moment the pointer or focus leaves) and the
+  interaction pause (which auto-resumes after 3s), the toggle holds until the visitor releases it
+  — the mechanism 2.2.2 (Level A) actually asks for. It is removed entirely, not just hidden, when
+  prefers-reduced-motion holds, since there is nothing running to pause.
+- **P3.1** — the contact dialog now carries a static `aria-modal="true"`. Safe as a constant rather
+  than something the open/close JS toggles: the element is `display:none` whenever `[open]` is
+  absent, so the attribute is inert while closed and only takes effect once the dialog is shown.
+- **P3.2** — every link that opens a new tab now says so programmatically, not just via the
+  decorative `::after` arrow. One script in `MarketingLayout.astro`, run on load and on
+  `astro:page-load`, covers both link shapes sitewide: for icon-only links (the footer's social
+  row) the `aria-label` is extended ("Instagram" to "Instagram (opens in a new tab)"), since a
+  present `aria-label` overrides any content and a hidden span there would be silently ignored;
+  everything else gets a visually-hidden "(opens in a new tab)" span appended. Because
+  `rehype-external-links.mjs` already sets `target="_blank"` on off-site Markdown links before this
+  runs, the one pass covers hand-written `.astro` templates and MDX article bodies alike with no
+  per-file edits and nothing for a content author to remember.
+- **P3.3** — the unused `data-field-error` scaffolding in `FormField.astro` is removed rather than
+  wired up, per the audit's own steer that a half-implemented custom-validation path invites the
+  next person to assume it works. Every field's `aria-describedby` now points only at its hint id,
+  or is omitted entirely when there is no hint, instead of always pointing at a permanently empty
+  paragraph.
+
+Behaviour that axe cannot assert was verified in Safari: the `close` event and form reset, focus
+landing on the success panel, skip-link activation moving focus into `<main>`, and the injected
+donation iframe receiving its title. Worth recording — **the in-app Chromium pane never fires
+`close` events on `<dialog>`, even for a freshly created element**, which initially looked like a
+regression in the reset logic and was not one.
 
 **Zero violations** were found for: `image-alt`, `label`, `form-field-multiple-labels`,
 `aria-*` (all rules), `button-name`, `link-name`, `html-has-lang`, `document-title`,

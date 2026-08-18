@@ -13,6 +13,31 @@ const navLinks = [
 ];
 
 const currentPath = Astro.url.pathname;
+
+/**
+ * What aria-current (if any) a nav entry should carry, and — since it returns undefined for
+ * "not here" — whether to style it as active.
+ *
+ * Previously this was `currentPath === link.href`, which only ever matched the six top-level
+ * pages. Reading an article at /news/an-article/ left the whole nav inactive, so the one place
+ * a reader is most likely to have followed a link in from outside was also the place the nav
+ * stopped telling them where they were. Section matching fixes that.
+ *
+ * 'page' for the exact URL, 'true' for an ancestor section — ARIA reserves 'page' for the
+ * current page itself, so a section ancestor must not claim it.
+ *
+ * Home is special-cased: every path starts with '/', so an ancestor test would light it up
+ * everywhere. The trailing slash is normalised because withBase() only strips LEADING slashes
+ * (see src/utils/base.ts), so a request served as /about rather than /about/ still matches.
+ */
+function navCurrent(href: string): 'page' | 'true' | undefined {
+  const home = withBase('/');
+  if (href === home) return currentPath === home ? 'page' : undefined;
+
+  const exact = href.replace(/\/$/, '');
+  if (currentPath === exact || currentPath === `${exact}/`) return 'page';
+  return currentPath.startsWith(`${exact}/`) ? 'true' : undefined;
+}
 ---
 
 <header class="sticky top-0 z-40 border-b-2 border-brand-accent-fill bg-white/95 backdrop-blur">
@@ -26,10 +51,12 @@ const currentPath = Astro.url.pathname;
     <nav aria-label="Primary" class="hidden flex-1 items-stretch gap-0.5 lg:flex">
       {
         navLinks.map((link, index) => {
-          const isActive = currentPath === link.href;
+          const current = navCurrent(link.href);
+          const isActive = current !== undefined;
           return (
             <a
               href={link.href}
+              aria-current={current}
               class:list={[
                 'group flex flex-col items-start justify-center gap-0.5 px-2.5 py-1.5 transition-colors',
                 isActive ? 'text-brand-accent' : 'text-slate-600 hover:text-brand',
@@ -67,12 +94,22 @@ const currentPath = Astro.url.pathname;
       <summary class="eyebrow-tag cursor-pointer list-none text-brand">Menu</summary>
       <nav aria-label="Primary mobile" class="absolute left-0 right-0 top-full flex flex-col gap-1 border-b-2 border-brand-accent-fill bg-white px-6 pb-4">
         {
-          navLinks.map((link, index) => (
-            <a href={link.href} class="flex items-center gap-2 py-2 text-sm font-medium text-slate-600 hover:text-brand-accent">
-              <span class="font-mono text-[0.65rem] text-slate-500">{String(index + 1).padStart(2, '0')}</span>
-              {link.label}
-            </a>
-          ))
+          navLinks.map((link, index) => {
+            const current = navCurrent(link.href);
+            return (
+              <a
+                href={link.href}
+                aria-current={current}
+                class:list={[
+                  'flex items-center gap-2 py-2 text-sm font-medium',
+                  current ? 'text-brand-accent' : 'text-slate-600 hover:text-brand-accent',
+                ]}
+              >
+                <span class="font-mono text-[0.65rem] text-slate-500">{String(index + 1).padStart(2, '0')}</span>
+                {link.label}
+              </a>
+            );
+          })
         }
         <a href={withBase('donate/')} class="py-2 text-sm font-semibold text-brand-accent">
           Donate

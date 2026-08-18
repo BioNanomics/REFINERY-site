@@ -21,7 +21,17 @@ const defaultTopic = form.topics.find((topic) => topic.value === form.defaultTop
    marketing.css for why this dialog is opened with show() instead of showModal(). */}
 <div class="dialog-backdrop" data-dialog-backdrop={form.id}></div>
 
-<dialog id={`dialog-${form.id}`} class="dialog-panel" aria-labelledby={titleId} data-contact-dialog={form.id}>
+<dialog
+  id={`dialog-${form.id}`}
+  class="dialog-panel"
+  aria-labelledby={titleId}
+  {/* Opened with .show(), which — unlike showModal() — sets no implicit modal semantics.
+     Static here rather than toggled by the open/close JS: the element is display:none
+     whenever [open] is absent (dialog.astro base rule), so it costs nothing while closed
+     and only takes effect once open. */}
+  aria-modal="true"
+  data-contact-dialog={form.id}
+>
   <div class="flex items-start justify-between gap-4 border-b border-refinery-color-border px-5 py-4">
     <div>
       <h2 id={titleId} class="font-heading text-lg font-bold text-slate-900" data-dialog-title>
@@ -78,8 +88,13 @@ const defaultTopic = form.topics.find((topic) => topic.value === form.defaultTop
       </div>
     </form>
 
-    <div class="hidden flex-col items-center py-6 text-center" data-form-success>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-10 w-10 text-brand-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    {/* tabindex="-1" so ContactDialogs can move focus here once a send succeeds. Without it
+       focus stayed on the submit button, which the class swap below has just display:none'd —
+       so the confirmation went unannounced and the next Tab restarted from the top of the
+       document. Not also a live region: focus alone triggers the announcement, and doing both
+       reads the same copy twice. */}
+    <div class="hidden flex-col items-center py-6 text-center" data-form-success tabindex="-1">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-10 w-10 text-brand-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
         <path d="m9 12 2 2 4-4" />
       </svg>
