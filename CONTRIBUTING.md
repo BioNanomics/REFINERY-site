@@ -170,6 +170,13 @@ Every team gets a page at `/teams/<program><number>/` — `/teams/frc1501/`, `/t
 — linked from its card. The program prefix is not cosmetic: FRC and FTC number teams
 independently, so a bare number is not a unique key (`src/utils/teams.ts`). Drafts get no page.
 
+**Notify a team before publishing its page.** These are profiles of other people's
+organizations on The REFINERY's indexed domain, carrying `SportsTeam` structured data and, in
+time, their award record — which is a different thing from a directory listing. The fifteen
+teams in the collection at launch were notified and offered the chance to opt out or supply
+their own bio; the same courtesy applies to every team added afterwards. Use `draft: true`
+while that conversation is outstanding — a draft gets no page and no URL to index.
+
 `banner` is all-or-nothing: supplying a photo requires `alt` and a visible `credit`. That is
 enforced by the schema because The REFINERY's permission to use FIRST Indiana's photography
 depends on attribution the reader can see — `docs/placeholder-images.md` has the full terms
