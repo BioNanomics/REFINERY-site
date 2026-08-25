@@ -423,3 +423,124 @@ export function breadcrumbList(items: BreadcrumbItem[]) {
     })),
   };
 }
+
+interface SportsTeamOptions {
+  /** The team name, as the page's <h1> renders it. */
+  name: string;
+  /** The entry's `number`. Emitted as an identifier, not folded into `name`. */
+  teamNumber: string;
+  /** Full program name from PROGRAM_NAMES, already run through firstPlain(). */
+  programName: string;
+  /** Canonical URL of the team page. */
+  url: string;
+  /** Already run through firstPlain(). */
+  description: string;
+  /** Absolute URL to the team's logo, when the entry has one. */
+  logo?: string;
+  /**
+   * Absolute URL to the team's banner photo. Deliberately NOT defaulted to the logo — team
+   * logos are transparent artwork at arbitrary aspect ratios, and pointing `image` at one
+   * publishes a claim that it represents the team photographically, which it doesn't.
+   */
+  image?: string;
+  /** The entry's `organization`, verbatim — the page shows it in the facts row. */
+  memberOf?: string;
+  /** From parseCommunity(). Undefined whenever `community` doesn't parse. */
+  location?: { addressLocality: string; addressRegion: string };
+  /** The entry's `rookieYear`, only when the page states it. */
+  foundingYear?: number;
+  /** Award labels, one per award ACTUALLY RENDERED on the page. */
+  awards?: string[];
+  /** Every outbound URL the page links: the team's socials plus its `links` row. */
+  sameAs?: string[];
+}
+
+/**
+ * A team The REFINERY supports. Every value traces to something the detail page renders:
+ *   name, description, logo   -> the entry's own frontmatter, shown in the identity block
+ *   memberOf                  -> the entry's `organization`, shown in the facts row
+ *   location                  -> the entry's `community`, via parseCommunity()
+ *   foundingDate              -> the entry's `rookieYear`, shown as "Competing since YYYY"
+ *   award                     -> the awards section, via formatAward()
+ *   sameAs                    -> the links row and the social icon row
+ *
+ * Typed SportsTeam rather than a plain Organization: it is the most specific type that is
+ * true of a team entered in a season-long competition, and it is what makes `sport`, `award`,
+ * and `memberOf` mean something instead of reading as generic Organization fields. Note for
+ * anyone revisiting this — FIRST's own "Sport for the Mind" framing is NOT the justification;
+ * that phrase is FIRST's mark, not a claim this site gets to make. If `sport` ever reads
+ * wrong, plain Organization is the conservative fall-back and costs only those three
+ * properties.
+ *
+ * NO relationship to The REFINERY is emitted, and that is the deliberate part. The site says
+ * it SUPPORTS these teams. `memberOf: ORG_ID` would claim they are part of the organization
+ * and `sponsor` would claim it funds them; neither is what any page says, and schema.org has
+ * no property that means "supports". Referencing ORG_ID here would be the tempting mistake,
+ * so a test asserts this node never contains it.
+ *
+ * `sameAs` includes a team's GitHub, where organization() deliberately excludes ours. Not an
+ * inconsistency: the footer's GitHub is BioNanomics' org account and would misidentify The
+ * REFINERY, whereas `socials.github` belongs to the team itself. The Blue Alliance, FTC
+ * Events, and FTCScout links qualify for the same reason — each unambiguously identifies
+ * this team.
+ *
+ * Deliberately omitted, for want of a source: coach, athlete, numberOfEmployees, and any
+ * sibling-team property (schema.org has none, and `subOrganization` would misstate a
+ * relationship between two independently chartered teams).
+ *
+ * `sponsor` is also absent, and that one is a decision rather than a gap. The site does not
+ * publish other teams' sponsor lists: a sponsor's name and logo are that sponsor's own
+ * marks, and republishing them on a third party's behalf is an exposure The REFINERY has no
+ * reason to take on. If that ever changes, the property goes here — but the visible page has
+ * to say it first.
+ */
+export function sportsTeam({
+  name,
+  teamNumber,
+  programName,
+  url,
+  description,
+  logo,
+  image,
+  memberOf,
+  location,
+  foundingYear,
+  awards,
+  sameAs,
+}: SportsTeamOptions) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SportsTeam',
+    name,
+    // How the team is universally referred to in the community — "FRC 1501" — which is a
+    // genuine alternate name, unlike the number alone.
+    alternateName: `${programName} ${teamNumber}`,
+    // The number is an identifier, not part of the name. PropertyValue with an explicit
+    // propertyID says which numbering scheme it belongs to.
+    identifier: {
+      '@type': 'PropertyValue',
+      propertyID: 'FIRST team number',
+      value: teamNumber,
+    },
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    description,
+    sport: programName,
+    ...(logo ? { logo } : {}),
+    ...(image ? { image } : {}),
+    ...(memberOf ? { memberOf: { '@type': 'Organization', name: memberOf } } : {}),
+    ...(location
+      ? {
+          location: {
+            '@type': 'Place',
+            address: { '@type': 'PostalAddress', ...location, addressCountry: 'US' },
+          },
+        }
+      : {}),
+    // Year-only. FIRST publishes a rookie YEAR, not a founding date, and padding it to
+    // January 1 would invent a precision the source doesn't have.
+    ...(foundingYear ? { foundingDate: String(foundingYear) } : {}),
+    ...(awards?.length ? { award: awards } : {}),
+    ...(sameAs?.length ? { sameAs } : {}),
+  };
+}

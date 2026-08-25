@@ -1,0 +1,77 @@
+---
+/**
+ * The full award history, grouped by season, newest first.
+ *
+ * Every award appears here including the banner-earning ones, so this reads as a complete
+ * record rather than a leftovers list — the banner wall above it is an emphasis on the same
+ * data, not a different set. Banner rows carry a small colored marker so the two views
+ * line up visually.
+ *
+ * Each row cites its source. That is a schema requirement (`source` is non-optional on an
+ * award) rather than a choice made here: these are factual claims about other people's
+ * teams, published on The REFINERY's domain.
+ */
+import type { BannerColor } from '../../utils/banners';
+import { awardLabel, groupAwardsByYear, type TeamAward } from '../../utils/awards';
+
+interface Props {
+  awards: TeamAward[];
+  /** Banner color per award, keyed by the same identity used to build the wall. */
+  bannerOf: (award: TeamAward) => BannerColor | null;
+}
+
+const { awards, bannerOf } = Astro.props;
+const years = groupAwardsByYear(awards);
+
+const marker: Record<BannerColor, string> = {
+  blue: 'bg-brand',
+  orange: 'bg-[#b4530f]',
+};
+---
+
+<div class="mt-6 space-y-6">
+  {
+    years.map(({ year, awards: yearAwards }) => (
+      <div class="flex flex-col gap-2 sm:flex-row sm:gap-6" data-reveal>
+        {/* The year sits in its own rail so the award rows align down the page rather than
+            indenting behind a variable-width label. */}
+        <h3 class="shrink-0 font-mono text-sm font-bold text-slate-900 sm:w-16 sm:pt-0.5">{year}</h3>
+        <ul class="flex-1 space-y-2">
+          {yearAwards.map((award) => {
+            const color = bannerOf(award);
+            return (
+              <li class="flex items-baseline gap-2 text-sm">
+                {/* The dot's colour is decorative — "banner" is what a reader needs, and
+                    the FRC/FTC distinction is already implied by whose page this is. The
+                    word itself reaches assistive tech through the sr-only span below. */}
+                {color ? (
+                  <span
+                    class:list={['mt-1.5 h-2 w-2 shrink-0 rounded-full', marker[color]]}
+                    title="Earned a banner"
+                  />
+                ) : (
+                  <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-slate-300" aria-hidden="true" />
+                )}
+                <span class="text-slate-900">
+                  {awardLabel(award)}
+                  {color && <span class="sr-only"> — earned a banner</span>}
+                </span>
+                <span class="text-slate-500">
+                  &middot;{' '}
+                  <a
+                    href={award.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hover:text-brand-accent hover:underline"
+                  >
+                    {award.event}
+                  </a>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))
+  }
+</div>

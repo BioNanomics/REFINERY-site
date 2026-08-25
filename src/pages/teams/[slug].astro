@@ -1,0 +1,353 @@
+---
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import TeamMasthead from '../../components/teams/TeamMasthead.astro';
+import TeamNav from '../../components/teams/TeamNav.astro';
+import NewsCard from '../../components/cards/NewsCard.astro';
+import SocialLinks from '../../components/marketing/SocialLinks.astro';
+import FirstText from '../../components/brand/FirstText.astro';
+import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import { firstPlain } from '../../utils/first';
+import { sportsTeam } from '../../utils/schema';
+import { withBase } from '../../utils/base';
+import { PROGRAM_NAMES, parseCommunity, relatedTeamsFor, teamSlug } from '../../utils/teams';
+import { socialLinks } from '../../utils/socials';
+import { awardCitation, sortAwards } from '../../utils/awards';
+import { resolveBanner } from '../../utils/banners';
+import { hasRenderableBody } from '../../utils/mdx-body';
+import CTAButton from '../../components/marketing/CTAButton.astro';
+import TeamCard from '../../components/cards/TeamCard.astro';
+import RobotTimeline from '../../components/teams/RobotTimeline.astro';
+import AwardBanners from '../../components/teams/AwardBanners.astro';
+import AwardsList from '../../components/teams/AwardsList.astro';
+
+export async function getStaticPaths() {
+  // Drafts get no URL at all, matching how news and events handle an unreviewed entry.
+  // Both surfaces that render a TeamCard already filter on the same predicate, so every
+  // card that links to a team page links to one that was actually built.
+  const teams = await getCollection('teams', ({ data }) => !data.draft);
+  return teams.map((team) => ({
+    params: { slug: teamSlug(team) },
+    // The full roster rides along for prev/next; computing it here beats a second
+    // getCollection call inside every page render.
+    props: { team, teams },
+  }));
+}
+
+const { team, teams } = Astro.props;
+const {
+  number, name, program, organization, community, logo, description, metaDescription,
+  highlight, links, socials, banner, rookieYear, awards, robots,
+} = team.data;
+
+const programName = PROGRAM_NAMES[program];
+
+// Every team body is a sourcing comment and nothing else today, so render() emits no
+// markup. Without this the bio section would open a blank gap on all fifteen pages; the
+// description stands in until a team supplies real copy.
+const { Content } = await render(team);
+const hasBio = hasRenderableBody(team.body);
+
+// Banner eligibility is derived once here and handed to both the wall and the list, so the
+// two views of the same awards can never disagree about what hangs.
+const sortedAwards = sortAwards(awards);
+const bannerOf = (award: (typeof sortedAwards)[number]) =>
+  resolveBanner({ program, typeKey: award.typeKey, placement: award.placement, placementMeaning: award.placementMeaning, eventLevel: award.eventLevel, banner: award.banner });
+const bannerAwards = sortedAwards
+  .map((award) => ({ award, color: bannerOf(award) }))
+  .filter((entry): entry is { award: (typeof sortedAwards)[number]; color: 'blue' | 'orange' } => entry.color !== null);
+
+const related = relatedTeamsFor(team, teams);
+
+// Newest first. teamRefs holds bare team numbers — see the note on the field in
+// src/content.config.ts. The draft predicate matches src/pages/news/index.astro so this
+// section and the /news/?team= filter it links to can never disagree about what exists.
+const allNews = await getCollection('news', ({ data }) => !data.draft);
+const teamNews = allNews
+  .filter((post) => post.data.teamRefs.includes(number))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// Every outbound URL this page actually renders, and nothing else — sameAs is a claim that
+// these profiles identify this team, so a URL the page doesn't show has no business here.
+const sameAs = [...socialLinks(socials).map((s) => s.url), ...links.map((l) => l.url)];
+
+// Feeds schema.org `logo`, which is the right property for a wordmark or badge.
+const logoUrl = logo ? new URL((await getImage({ src: logo, width: 512 })).src, Astro.site).href : undefined;
+
+// The banner doubles as the social card. No logo fallback: a transparent logo at an
+// arbitrary aspect ratio renders as a smear in a 1200x630 card, and pointing schema.org
+// `image` at one would claim the logo depicts the team.
+const bannerOg = banner ? await getImage({ src: banner.image, width: 1200 }) : undefined;
+const bannerUrl = bannerOg ? new URL(bannerOg.src, Astro.site).href : undefined;
+
+const jsonLd = sportsTeam({
+  name,
+  teamNumber: number,
+  programName: firstPlain(programName),
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  description: firstPlain(description),
+  logo: logoUrl,
+  image: bannerUrl,
+  memberOf: organization,
+  location: parseCommunity(community),
+  foundingYear: rookieYear,
+  // Only the awards this page actually renders, per schema.ts's ground rule.
+  awards: sortedAwards.map(awardCitation),
+  sameAs,
+});
+
+// Short form for the last crumb and the browser tab — "FRC 1501 — T.H.R.U.S.T." fits
+// BaseHead's 60-character budget once the brand suffix is appended, where the full program
+// name would not. BaseHead applies firstPlain() itself, so this is passed raw.
+const shortLabel = `${program} ${number}`;
+
+// One definition, so the three labels can't drift apart in size or colour.
+const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
+---
+
+<MarketingLayout
+  title={`${shortLabel} — ${name}`}
+  description={metaDescription ?? description}
+  image={bannerUrl}
+  imageAlt={banner?.alt}
+  imageWidth={bannerOg ? Number(bannerOg.attributes.width) : undefined}
+  imageHeight={bannerOg ? Number(bannerOg.attributes.height) : undefined}
+  jsonLd={jsonLd}
+  breadcrumbs={[
+    { label: 'Home', href: withBase('/') },
+    // Points at the directory, which lives under /about/. The "About" crumb is deliberately
+    // omitted: this page sits at /teams/, and a Home > About > Meet the Teams trail would
+    // assert a hierarchy the URL contradicts — which matters doubly because MarketingLayout
+    // derives the BreadcrumbList markup from this same array.
+    { label: 'Meet the Teams', href: withBase('about/teams/') },
+    { label: shortLabel },
+  ]}
+>
+  <section class="section-tight section">
+    <div class="section-inner section-inner-narrow">
+      <TeamMasthead team={team} />
+
+      <div class="mt-8" data-reveal>
+        <p class="eyebrow-tag text-brand-accent">
+          <FirstText text={programName} context="heading" /> {number}
+        </p>
+        <h1 class="mt-2 font-heading text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <FirstText text={name} context="heading" />
+        </h1>
+
+        {/* Given its own line rather than compressed into the card's middot-joined caption.
+            The host organization is the fact most likely to answer "is this my student's
+            team?", and it is what the JSON-LD emits as memberOf. */}
+        {/* A two-column grid rather than a flex row per pair, for two reasons that were both
+            visibly wrong before: `auto` sizes the label column to the WIDEST label, so every
+            value starts at the same x instead of one per label width ("Host" vs "Competing
+            since"); and items-baseline sits the mono/text-xs label on the same baseline as
+            its sans/text-sm value, which stretch alignment left visibly off. The pairs are
+            direct dl children — no wrapper divs — so the grid can see them. */}
+        <dl class="mt-4 grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-1.5 text-sm text-slate-600">
+          <dt class={factLabel}>Host</dt>
+          <dd>{organization}</dd>
+          <dt class={factLabel}>Based in</dt>
+          <dd>{community}</dd>
+          {rookieYear && (
+            <Fragment>
+              {/* "Competing since" rather than "Founded": FIRST publishes a rookie YEAR, and
+                  a host organization may predate its robotics team by decades. */}
+              <dt class={factLabel}>Competing since</dt>
+              <dd>{rookieYear}</dd>
+            </Fragment>
+          )}
+        </dl>
+
+        {/* `description` is deliberately NOT rendered here: it is the card blurb, and a
+            visitor arriving from a card has just read it. It still feeds the meta
+            description and the JSON-LD `description` — which keeps schema.ts's rule that a
+            value trace to something the page publishes, since the page publishes it as its
+            own meta description exactly as organization() already does on the homepage. */}
+        {highlight && <p class="mt-5 font-mono text-sm text-brand-accent">{highlight}</p>}
+
+        {
+          (links.length > 0 || sameAs.length > 0) && (
+            <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+              {links.map((link) => (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-mono text-sm font-semibold text-brand-accent hover:underline"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <SocialLinks socials={socials} owner={name} size="md" />
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    hasBio && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          {/* .prose is scoped to the team's own copy rather than wrapping the whole page,
+              which is why this uses MarketingLayout instead of ArticleLayout. */}
+          <div class="prose prose-slate max-w-none prose-headings:font-heading prose-a:text-brand-accent" data-reveal>
+            <Content />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    bannerAwards.length > 0 && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+            {/* Named for what these are, in the vocabulary the community uses. FRC hangs
+                blue and FTC hangs orange, so neither color belongs in a shared heading. */}
+            Banners
+          </h2>
+          <AwardBanners banners={bannerAwards} />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    sortedAwards.length > 0 && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+            Award history
+          </h2>
+          <AwardsList awards={sortedAwards} bannerOf={bannerOf} />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    robots.length > 0 && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+            Robots
+          </h2>
+          <RobotTimeline robots={robots} />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    teamNews.length > 0 && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+            News
+          </h2>
+          {/* NewsCard directly rather than NewsGrid: that component is a filtering
+              application that builds its own category and team chips and rewrites
+              location.search, which would put a redundant team filter on a page that is
+              already scoped to one team. */}
+          <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
+            {teamNews.slice(0, 4).map((post) => (
+              <NewsCard post={post} />
+            ))}
+          </div>
+          {teamNews.length > 4 && (
+            <p class="mt-6" data-reveal>
+              <a
+                href={withBase(`news/?team=${number}`)}
+                class="font-mono text-sm font-semibold text-brand-accent hover:underline"
+              >
+                All news about {name} &rarr;
+              </a>
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+
+  {
+    related.length > 0 && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+            {/* "Related", not "sibling": the pairing is usually two teams sharing a school,
+                but the field is general enough to cover any connection worth surfacing. */}
+            Related teams
+          </h2>
+          <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2" data-reveal-group>
+            {related.map((sibling) => (
+              <TeamCard team={sibling} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section-rule section">
+    <div class="section-inner section-inner-narrow">
+      <div class="card card-pad-lg" data-reveal>
+        <h2 class="font-heading text-lg font-bold text-slate-900">
+          Get involved with <FirstText text={`${program} ${number}`} />
+        </h2>
+        <p class="mt-2 text-sm text-slate-600">
+          Students looking for a team, and adults willing to mentor one, are what keep these
+          teams running. Tell us which and we'll put you in touch.
+        </p>
+        {/* `about` rides along in the submitted message so a reply doesn't have to work out
+            which team prompted it. The href stays a real mailto for anyone without JS, and
+            carries the same context in its subject line. */}
+        <div class="mt-5 flex flex-wrap gap-3">
+          <CTAButton
+            href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Joining ${program} ${number}`)}`}
+            dialog="contact"
+            topic="Joining a team"
+            about={`${program} ${number} — ${name}`}
+            prefill={{ message: `Interested in joining team ${number}` }}
+          >
+            Join this team
+          </CTAButton>
+          {/* `involvement` is the "Where would you like to help?" radio on the Volunteering
+              topic; seeding it lands someone on the mentoring answer rather than the
+              neutral "Open to both" default. */}
+          <CTAButton
+            href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Mentoring ${program} ${number}`)}`}
+            dialog="contact"
+            topic="Volunteering"
+            about={`${program} ${number} — ${name}`}
+            prefill={{
+              message: `Interested in joining team ${number}`,
+              involvement: 'Mentoring a team',
+            }}
+            variant="secondary"
+          >
+            Mentor this team
+          </CTAButton>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight section">
+    <div class="section-inner section-inner-narrow">
+      <TeamNav team={team} teams={teams} />
+      <p class="mt-6">
+        <a
+          href={withBase('about/teams/')}
+          class="font-mono text-sm font-semibold text-brand-accent hover:underline"
+        >
+          &larr; All teams
+        </a>
+      </p>
+    </div>
+  </section>
+</MarketingLayout>

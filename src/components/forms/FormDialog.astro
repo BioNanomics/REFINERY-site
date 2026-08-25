@@ -21,14 +21,18 @@ const defaultTopic = form.topics.find((topic) => topic.value === form.defaultTop
    marketing.css for why this dialog is opened with show() instead of showModal(). */}
 <div class="dialog-backdrop" data-dialog-backdrop={form.id}></div>
 
+{/* aria-modal: opened with .show(), which — unlike showModal() — sets no implicit modal
+   semantics. Static rather than toggled by the open/close JS: the element is display:none
+   whenever [open] is absent (dialog.astro base rule), so it costs nothing while closed and
+   only takes effect once open.
+
+   This note sits ABOVE the tag rather than among its attributes. A {/* */} comment inside an
+   attribute list parses at runtime but breaks `astro check`, which then silently skips type
+   checking for this entire template — the bug that hid every other error in this file. */}
 <dialog
   id={`dialog-${form.id}`}
   class="dialog-panel"
   aria-labelledby={titleId}
-  {/* Opened with .show(), which — unlike showModal() — sets no implicit modal semantics.
-     Static here rather than toggled by the open/close JS: the element is display:none
-     whenever [open] is absent (dialog.astro base rule), so it costs nothing while closed
-     and only takes effect once open. */}
   aria-modal="true"
   data-contact-dialog={form.id}
 >
@@ -55,6 +59,11 @@ const defaultTopic = form.topics.find((topic) => topic.value === form.defaultTop
     <form data-contact-form={form.id} data-subject={defaultTopic.subject} aria-describedby={introId}>
       <div class="flex flex-col gap-4">
         {form.fields.map((field) => <FormField field={field} idPrefix={form.id} />)}
+
+      {/* Set by ContactDialogs from the trigger data-contact-about attribute, so a message sent from a
+          team page arrives saying which team it was about. Empty for every other trigger,
+          and dropped from the payload when empty — see the submit handler. */}
+      <input type="hidden" name="about" data-contact-about-field />
       </div>
 
       {/* Honeypot: real visitors never see or fill this in. Not display:none —

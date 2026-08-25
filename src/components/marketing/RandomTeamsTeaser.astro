@@ -13,6 +13,7 @@
  */
 import TeamCard from '../cards/TeamCard.astro';
 import type { CollectionEntry } from 'astro:content';
+import { byFeaturedThenNumber, sortByNumber } from '../../utils/teams';
 
 interface Props {
   teams: CollectionEntry<'teams'>[];
@@ -22,9 +23,6 @@ interface Props {
 
 const { teams, frcCount = 2, ftcCount = 1 } = Astro.props;
 
-const sortByNumber = (a: (typeof teams)[number], b: (typeof teams)[number]) => Number(a.data.number) - Number(b.data.number);
-const byFeaturedThenNumber = (a: (typeof teams)[number], b: (typeof teams)[number]) =>
-  Number(b.data.featured) - Number(a.data.featured) || sortByNumber(a, b);
 const frcTeams = teams.filter((t) => t.data.program === 'FRC').sort(byFeaturedThenNumber);
 const ftcTeams = teams.filter((t) => t.data.program === 'FTC').sort(byFeaturedThenNumber);
 const defaultIds = new Set([...ftcTeams.slice(0, ftcCount), ...frcTeams.slice(0, frcCount)].map((t) => t.id));

@@ -1,8 +1,48 @@
-# Placeholder imagery — licensing note
+# Imagery — sourcing and licensing
+
+## FIRST Indiana Flickr — permission granted
+
+The REFINERY has **written permission covering the whole FIRST Indiana Flickr account**
+(`flickr.com/photos/indianafirst/`). Contributors may use any photo from that account without
+asking again.
+
+- **Granted by:** Chris O
+- **Date granted:** 2022-10-28
+- **Scope:** entire `flickr.com/photos/indianafirst/` account.
+
+Two conditions apply to every photo used under it:
+
+1. **Download, never hotlink.** Save the file into `src/assets/` (team banners go in
+   `src/assets/teams/`) so `astro:assets` can optimize it and so an album reorganization
+   cannot break the site. Hotlinking Flickr image URLs also violates Flickr's terms.
+2. **Credit visibly, near the image.** Not in alt text, not in a `title` attribute — a
+   reader has to be able to see it. This is enforced in code: the teams collection's
+   `banner` field makes `credit` a required property, so an entry cannot ship a banner
+   photo without one. See `src/content.config.ts`.
+
+A team banner therefore looks like this:
+
+```yaml
+banner:
+  image: ../../assets/teams/frc-1501-thrust-banner.jpg
+  alt: "Team 1501 students working on their robot in the pits at the state championship"
+  credit:
+    text: "Photo: FIRST Indiana Robotics"
+    url: "https://www.flickr.com/photos/indianafirst/"
+```
+
+Photography shot by the team or by The REFINERY uses the same shape and still carries a
+credit — the field is required for everything, not just Flickr sources.
+
+## Placeholder imagery — licensing note
+
+**Superseded by the section above** for FIRST Indiana photography — permission has since been
+granted. The reasoning is kept because the second point still governs everything else, and
+because the download-not-hotlink rule came from here.
 
 The original project brief suggested sourcing placeholder photography from the FIRST
-Indiana Flickr album (`flickr.com/photos/indianafirst/albums/`). We deliberately did **not**
-download or hotlink those photos for this scaffold:
+Indiana Flickr album (`flickr.com/photos/indianafirst/albums/`). At the time we deliberately
+did **not** download or hotlink those photos:
 
 - Hotlinking directly to `flickr.com` image URLs violates Flickr's terms of service and is
   fragile (images break if the album owner reorganizes or removes them).
@@ -21,12 +61,7 @@ one shop photo (`src/assets/refinery-shop-1.jpeg`, used as the homepage hero and
 social-share image). The project/blog card images below still use gradient placeholders since
 no photos specific to those entries have been supplied yet.
 
-**Before launch**, the client should do one of the following:
-
-1. Supply their own photography of The REFINERY's makerspace, builds, and team, **or**
-2. Obtain written permission / confirm usage rights from FIRST Indiana for specific Flickr
-   album photos.
-
-If Flickr images are approved later: download them, store them under `src/assets/`
-(never hotlink to `flickr.com` directly), and credit the photographer/FIRST Indiana
-appropriately near each image.
+**Resolved:** option 2 was taken — see the permission section at the top of this file. The
+remaining gap is photography of The REFINERY's own makerspace and builds beyond the single
+shop photo already supplied, and team-supplied photos for teams that would rather represent
+themselves than appear via FIRST Indiana's coverage.

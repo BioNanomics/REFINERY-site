@@ -5,6 +5,8 @@ import { getImage } from 'astro:assets';
 import { firstPlain } from '../../../utils/first';
 import { article } from '../../../utils/schema';
 import { withBase } from '../../../utils/base';
+import { teamByNumber, teamPath } from '../../../utils/teams';
+import FirstText from '../../../components/brand/FirstText.astro';
 import logoFullColor from '../../../assets/logo-full-color.svg';
 
 export async function getStaticPaths() {
@@ -28,6 +30,15 @@ const { Content } = await render(post);
 // firstPlain() itself, and firstPlain() doesn't detect an existing ®, so marking it here too
 // would stamp a second one.
 const searchDescription = metaDescription ?? summary;
+
+// teamRefs holds bare team numbers, and a story may reference a team with no entry of its
+// own (that is the whole reason the field is numbers rather than a reference()). Those
+// simply drop out here — teamByNumber returns undefined both for an unknown number and for
+// an ambiguous one, and either way there is no page to link to.
+const allTeams = await getCollection('teams', ({ data }) => !data.draft);
+const storyTeams = post.data.teamRefs
+  .map((number) => teamByNumber(allTeams, number))
+  .filter((team) => team !== undefined);
 
 const articleSchema = article({
   headline: firstPlain(title),
@@ -62,4 +73,25 @@ const articleSchema = article({
   ]}
 >
   <Content />
+  {
+    storyTeams.length > 0 && (
+      <div class="not-prose mt-10 border-t border-slate-200 pt-6">
+        <h2 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Teams in this story
+        </h2>
+        <ul class="mt-3 flex flex-wrap gap-2">
+          {storyTeams.map((team) => (
+            <li>
+              <a
+                href={teamPath(team)}
+                class="inline-block rounded-control border border-slate-300 px-3 py-1.5 font-mono text-xs font-medium text-slate-600 transition-colors duration-fast ease-out-soft hover:border-brand hover:text-brand-accent"
+              >
+                <FirstText text={`${team.data.program} ${team.data.number}`} /> {team.data.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
 </ArticleLayout>

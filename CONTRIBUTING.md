@@ -102,7 +102,18 @@ organization: "Parent organization — school, 4-H club, nonprofit, etc."
 community: "City, State"
 logo: ../../assets/teams/1501.svg   # optional
 description: "One or two sentences about the team."
+metaDescription: "Shorter copy for search results."  # optional, max 160 chars
 highlight: "2026 Regional Finalist"  # optional recent highlight
+rookieYear: 2005              # optional; the team's first competition season
+banner:                       # optional photo across the top of the team page
+  image: ../../assets/teams/1501-banner.jpg
+  alt: "Describe what is happening in the photo"
+  credit:
+    text: "Photo: FIRST Indiana Robotics"
+    url: "https://www.flickr.com/photos/indianafirst/"   # optional
+awards: []                    # optional — see "Team awards" below
+robots: []                    # optional — see "Robots" below
+relatedTeams: []              # optional — see "Related teams" below
 links:                        # optional, defaults to none
   - label: "Team Website"
     url: "https://..."
@@ -112,8 +123,10 @@ socials:                      # optional, all keys optional — see note below
   twitter: "https://x.com/..."
   tiktok: "https://tiktok.com/@..."
   youtube: "https://youtube.com/@..."
+  flickr: "https://flickr.com/photos/..."
   tumblr: "https://teamname.tumblr.com"
   github: "https://github.com/..."
+  linkedin: "https://linkedin.com/company/..."
   website: "https://..."
 featured: false               # narrow effect — see note below
 newTeam: false                # set true to put a "New!" badge on the team card
@@ -121,10 +134,139 @@ draft: false
 ---
 ```
 
+Only `number`, `name`, `program`, `organization`, `community` and `description` are required.
+Everything else is optional or defaults to empty, so an entry that sets none of the newer
+fields renders exactly as it always did.
+
+Where each field surfaces:
+
+| Field | Card | Team page |
+|---|---|---|
+| `number`, `name`, `program` | yes | yes (eyebrow + `<h1>`) |
+| `organization`, `community` | yes (one line) | yes (facts list) |
+| `description` | yes | **no** — see below |
+| `metaDescription` | no | `<meta name="description">` only |
+| `logo` | yes | yes (plaque over the banner) |
+| `banner` | no | yes |
+| `rookieYear` | no | yes (facts list) + `foundingDate` in JSON-LD |
+| `highlight` | yes | yes |
+| `awards` | no | yes (banners + award history) |
+| `robots` | no | yes |
+| `relatedTeams` | no | yes |
+| `links`, `socials` | yes | yes |
+
+`description` is deliberately **not** rendered on the team page. It is the card blurb, and a
+visitor arriving from a card has just read it. It still feeds the page's meta description and
+its JSON-LD, so write it as a standalone summary. Put anything longer in the MDX body, which
+renders as the team's bio — every entry's body is currently just a sourcing comment, and the
+bio section stays hidden until one has real prose in it.
+
 `socials` renders a row of platform icons on the team card, in the fixed order above
 (`TeamCard.astro`) — the key order you write in frontmatter doesn't matter. Include only the
 platforms a team actually uses; every key must be a full `https://` URL. Use `links` instead
 for anything that needs its own label, like a sponsor page or a build blog.
+
+Every team gets a page at `/teams/<program><number>/` — `/teams/frc1501/`, `/teams/ftc25638/`
+— linked from its card. The program prefix is not cosmetic: FRC and FTC number teams
+independently, so a bare number is not a unique key (`src/utils/teams.ts`). Drafts get no page.
+
+`banner` is all-or-nothing: supplying a photo requires `alt` and a visible `credit`. That is
+enforced by the schema because The REFINERY's permission to use FIRST Indiana's photography
+depends on attribution the reader can see — `docs/placeholder-images.md` has the full terms
+and the download-not-hotlink rule.
+
+The masthead is a band with the logo plaque overlapping its lower edge. The band is the
+`banner` photo when there is one and a brand-navy panel otherwise, which is a designed state
+rather than a placeholder — a team needs no photo for its page to look finished. A team with
+no `logo` gets the band alone and is identified by the eyebrow and heading instead.
+
+#### Team awards
+
+```yaml
+awards:
+  - name: "Winning Alliance"        # verbatim, as FIRST worded it that season
+    typeKey: WINNER                 # normalized key — see src/utils/awards.ts
+    year: 2024
+    event: "Indiana State Championship"
+    eventLevel: district-championship
+    placementMeaning: alliance-seat # required whenever `placement` is set
+    placement: 2                    # optional
+    source: "https://..."           # REQUIRED
+```
+
+Four things to know before adding one:
+
+**`source` is required.** An award is a public factual claim about someone else's team,
+published on The REFINERY's domain. Every entry cites where it came from, and the citation
+renders as a link beside the award.
+
+**`typeKey` carries the logic; `name` is only display.** FIRST renamed the Chairman's Award to
+the FIRST Impact Award for the 2023 season, so a 2016 entry reads `name: "Chairman's Award"`
+with `typeKey: IMPACT` and classifies identically to a modern one. Add new keys to
+`src/utils/awards.ts`, not to the schema.
+
+**`placement` means two different things,** which is why `placementMeaning` is mandatory
+alongside it. For a judged award it is a rank (`rank` → "3rd place Think Award"). For
+Winner/Finalist it is the team's seat on the alliance (`alliance-seat` → "Winning Alliance",
+seat number dropped). Getting this wrong produces "3rd place Winner", which is nonsense —
+every team on that alliance won. The build fails if you set `placement` without saying which
+it is.
+
+**No blanket data-source notice.** Awards are typed in by hand from public sources, and each
+one renders its own citation as a link — that is the attribution. The site deliberately does
+NOT carry a standing "Event data provided by *FIRST*" or "Powered by The Blue Alliance" line,
+because it does not consume either API and claiming a data-feed relationship it doesn't have
+would be its own small untruth. If a sync script is ever added that does call those APIs,
+their terms require that attribution and it goes back in then — FIRST's on every page
+carrying the data, The Blue Alliance's with a link back and their name kept out of any
+REFINERY branding.
+
+**Banners are derived, not declared.** `src/utils/banners.ts` decides: FRC hangs a blue banner
+for a winning alliance or the Impact Award; FTC hangs orange for a premier-event winning
+alliance or a 1st place Inspire Award. Offseason results never hang. Note this is narrower
+than The Blue Alliance's widely-copied `BLUE_BANNER_AWARDS` list — if you go looking for a
+canonical set you will find theirs and it is not the one this site uses. To override the
+derivation, set `banner: true|false` **and** `bannerNote` explaining the correction; the
+build rejects one without the other.
+
+#### Robots
+
+```yaml
+robots:
+  - name: "Wave Ryder"
+    year: 2025
+    game: "Reefscape"                      # optional, the season's name
+    description: "One or two sentences."   # optional, max 280 chars
+    image: ../../assets/teams/1501-wave-ryder.jpg   # optional
+    imageAlt: "Describe the robot"                  # optional, but supply it with an image
+```
+
+Newest season first — the list is sorted for you, so frontmatter order doesn't matter. `year`
+rather than a free-text season is what makes that sort possible.
+
+Two things worth knowing. FIRST **game** names are trademarks in their own right, but they are
+not in `FIRST_TOKENS` (`src/utils/first.ts`), so `game` renders exactly as you type it and
+never picks up a ® — that is correct, not a gap. And `imageAlt` is optional in the schema but
+should always accompany an `image`: without it the photo is treated as decorative, which is
+the right default for a missing value but the wrong outcome for a real robot photo.
+
+#### Related teams
+
+```yaml
+relatedTeams:
+  - frc-8742-argyll-attack     # entry ids (the filename without .mdx), not team numbers
+```
+
+Entry ids rather than numbers, via Astro's `reference()`, so a typo **fails the build** instead
+of rendering a dead link — and a number would reopen the FRC/FTC ambiguity the URL slug closed.
+(`news.teamRefs` stays on numbers for a different reason: a story may name a team that has no
+entry here at all, which is harmless there and unacceptable here.)
+
+**Declare it on one side only.** `relatedTeamsFor()` in `src/utils/teams.ts` unions a team's own
+list with every team that lists *it*, so the pairing appears on both pages either way and a
+half-declared relationship is impossible. Declaring both sides is harmless but redundant.
+
+Drafts and self-references are dropped automatically.
 
 `featured` does less than the name suggests: the "Meet the Teams" teaser on the About page
 picks its teams at random in the browser on every visit, so `featured` only decides the

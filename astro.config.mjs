@@ -78,4 +78,13 @@ export default defineConfig({
   // date available is a news pubDate — an event's dateStart is in the future, and a build-time
   // stamp is worse than no date at all.
   integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404') })],
+
+  // Team detail pages live at /teams/<program><number>/, but the directory that lists them
+  // stays at /about/teams/ — moving it would break an already-indexed URL. A visitor who
+  // trims a team URL back to /teams/ should land on that directory rather than a 404. On a
+  // static build Astro emits a meta-refresh page for this, which is the only redirect
+  // mechanism GitHub Pages offers.
+  redirects: {
+    '/teams': '/about/teams/',
+  },
 });

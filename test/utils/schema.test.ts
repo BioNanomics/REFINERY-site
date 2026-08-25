@@ -8,6 +8,7 @@ import {
   organization,
   person,
   personId,
+  sportsTeam,
   website,
 } from '../../src/utils/schema';
 
@@ -243,5 +244,90 @@ describe('breadcrumbList', () => {
     // omitting `url`, not by this builder inspecting array position.
     const node = breadcrumbList([{ name: 'Only crumb', url: 'https://refineryrobotics.org/' }]);
     expect(node.itemListElement[0]).toHaveProperty('item');
+  });
+});
+
+describe('sportsTeam', () => {
+  const minimal = {
+    name: 'T.H.R.U.S.T.',
+    teamNumber: '1501',
+    programName: 'FIRST® Robotics Competition',
+    url: 'https://refineryrobotics.org/teams/frc1501/',
+    description: 'FRC® team from Huntington County 4-H, competing since 2005.',
+  };
+
+  it('types the node as a SportsTeam and carries the number as an identifier', () => {
+    const node = sportsTeam(minimal);
+    expect(node['@type']).toBe('SportsTeam');
+    expect(node.identifier).toEqual({
+      '@type': 'PropertyValue',
+      propertyID: 'FIRST team number',
+      value: '1501',
+    });
+    // The number belongs in identifier, not smuggled into name.
+    expect(node.name).toBe('T.H.R.U.S.T.');
+    expect(node.alternateName).toBe('FIRST® Robotics Competition 1501');
+  });
+
+  it('omits every absent optional as a key rather than emitting a null', () => {
+    const node = sportsTeam(minimal);
+    for (const key of ['logo', 'image', 'memberOf', 'location', 'foundingDate', 'award', 'sponsor', 'sameAs']) {
+      expect(node).not.toHaveProperty(key);
+    }
+  });
+
+  it('omits properties for empty arrays instead of emitting []', () => {
+    // The guard the spread pattern exists for: an entry with `awards: []` (the schema
+    // default) must produce no `award` key at all, not an empty one.
+    const node = sportsTeam({ ...minimal, awards: [], sameAs: [] });
+    expect(node).not.toHaveProperty('award');
+    expect(node).not.toHaveProperty('sameAs');
+  });
+
+  it('never emits a sponsor, which this site deliberately does not publish', () => {
+    // Not an oversight: other teams' sponsor lists are those sponsors' marks to publish.
+    // Asserted so the property can't reappear without someone revisiting that decision.
+    const node = sportsTeam({ ...minimal, awards: ['Winning Alliance, State, 2024'] });
+    expect(node).not.toHaveProperty('sponsor');
+  });
+
+  it('nests location as a Place with a US PostalAddress', () => {
+    const node = sportsTeam({
+      ...minimal,
+      location: { addressLocality: 'Huntington', addressRegion: 'IN' },
+    });
+    expect(node.location).toEqual({
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Huntington',
+        addressRegion: 'IN',
+        addressCountry: 'US',
+      },
+    });
+  });
+
+  it('emits foundingDate as a year string, not a number or a padded date', () => {
+    const node = sportsTeam({ ...minimal, foundingYear: 2005 });
+    expect(node.foundingDate).toBe('2005');
+  });
+
+  it('passes award labels through verbatim', () => {
+    const node = sportsTeam({
+      ...minimal,
+      awards: ['Winning Alliance, Miami Valley Regional, 2026'],
+    });
+    expect(node.award).toEqual(['Winning Alliance, Miami Valley Regional, 2026']);
+  });
+
+  it('never claims a relationship between the team and The REFINERY', () => {
+    // The deliberate omission this builder is built around: the site SUPPORTS these teams,
+    // which is neither membership nor sponsorship. This is the regression test protecting
+    // that decision from a well-meaning future edit.
+    const node = sportsTeam({ ...minimal, memberOf: 'Huntington County 4-H' });
+    expect(JSON.stringify(node)).not.toContain(ORG_ID);
+    expect(JSON.stringify(node)).not.toContain('The REFINERY');
+    expect(node.memberOf).toEqual({ '@type': 'Organization', name: 'Huntington County 4-H' });
+    expect(node).not.toHaveProperty('sponsor');
   });
 });

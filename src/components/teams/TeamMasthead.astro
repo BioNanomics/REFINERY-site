@@ -1,0 +1,127 @@
+---
+/**
+ * The banner band at the top of a team page, with the team's identity plaque overlapping
+ * its lower-left corner.
+ *
+ * The band is either the team's `banner` photograph or, until one is supplied, a brand-navy
+ * panel carrying the site's own grid texture. Deliberately NOT
+ * public/images/placeholders/hero-placeholder.svg — that gradient is the site's marker for
+ * "real photography pending" and reads as an unfinished page, where a panel built from the
+ * site's own texture reads as a design decision. See docs/placeholder-images.md for the
+ * photography terms this has to live within, including the download-not-hotlink rule.
+ *
+ * The plaque sits in NORMAL FLOW with a negative top margin rather than being absolutely
+ * positioned, and that is what makes the overlap safe: the part hanging below the band still
+ * occupies layout height, so the heading underneath is pushed clear on its own instead of
+ * needing hand-tuned clearance that would drift the moment the logo size changed.
+ *
+ * The white ground is not decoration either. Team logos are transparent artwork drawn for a
+ * white page, and they range from near-white wordmarks to dark navy badges — dropping them
+ * straight onto a navy band makes roughly half of them illegible. A plaque gives every one
+ * of the fourteen the background it was designed for, with no per-team overrides.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  team: CollectionEntry<'teams'>;
+}
+
+const { team } = Astro.props;
+const { name, logo, banner } = team.data;
+---
+
+{/* --team-plaque-h is the single source for both the plaque's height and how far it rides
+    up onto the band. The overlap is expressed as calc(h / -3) rather than a second hand-
+    picked value, so "overlaps by a third of its own height" stays true by construction
+    instead of by two numbers someone has to remember to keep in step. */}
+<div class="[--team-plaque-h:6rem] sm:[--team-plaque-h:9rem]">
+  <div class="relative">
+    {
+      banner ? (
+        <>
+          <Image
+            src={banner.image}
+            alt={banner.alt}
+            widths={[640, 1024, 1600]}
+            sizes="(min-width: 1024px) 832px, 100vw"
+            loading="eager"
+            class="card-media aspect-[3/1] w-full object-cover sm:aspect-[4/1]"
+          />
+          {/* Overlaid bottom-RIGHT, diagonally opposite the plaque, so the credit can never
+              collide with it at any viewport width. Kept on the image rather than moved
+              below the band because the permission this photography is used under depends
+              on attribution a reader can actually see. */}
+          <p class="absolute bottom-2 right-3 font-mono text-[0.65rem] text-white/85 [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]">
+            {banner.credit.url ? (
+              <a
+                href={banner.credit.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-no-external-arrow
+                class="hover:text-white hover:underline"
+              >
+                {banner.credit.text}
+              </a>
+            ) : (
+              banner.credit.text
+            )}
+          </p>
+        </>
+      ) : (
+        <div class="card-media relative aspect-[3/1] overflow-hidden bg-brand sm:aspect-[4/1]">
+          {/* text-white/[0.09] drives the texture's currentColor. Lighter than the
+              page-level texture (brand navy at 5.5%) because it sits on navy rather than
+              under it. */}
+          <div class="grid-texture pointer-events-none absolute inset-0 text-white/[0.09]" aria-hidden="true" />
+        </div>
+      )
+    }
+  </div>
+
+  {/* The wrapper spans two fifths of the band and centres its child, which puts the plaque's
+      midpoint exactly on the one-FIFTH width point — half of two fifths. The plaque itself
+      shrinks to fit its logo rather than filling that space, so a square badge gets a narrow
+      plaque and a wide wordmark a wider one, both centred on the same line.
+
+      `max-w-full` on the plaque is what stops a very wide mark overflowing past the band's
+      left edge: it can grow to the wrapper's width and no further. Note that tightening the
+      wrapper also tightens that ceiling — on a narrow viewport the widest wordmarks are
+      clamped by it rather than by their own height.
+
+      The logo's aspect ratio is never touched. Only the height is constrained (`max-h`);
+      width stays `auto`, so a replaced element scales proportionally, and `object-contain`
+      guards the case where `max-w-full` binds first on an unusually wide mark. Nothing here
+      can stretch a team's logo.
+
+      Staying in normal flow with a negative margin, rather than absolute positioning, is
+      what keeps the overhang safe: the part below the band still occupies layout height, so
+      the heading underneath is pushed clear on its own instead of needing hand-tuned
+      clearance that would drift the moment the plaque resized.
+
+      `relative z-10` is load-bearing, not habit. The band above is positioned (it needs
+      `relative` to anchor the texture layer and the photo credit), and a positioned element
+      paints ABOVE non-positioned in-flow content no matter which came first in the DOM — so
+      without this the band covers the overlapping part and the logo appears to sit UNDER
+      the banner, clipped at its bottom edge. */}
+  {
+    /* Gated on the logo as a whole, wrapper included — an empty plaque says nothing, and
+       leaving the wrapper behind would keep its negative margin and drag the heading up
+       onto the band. A team with no logo simply gets the band; the eyebrow and <h1> below
+       already identify it by program, number and name. */
+    logo && (
+      <div class="relative z-10 mt-[calc(var(--team-plaque-h)/-3)] flex w-2/5 justify-center">
+        <div class="flex h-[var(--team-plaque-h)] max-w-full items-center justify-center rounded-media bg-white px-4 shadow-float sm:px-6">
+          <Image
+            src={logo}
+            alt={`${name} logo`}
+            widths={[200, 400]}
+            sizes="(min-width: 640px) 260px, 30vw"
+            loading="eager"
+            class="max-h-[70%] w-auto max-w-full object-contain"
+          />
+        </div>
+      </div>
+    )
+  }
+</div>

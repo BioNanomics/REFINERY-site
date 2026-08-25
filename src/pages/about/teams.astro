@@ -5,12 +5,20 @@ import TeamCard from '../../components/cards/TeamCard.astro';
 import First from '../../components/brand/First.astro';
 import { getCollection } from 'astro:content';
 import { withBase } from '../../utils/base';
+import { sortByNumber } from '../../utils/teams';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
-const sortByNumber = (a: (typeof allTeams)[number], b: (typeof allTeams)[number]) =>
-  Number(a.data.number) - Number(b.data.number);
 const frcTeams = allTeams.filter((t) => t.data.program === 'FRC').sort(sortByNumber);
 const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNumber);
+
+// What the filter box matches against, built at BUILD time rather than scraped from the
+// rendered card at runtime. Scraping the DOM would also match the description and the link
+// labels, so typing "blue" would surface every team with a Blue Alliance link. These four
+// fields are what someone is actually looking for: a number, a name, a school, or a town.
+const searchText = (team: (typeof allTeams)[number]) =>
+  [team.data.number, team.data.name, team.data.organization, team.data.community]
+    .join(' ')
+    .toLowerCase();
 ---
 
 <MarketingLayout
@@ -36,6 +44,21 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
         Looking for a team for your student, or want to start one where there isn't one yet?{' '}
         <a href={withBase('get-involved/')} class="text-brand-accent underline hover:no-underline">Get involved</a>.
       </p>
+
+      {/* Progressive enhancement: with JS off this control never appears (the script
+          unhides it) and every team stays on the page, exactly as before. */}
+      <div class="mx-auto mt-8 hidden max-w-md" data-team-search-wrap>
+        <label for="team-search" class="sr-only">Search teams</label>
+        <input
+          type="search"
+          id="team-search"
+          class="form-input w-full"
+          placeholder="Search by number, name, school, or town"
+          autocomplete="off"
+          data-team-search
+        />
+        <p class="mt-2 text-center font-mono text-xs text-slate-500" role="status" aria-live="polite" data-team-search-count></p>
+      </div>
     </div>
   </section>
 
@@ -45,8 +68,15 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
         <div class="section-inner">
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal><First context="heading" /> Robotics Competition</h2>
           <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {frcTeams.map((team) => <TeamCard team={team} />)}
+            {frcTeams.map((team) => (
+              <div data-team-item data-haystack={searchText(team)}>
+                <TeamCard team={team} />
+              </div>
+            ))}
           </div>
+          <p class="mt-6 hidden text-sm text-slate-500" data-empty-for="FRC">
+            No <First /> Robotics Competition teams match that search.
+          </p>
         </div>
       </section>
     )
@@ -58,10 +88,65 @@ const ftcTeams = allTeams.filter((t) => t.data.program === 'FTC').sort(sortByNum
         <div class="section-inner">
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal><First context="heading" /> Tech Challenge</h2>
           <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {ftcTeams.map((team) => <TeamCard team={team} />)}
+            {ftcTeams.map((team) => (
+              <div data-team-item data-haystack={searchText(team)}>
+                <TeamCard team={team} />
+              </div>
+            ))}
           </div>
+          <p class="mt-6 hidden text-sm text-slate-500" data-empty-for="FTC">
+            No <First /> Tech Challenge teams match that search.
+          </p>
         </div>
       </section>
     )
   }
 </MarketingLayout>
+
+<script>
+  // Client-side filtering over cards that are all already in the DOM — the same shape as
+  // NewsGrid's filter, minus the URL sync: a team search is a transient lookup, not a view
+  // worth sharing, and ?q= in the address bar would imply otherwise.
+  const input = document.querySelector<HTMLInputElement>('[data-team-search]');
+  const wrap = document.querySelector<HTMLElement>('[data-team-search-wrap]');
+  const items = document.querySelectorAll<HTMLElement>('[data-team-item]');
+  const count = document.querySelector<HTMLElement>('[data-team-search-count]');
+  const empties = document.querySelectorAll<HTMLElement>('[data-empty-for]');
+
+  if (input && wrap && count && items.length) {
+    wrap.classList.remove('hidden');
+
+    const apply = () => {
+      const q = input.value.trim().toLowerCase();
+      let shown = 0;
+
+      items.forEach((item) => {
+        const match = !q || (item.dataset.haystack ?? '').includes(q);
+        item.classList.toggle('hidden', !match);
+        if (match) shown += 1;
+      });
+
+      // Per-program empty states, so a search matching only FRC teams doesn't leave the
+      // FTC heading standing over nothing.
+      empties.forEach((note) => {
+        const program = note.dataset.emptyFor;
+        const section = note.closest('section');
+        const visible = section
+          ? [...section.querySelectorAll<HTMLElement>('[data-team-item]')].some(
+              (i) => !i.classList.contains('hidden'),
+            )
+          : true;
+        note.classList.toggle('hidden', visible || !program);
+      });
+
+      // Announced politely rather than silently re-rendering the grid, so the result of
+      // typing is available to a screen reader too. Empty while the box is empty: there is
+      // nothing to report about an unfiltered list.
+      count.textContent = q ? `${shown} of ${items.length} teams` : '';
+    };
+
+    input.addEventListener('input', apply);
+    // A search input's clear button fires 'search' in Safari, not 'input'.
+    input.addEventListener('search', apply);
+  }
+</script>

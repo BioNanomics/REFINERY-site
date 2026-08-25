@@ -1,0 +1,54 @@
+---
+/**
+ * A row of social-platform links for a team (or any entity with the same `socials` shape).
+ *
+ * Two details here are load-bearing and must survive any future edit:
+ *
+ *   aria-label — these links have no text, only a glyph, so the label IS the accessible
+ *   name. MarketingLayout's labelNewTabLinks() also extends it with "(opens in a new tab)",
+ *   and its comment names this icon row explicitly; drop the labels and that enhancement
+ *   silently degrades to nothing.
+ *
+ *   data-no-external-arrow — marketing.css appends a ↗ to every target="_blank" link. On an
+ *   icon-only link that arrow lands beside the glyph and reads as visual noise, so this row
+ *   opts out, exactly as the partner logos and the footer's social row do.
+ */
+import SocialIcon from './SocialIcon.astro';
+import { socialLinks, type Socials } from '../../utils/socials';
+
+interface Props {
+  socials: Socials | undefined;
+  /** Whose accounts these are — used to build each link's accessible name. */
+  owner: string;
+  /** `md` is the detail-page treatment; `sm` matches the card row it was extracted from. */
+  size?: 'sm' | 'md';
+  class?: string;
+}
+
+const { socials, owner, size = 'sm', class: className } = Astro.props;
+
+const links = socialLinks(socials);
+const glyph = size === 'md' ? 'h-5 w-5' : 'h-4 w-4';
+const gap = size === 'md' ? 'gap-4' : 'gap-3';
+---
+
+{
+  links.length > 0 && (
+    <ul class:list={['flex flex-wrap items-center text-slate-500', gap, className]}>
+      {links.map((social) => (
+        <li>
+          <a
+            href={social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-no-external-arrow
+            class="inline-flex rounded-sm transition-colors duration-base ease-out-soft hover:text-brand-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
+            aria-label={`${owner} on ${social.label}`}
+          >
+            <SocialIcon name={social.key} class={glyph} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
