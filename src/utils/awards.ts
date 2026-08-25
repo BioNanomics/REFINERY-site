@@ -43,6 +43,7 @@ export const AWARD_TYPE_KEYS = [
   'IMAGERY',
   'SAFETY',
   'AUTONOMOUS',
+  'JUDGES_AWARD', // FRC's catch-all judges' award — not FTC's JUDGES_CHOICE, different program.
   // FTC judged awards.
   'INSPIRE',
   'THINK',
@@ -100,6 +101,80 @@ export interface TeamAward {
   source: string;
   banner?: boolean;
   bannerNote?: string;
+}
+
+/**
+ * Canonical, sponsor-free display name for each award type — what a tally chip calls it.
+ *
+ * A single award type's `name` varies year to year (sponsor prefixes rotate: "Quality Award
+ * sponsored by Motorola" one season, "...by Motorola Solutions Foundation" the next), so
+ * counting by `name` would fracture one award into several rows. This is the stable label
+ * that groups them back into one. WINNER and FINALIST read as alliance results here — same
+ * wording awardLabel() already uses for an alliance-seat award — because every WINNER/
+ * FINALIST entry in this schema is one; see the interface comment above.
+ */
+export const AWARD_TYPE_LABELS: Record<AwardTypeKey, string> = {
+  WINNER: 'Winning Alliance',
+  FINALIST: 'Finalist Alliance',
+  IMPACT: 'Impact Award',
+  ENGINEERING_INSPIRATION: 'Engineering Inspiration Award',
+  ROOKIE_ALL_STAR: 'Rookie All Star Award',
+  ROOKIE_INSPIRATION: 'Rookie Inspiration Award',
+  RISING_ALL_STAR: 'Rising All-Star Award',
+  WOODIE_FLOWERS: 'Woodie Flowers Award',
+  INDUSTRIAL_DESIGN: 'Industrial Design Award',
+  EXCELLENCE_IN_ENGINEERING: 'Excellence in Engineering Award',
+  INNOVATION_IN_CONTROL: 'Innovation in Control Award',
+  QUALITY: 'Quality Award',
+  CREATIVITY: 'Creativity Award',
+  GRACIOUS_PROFESSIONALISM: 'Gracious Professionalism Award',
+  IMAGERY: 'Imagery Award',
+  SAFETY: 'Safety Award',
+  AUTONOMOUS: 'Autonomous Award',
+  JUDGES_AWARD: "Judges' Award",
+  INSPIRE: 'Inspire Award',
+  THINK: 'Think Award',
+  CONNECT: 'Connect Award',
+  INNOVATE: 'Innovate Award',
+  DESIGN: 'Design Award',
+  MOTIVATE: 'Motivate Award',
+  CONTROL: 'Control Award',
+  PROMOTE: 'Promote Award',
+  COMPASS: 'Compass Award',
+  SUSTAIN: 'Sustain Award',
+  JUDGES_CHOICE: "Judges' Choice Award",
+  DEANS_LIST: "Dean's List",
+  VOLUNTEER_OF_THE_YEAR: 'Volunteer of the Year',
+};
+
+/** "Award" -> "Awards", "Alliance" -> "Alliances". Everything else is left singular — a
+ *  count above 1 is rare for the two individual-honor labels, and forcing a plural onto
+ *  "Dean's List" or "Volunteer of the Year" reads worse than just repeating the count. */
+function pluralizeAwardLabel(label: string, count: number): string {
+  if (count === 1) return label;
+  if (label.endsWith('Award') || label.endsWith('Alliance')) return `${label}s`;
+  return label;
+}
+
+export interface AwardSummaryEntry {
+  typeKey: AwardTypeKey;
+  label: string;
+  count: number;
+}
+
+/**
+ * How many of each award type a team has won, most-won first — the "12 Winning Alliances, 6
+ * Autonomous Awards" tally that sits above the full year-by-year list. Ties break
+ * alphabetically so the row order is stable across rebuilds.
+ */
+export function summarizeAwards(awards: TeamAward[]): AwardSummaryEntry[] {
+  const counts = new Map<AwardTypeKey, number>();
+  for (const award of awards) {
+    counts.set(award.typeKey, (counts.get(award.typeKey) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([typeKey, count]) => ({ typeKey, label: pluralizeAwardLabel(AWARD_TYPE_LABELS[typeKey], count), count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 
 /** 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", 11 -> "11th". */
