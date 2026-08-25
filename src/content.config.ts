@@ -200,6 +200,40 @@ const teams = defineCollection({
         )
         .default([]),
 
+      // One entry per season with event participation on record — separate from `awards`
+      // and `robots` because it's a different claim: not "the team won X" or "the team named
+      // its robot Y" but "the team showed up and played." `events` is every event attended
+      // that year, award-winning or not, so a season with only a district win in the awards
+      // array can still show the two events that produced no award. `record` is this site's
+      // own sum of that season's QUALIFICATION match results across every event in `events`
+      // — deliberately not a per-event figure, since TBA/FTCScout already show those, and not
+      // scoped to say so in the type: playoff results are wins/losses on their own alliance,
+      // which is what `awards`' WINNER/FINALIST entries already represent, so folding them in
+      // here would double-count the same result two different ways.
+      seasons: z
+        .array(
+          z.object({
+            year: z.number().int().gte(1992),
+            events: z
+              .array(
+                z.object({
+                  name: z.string(),
+                  eventLevel: z.enum(EVENT_LEVELS),
+                  source: z.string().url(),
+                }),
+              )
+              .default([]),
+            record: z
+              .object({
+                wins: z.number().int().nonnegative(),
+                losses: z.number().int().nonnegative(),
+                ties: z.number().int().nonnegative(),
+              })
+              .optional(),
+          }),
+        )
+        .default([]),
+
       draft: z.boolean().default(false),
     }),
 });

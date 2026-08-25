@@ -17,10 +17,10 @@ import { resolveBanner } from '../../utils/banners';
 import { hasRenderableBody } from '../../utils/mdx-body';
 import CTAButton from '../../components/marketing/CTAButton.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
-import RobotTimeline from '../../components/teams/RobotTimeline.astro';
 import AwardBanners from '../../components/teams/AwardBanners.astro';
 import AwardSummary from '../../components/teams/AwardSummary.astro';
-import AwardsList from '../../components/teams/AwardsList.astro';
+import TeamHistoryYears from '../../components/teams/TeamHistoryYears.astro';
+import { groupTeamHistory } from '../../utils/teamHistory';
 
 export async function getStaticPaths() {
   // Drafts get no URL at all, matching how news and events handle an unreviewed entry.
@@ -38,7 +38,7 @@ export async function getStaticPaths() {
 const { team, teams } = Astro.props;
 const {
   number, name, program, organization, community, logo, description, metaDescription,
-  highlight, links, socials, banner, rookieYear, awards, robots,
+  highlight, links, socials, banner, rookieYear, awards, robots, seasons,
 } = team.data;
 
 const programName = PROGRAM_NAMES[program];
@@ -57,6 +57,11 @@ const bannerOf = (award: (typeof sortedAwards)[number]) =>
 const bannerAwards = sortedAwards
   .map((award) => ({ award, color: bannerOf(award) }))
   .filter((entry): entry is { award: (typeof sortedAwards)[number]; color: 'blue' | 'orange' } => entry.color !== null);
+
+// One row per year — what the collapsible history below renders one <details> for. Built
+// here rather than in the component so the "does this team have ANY history at all" check
+// below (historyYears.length > 0) and the render can't disagree about what counts as a row.
+const historyYears = groupTeamHistory(sortedAwards, robots, seasons);
 
 const related = relatedTeamsFor(team, teams);
 
@@ -223,42 +228,27 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
   }
 
   {
-    bannerAwards.length > 0 && (
+    /* One section for the whole record — banners, the award tally, and the year-by-year
+       list all used to be three separate sections a reader had to cross-reference by year
+       themselves. Banners and the tally stay OUTSIDE the per-year collapse deliberately:
+       they're the "give me the shape of this in five seconds" view, and burying either one
+       inside a <details> a reader has to open first would defeat that. */
+    historyYears.length > 0 && (
       <section class="section-rule section">
         <div class="section-inner section-inner-narrow">
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
-            {/* Named for what these are, in the vocabulary the community uses. FRC hangs
-                blue and FTC hangs orange, so neither color belongs in a shared heading. */}
-            Banners
+            Team History
           </h2>
-          <AwardBanners banners={bannerAwards} />
-        </div>
-      </section>
-    )
-  }
-
-  {
-    sortedAwards.length > 0 && (
-      <section class="section-rule section">
-        <div class="section-inner section-inner-narrow">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
-            Award history
-          </h2>
-          <AwardSummary awards={sortedAwards} />
-          <AwardsList awards={sortedAwards} bannerOf={bannerOf} />
-        </div>
-      </section>
-    )
-  }
-
-  {
-    robots.length > 0 && (
-      <section class="section-rule section">
-        <div class="section-inner section-inner-narrow">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
-            Robots
-          </h2>
-          <RobotTimeline robots={robots} />
+          {bannerAwards.length > 0 && (
+            <div class="mt-6" data-reveal>
+              {/* Named for what these are, in the vocabulary the community uses. FRC hangs
+                  blue and FTC hangs orange, so neither color belongs in a shared heading. */}
+              <h3 class="font-heading text-sm font-bold uppercase tracking-wide text-slate-500">Banners</h3>
+              <AwardBanners banners={bannerAwards} />
+            </div>
+          )}
+          {sortedAwards.length > 0 && <AwardSummary awards={sortedAwards} />}
+          <TeamHistoryYears years={historyYears} bannerOf={bannerOf} />
         </div>
       </section>
     )

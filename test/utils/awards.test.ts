@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   awardCitation,
   awardLabel,
-  groupAwardsByYear,
   ordinal,
   sortAwards,
   type TeamAward,
@@ -80,23 +79,5 @@ describe('sortAwards', () => {
     const input = [award({ year: 2022 }), award({ year: 2025 })];
     sortAwards(input);
     expect(input.map((a) => a.year)).toEqual([2022, 2025]);
-  });
-});
-
-describe('groupAwardsByYear', () => {
-  it('returns an empty array for a team with no awards', () => {
-    // Must be empty rather than a zero row — the page renders no awards section at all
-    // for the several teams that have none recorded.
-    expect(groupAwardsByYear([])).toEqual([]);
-  });
-
-  it('buckets awards into descending years', () => {
-    const grouped = groupAwardsByYear([
-      award({ year: 2024, name: 'Think Award', typeKey: 'THINK' }),
-      award({ year: 2025 }),
-      award({ year: 2024, name: 'Design Award', typeKey: 'DESIGN' }),
-    ]);
-    expect(grouped.map((g) => g.year)).toEqual([2025, 2024]);
-    expect(grouped[1].awards).toHaveLength(2);
   });
 });

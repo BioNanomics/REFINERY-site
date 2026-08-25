@@ -226,16 +226,3 @@ export function sortAwards(awards: TeamAward[]): TeamAward[] {
     (a, b) => b.year - a.year || awardLabel(a).localeCompare(awardLabel(b)),
   );
 }
-
-/** Awards grouped into descending years. Empty input yields an empty array, not a zero row. */
-export function groupAwardsByYear(awards: TeamAward[]): { year: number; awards: TeamAward[] }[] {
-  const byYear = new Map<number, TeamAward[]>();
-  for (const award of sortAwards(awards)) {
-    const bucket = byYear.get(award.year);
-    if (bucket) bucket.push(award);
-    else byYear.set(award.year, [award]);
-  }
-  return [...byYear.entries()]
-    .sort((a, b) => b[0] - a[0])
-    .map(([year, list]) => ({ year, awards: list }));
-}
