@@ -6,12 +6,20 @@
  * The rules below came from The REFINERY, who run these teams, and they are the authority
  * for this site.
  *
- * The de-facto community reference — The Blue Alliance's `BLUE_BANNER_AWARDS` set — is
- * BROADER than what's encoded here. It also counts Chairman's Finalist, Woodie Flowers, and
- * two 2021-only at-home-season awards, and it ignores event type entirely, so an offseason
- * win lands in the same bucket as an Einstein win. If you go looking for a canonical list
- * you will find TBA's and assume it is the standard. It is not the one this site uses.
- * Widening this table is a decision to make deliberately, not a bug to fix.
+ * FRC hangs blue for a winning alliance, the Impact Award, and the Woodie Flowers Award, at
+ * ANY event level — an offseason win hangs the same as a regional one. Note that Woodie
+ * Flowers is an award to an individual mentor rather than to the team, so "hangs a banner"
+ * and "is a team award" are not the same axis; it is in the set because the banner is what
+ * this table is about.
+ *
+ * The Impact Award was called the Chairman's Award before the 2023 season. Both wordings
+ * appear in real records and both hang, which is why classification keys on a normalized
+ * type rather than the display name — see the note on bannerFor() below.
+ *
+ * Close to The Blue Alliance's widely-copied `BLUE_BANNER_AWARDS` set, but not identical:
+ * TBA also counts Chairman's Finalist and two 2021-only at-home-season awards. If you go
+ * looking for a canonical list you will find theirs; this one is the site's. Changing it is
+ * a decision to make deliberately, not a bug to fix.
  *
  * Deliberately excluded, and worth naming because teams commonly call them banner awards:
  * Engineering Inspiration and Rookie All-Star. Under the rules above they earn no banner.
@@ -23,15 +31,20 @@ import type { AwardTypeKey, EventLevel, TeamProgramKey } from './awards';
 export type BannerColor = 'blue' | 'orange';
 
 /**
- * Event levels that never produce a banner regardless of what was won. Offseason events
- * run the same game with the same awards, so name-based classification alone would happily
- * hand out banners for them.
+ * The FRC awards that hang a blue banner. Event level does not enter into it — offseason
+ * results count, so there is no level filter on the FRC path at all.
  */
-export const NON_BANNER_EVENT_LEVELS: ReadonlySet<EventLevel> = new Set(['offseason']);
+const FRC_BANNER_AWARDS: ReadonlySet<AwardTypeKey> = new Set([
+  'WINNER',
+  'IMPACT', // Chairman's Award before the 2023 season — same award, same key.
+  'WOODIE_FLOWERS',
+]);
 
 /**
  * FTC banners require a premier event. A qualifier or league-meet Inspire win is a real
- * achievement and still renders in the awards list — it just doesn't hang.
+ * achievement and still renders in the awards list — it just doesn't hang. This is also
+ * what keeps FTC offseason results out without a separate rule: an offseason event is not
+ * a premier one.
  *
  * Note this reads "premier event" as governing BOTH halves of the FTC rule (winning
  * alliance and Inspire 1st). That is the narrower reading, chosen because under-claiming a
@@ -65,12 +78,11 @@ export function bannerFor({
   placementMeaning,
   eventLevel,
 }: BannerInput): BannerColor | null {
-  if (NON_BANNER_EVENT_LEVELS.has(eventLevel)) return null;
-
   if (program === 'FRC') {
-    // The winning alliance's seat number is irrelevant — every team on it hangs a banner,
-    // which is exactly why placementMeaning has to be stored rather than inferred.
-    return typeKey === 'WINNER' || typeKey === 'IMPACT' ? 'blue' : null;
+    // No event-level check: FRC hangs at any level, offseason included. The winning
+    // alliance's seat number is irrelevant too — every team on it hangs a banner, which is
+    // exactly why placementMeaning has to be stored rather than inferred.
+    return FRC_BANNER_AWARDS.has(typeKey) ? 'blue' : null;
   }
 
   if (!FTC_BANNER_EVENT_LEVELS.has(eventLevel)) return null;

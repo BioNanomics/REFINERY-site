@@ -228,13 +228,24 @@ their terms require that attribution and it goes back in then — FIRST's on eve
 carrying the data, The Blue Alliance's with a link back and their name kept out of any
 REFINERY branding.
 
-**Banners are derived, not declared.** `src/utils/banners.ts` decides: FRC hangs a blue banner
-for a winning alliance or the Impact Award; FTC hangs orange for a premier-event winning
-alliance or a 1st place Inspire Award. Offseason results never hang. Note this is narrower
-than The Blue Alliance's widely-copied `BLUE_BANNER_AWARDS` list — if you go looking for a
-canonical set you will find theirs and it is not the one this site uses. To override the
-derivation, set `banner: true|false` **and** `bannerNote` explaining the correction; the
-build rejects one without the other.
+**Banners are derived, not declared.** `src/utils/banners.ts` decides:
+
+- **FRC — blue**, for a winning alliance, the Impact Award, or the Woodie Flowers Award, at
+  **any** event level including offseason.
+- **FTC — orange**, for a premier-event winning alliance or a 1st place Inspire Award. The
+  premier requirement is also what keeps FTC offseason results out, so the two programs
+  deliberately do not behave the same way about event level.
+
+Two things that catch people out. The Impact Award was the **Chairman's Award** before 2023 —
+both wordings hang, which is why `typeKey` carries the logic and `name` is only display. And
+**Woodie Flowers** goes to an individual mentor, not the team, so "hangs a banner" and "is a
+team award" are separate questions.
+
+This is close to The Blue Alliance's widely-copied `BLUE_BANNER_AWARDS` list but not
+identical — TBA also counts Chairman's Finalist. If you go looking for a canonical set you
+will find theirs; this one is the site's. To override the derivation for a single award, set
+`banner: true|false` **and** `bannerNote` explaining the correction; the build rejects one
+without the other.
 
 #### Robots
 

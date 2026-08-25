@@ -51,6 +51,14 @@ describe('bannerFor — FRC', () => {
     expect(bannerFor(frcWin({ typeKey: 'FINALIST' }))).toBeNull();
   });
 
+  it('hangs blue for the Woodie Flowers Award', () => {
+    // An award to an individual mentor rather than to the team, which nonetheless hangs —
+    // "earns a banner" and "is a team award" are separate axes.
+    expect(
+      bannerFor(frcWin({ typeKey: 'WOODIE_FLOWERS', placement: undefined, placementMeaning: undefined })),
+    ).toBe('blue');
+  });
+
   it('hangs nothing for Engineering Inspiration or Rookie All-Star', () => {
     // Both are commonly called banner awards by teams. Under the rules this site uses they
     // are not, and that exclusion is deliberate — see the note in src/utils/banners.ts.
@@ -58,8 +66,12 @@ describe('bannerFor — FRC', () => {
     expect(bannerFor(frcWin({ typeKey: 'ROOKIE_ALL_STAR' }))).toBeNull();
   });
 
-  it('hangs nothing for an offseason win', () => {
-    expect(bannerFor(frcWin({ eventLevel: 'offseason' }))).toBeNull();
+  it('hangs blue for an offseason win — event level does not gate FRC', () => {
+    // Offseason results count. This is the one place the site's rule is BROADER than a
+    // naive reading, so it gets an explicit test rather than relying on the absence of a
+    // filter to stay absent.
+    expect(bannerFor(frcWin({ eventLevel: 'offseason' }))).toBe('blue');
+    expect(bannerFor(frcWin({ typeKey: 'IMPACT', eventLevel: 'offseason' }))).toBe('blue');
   });
 
   it('never hangs orange', () => {
@@ -89,6 +101,16 @@ describe('bannerFor — FTC', () => {
   it('hangs nothing for Inspire 1st below a premier event', () => {
     expect(bannerFor(ftcInspire({ eventLevel: 'qualifier' }))).toBeNull();
     expect(bannerFor(ftcInspire({ eventLevel: 'league' }))).toBeNull();
+  });
+
+  it('hangs nothing for an FTC offseason result', () => {
+    // Not a separate rule — an offseason event simply isn't a premier one, so the level
+    // check already covers it. Asserted because FRC now hangs at offseason and the two
+    // programs must not be assumed to behave the same.
+    expect(bannerFor(ftcInspire({ eventLevel: 'offseason' }))).toBeNull();
+    expect(
+      bannerFor(ftcInspire({ typeKey: 'WINNER', placementMeaning: 'alliance-seat', eventLevel: 'offseason' })),
+    ).toBeNull();
   });
 
   it('hangs nothing for a 2nd or 3rd place Inspire', () => {
@@ -121,6 +143,12 @@ describe('resolveBanner', () => {
 
   it('lets an override suppress a banner the table would derive', () => {
     expect(resolveBanner({ ...frcWin(), banner: false })).toBeNull();
+  });
+
+  it('suppresses an offseason banner when an entry says so', () => {
+    // The escape hatch for the case the broad FRC rule gets wrong — an offseason event
+    // that genuinely handed out no banner.
+    expect(resolveBanner({ ...frcWin({ eventLevel: 'offseason' }), banner: false })).toBeNull();
   });
 
   it('lets an override assert a banner the table does not derive', () => {
