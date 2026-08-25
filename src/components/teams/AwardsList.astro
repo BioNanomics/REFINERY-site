@@ -40,7 +40,7 @@ const marker: Record<BannerColor, string> = {
           {yearAwards.map((award) => {
             const color = bannerOf(award);
             return (
-              <li class="flex items-baseline gap-2 text-sm">
+              <li class="flex items-start gap-2 text-sm">
                 {/* The dot's colour is decorative — "banner" is what a reader needs, and
                     the FRC/FTC distinction is already implied by whose page this is. The
                     word itself reaches assistive tech through the sr-only span below. */}
@@ -52,21 +52,27 @@ const marker: Record<BannerColor, string> = {
                 ) : (
                   <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-slate-300" aria-hidden="true" />
                 )}
-                <span class="text-slate-900">
-                  {awardLabel(award)}
-                  {color && <span class="sr-only"> — earned a banner</span>}
-                </span>
-                <span class="text-slate-500">
-                  &middot;{' '}
-                  <a
-                    href={award.source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="hover:text-brand-accent hover:underline"
-                  >
-                    {award.event}
-                  </a>
-                </span>
+                {/* Stacked below `sm`: on a narrow viewport a single flex row splits the
+                    award name and the "· event" citation into two competing columns instead
+                    of letting either wrap as its own line, which reads as ragged, jumbled
+                    text. Back to one baseline-aligned line once there's room for both. */}
+                <div class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+                  <span class="text-slate-900">
+                    {awardLabel(award)}
+                    {color && <span class="sr-only"> — earned a banner</span>}
+                  </span>
+                  <span class="text-slate-500">
+                    <span class="hidden sm:inline">&middot; </span>
+                    <a
+                      href={award.source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="hover:text-brand-accent hover:underline"
+                    >
+                      {award.event}
+                    </a>
+                  </span>
+                </div>
               </li>
             );
           })}

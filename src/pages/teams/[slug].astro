@@ -19,6 +19,7 @@ import CTAButton from '../../components/marketing/CTAButton.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
 import RobotTimeline from '../../components/teams/RobotTimeline.astro';
 import AwardBanners from '../../components/teams/AwardBanners.astro';
+import AwardSummary from '../../components/teams/AwardSummary.astro';
 import AwardsList from '../../components/teams/AwardsList.astro';
 
 export async function getStaticPaths() {
@@ -70,6 +71,13 @@ const teamNews = allNews
 // Every outbound URL this page actually renders, and nothing else — sameAs is a claim that
 // these profiles identify this team, so a URL the page doesn't show has no business here.
 const sameAs = [...socialLinks(socials).map((s) => s.url), ...links.map((l) => l.url)];
+
+// The team's own site gets pulled out of the socials row and featured as a lead button —
+// we want a visitor here to end up on the team's own page, not just on TBA/FTCScout's
+// record of them. `socialsSansWebsite` is what the icon row renders instead, so the link
+// isn't shown twice; `sameAs` above is built from the full `socials` object and still
+// carries it for schema.org regardless of where it renders.
+const { website, ...socialsSansWebsite } = socials ?? {};
 
 // Feeds schema.org `logo`, which is the right property for a wordmark or badge.
 const logoUrl = logo ? new URL((await getImage({ src: logo, width: 512 })).src, Astro.site).href : undefined;
@@ -167,6 +175,19 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
         {highlight && <p class="mt-5 font-mono text-sm text-brand-accent">{highlight}</p>}
 
         {
+          // Its own row, ahead of TBA/FTCScout and the social icons: those are records
+          // ABOUT the team, this is the team's own page, and a visitor here should land
+          // there first.
+          website && (
+            <div class="mt-6" data-reveal>
+              <a href={website} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                <span>Visit {name}'s website</span>
+              </a>
+            </div>
+          )
+        }
+
+        {
           (links.length > 0 || sameAs.length > 0) && (
             <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
               {links.map((link) => (
@@ -179,7 +200,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
                   {link.label}
                 </a>
               ))}
-              <SocialLinks socials={socials} owner={name} size="md" />
+              <SocialLinks socials={socialsSansWebsite} owner={name} size="md" />
             </div>
           )
         }
@@ -223,6 +244,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
             Award history
           </h2>
+          <AwardSummary awards={sortedAwards} />
           <AwardsList awards={sortedAwards} bannerOf={bannerOf} />
         </div>
       </section>

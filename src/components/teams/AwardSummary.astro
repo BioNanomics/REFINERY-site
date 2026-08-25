@@ -1,0 +1,26 @@
+---
+/**
+ * A tally row above the full award list — "12 Winning Alliances, 6 Autonomous Awards" — so a
+ * reader gets the shape of a long record (T.H.R.U.S.T.'s runs 60+ entries) before scrolling
+ * a year-by-year list to find it themselves. Purely a different view of the same `awards`
+ * the list below renders; see src/utils/awards.ts's summarizeAwards() for the grouping.
+ */
+import { summarizeAwards, type TeamAward } from '../../utils/awards';
+
+interface Props {
+  awards: TeamAward[];
+}
+
+const { awards } = Astro.props;
+const summary = summarizeAwards(awards);
+---
+
+<ul class="mt-4 flex flex-wrap gap-2" data-reveal>
+  {
+    summary.map((entry) => (
+      <li class="rounded-control border border-brand/20 bg-brand/5 px-3 py-1 text-sm text-brand">
+        <span class="font-mono font-bold">{entry.count}</span> {entry.label}
+      </li>
+    ))
+  }
+</ul>
