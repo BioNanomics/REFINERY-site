@@ -137,11 +137,17 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
     { label: shortLabel },
   ]}
 >
+  {/* One <section> for the whole page body — it used to be four, each with its own
+      top+bottom padding, so two adjacent ones stacked into a gap twice the size of the
+      space-y rhythm used everywhere else on the page. A single section with one
+      space-y-10 down the middle reads as one continuous scroll instead of a stack of
+      independently-padded boxes. */}
   <section class="section-tight section">
-    <div class="section-inner section-inner-narrow">
+    <div class="section-inner section-inner-narrow space-y-10">
+      <div>
       <TeamMasthead team={team} />
 
-      <div class="mt-8" data-reveal>
+      <div class="mt-6" data-reveal>
         <p class="eyebrow-tag text-brand-accent">
           <FirstText text={programName} context="heading" /> {number}
         </p>
@@ -149,27 +155,28 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           <FirstText text={name} context="heading" />
         </h1>
 
-        {/* Given its own line rather than compressed into the card's middot-joined caption.
-            The host organization is the fact most likely to answer "is this my student's
-            team?", and it is what the JSON-LD emits as memberOf. */}
-        {/* A two-column grid rather than a flex row per pair, for two reasons that were both
-            visibly wrong before: `auto` sizes the label column to the WIDEST label, so every
-            value starts at the same x instead of one per label width ("Host" vs "Competing
-            since"); and items-baseline sits the mono/text-xs label on the same baseline as
-            its sans/text-sm value, which stretch alignment left visibly off. The pairs are
-            direct dl children — no wrapper divs — so the grid can see them. */}
-        <dl class="mt-4 grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-1.5 text-sm text-slate-600">
-          <dt class={factLabel}>Host</dt>
-          <dd>{organization}</dd>
-          <dt class={factLabel}>Based in</dt>
-          <dd>{community}</dd>
+        {/* Flows the three facts on one wrapped line instead of stacking each on its own
+            row — three short one-liners each claiming a full row read as dead space,
+            especially on a wide viewport where they're nowhere near using the line's
+            width. Each dt/dd pair is its own flex group (valid inside a <dl>, per the
+            HTML5 content model) so "Host" stays glued to its value while the groups
+            themselves wrap and space out along the line. */}
+        <dl class="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm text-slate-600">
+          <div class="flex items-baseline gap-1.5">
+            <dt class={factLabel}>Host</dt>
+            <dd>{organization}</dd>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <dt class={factLabel}>Based in</dt>
+            <dd>{community}</dd>
+          </div>
           {rookieYear && (
-            <Fragment>
+            <div class="flex items-baseline gap-1.5">
               {/* "Competing since" rather than "Founded": FIRST publishes a rookie YEAR, and
                   a host organization may predate its robotics team by decades. */}
               <dt class={factLabel}>Competing since</dt>
               <dd>{rookieYear}</dd>
-            </Fragment>
+            </div>
           )}
         </dl>
 
@@ -178,24 +185,19 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
             description and the JSON-LD `description` — which keeps schema.ts's rule that a
             value trace to something the page publishes, since the page publishes it as its
             own meta description exactly as organization() already does on the homepage. */}
-        {highlight && <p class="mt-5 font-mono text-sm text-brand-accent">{highlight}</p>}
+        {highlight && <p class="mt-4 font-mono text-sm text-brand-accent">{highlight}</p>}
 
         {
-          // Its own row, ahead of TBA/FTCScout and the social icons: those are records
-          // ABOUT the team, this is the team's own page, and a visitor here should land
-          // there first.
-          website && (
-            <div class="mt-6" data-reveal>
-              <a href={website} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-                <span>Visit {name}'s website</span>
-              </a>
-            </div>
-          )
-        }
-
-        {
-          (links.length > 0 || sameAs.length > 0) && (
-            <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+          // One row: the team's own website leads (ahead of TBA/FTCScout and the social
+          // icons — those are records ABOUT the team, this is the team's own page), then
+          // everything else flows after it on the same line, wrapping only if it has to.
+          (website || links.length > 0 || sameAs.length > 0) && (
+            <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3" data-reveal>
+              {website && (
+                <a href={website} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                  <span>Visit {name}'s website</span>
+                </a>
+              )}
               {links.map((link) => (
                 <a
                   href={link.url}
@@ -211,20 +213,99 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           )
         }
       </div>
-    </div>
-  </section>
+      </div>
 
-  <section class="section-rule section-rule-tight section-tight">
-    <div class="section-inner section-inner-narrow">
-      {/* The ask sits right after the identifying facts above — not after Team History,
-          News, and Related teams, which can run long (a team with two decades on record
-          has a LOT of scrolling before this used to appear) and read as "gaps in data" for
-          a sparse team in between. Donate and Get Involved are combined into one section,
-          side by side, rather than two separate full-width sections stacked with their own
-          gap each — they're both "how do I support this team" asks. */}
-      <div class:list={['grid grid-cols-1 items-start gap-6', zeffyFundName && 'sm:grid-cols-2']}>
+      {
+        (hasBio || historyYears.length > 0 || teamNews.length > 0 || related.length > 0) && (
+          <div class="space-y-10">
+          {hasBio && (
+            // .prose is scoped to the team's own copy rather than wrapping the whole page,
+            // which is why this uses MarketingLayout instead of ArticleLayout.
+            <div class="prose prose-slate max-w-none prose-headings:font-heading prose-a:text-brand-accent" data-reveal>
+              <Content />
+            </div>
+          )}
+
+          {
+            /* Banners and the award tally stay OUTSIDE the per-year collapse deliberately:
+               they're the "give me the shape of this in five seconds" view, and burying
+               either one inside a <details> a reader has to open first would defeat that. */
+            historyYears.length > 0 && (
+              <div>
+                <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+                  Team History
+                </h2>
+                {bannerAwards.length > 0 && (
+                  <div class="mt-6" data-reveal>
+                    {/* Named for what these are, in the vocabulary the community uses. FRC
+                        hangs blue and FTC hangs orange, so neither color belongs in a shared
+                        heading. */}
+                    <h3 class="font-heading text-sm font-bold uppercase tracking-wide text-slate-500">Banners</h3>
+                    <AwardBanners banners={bannerAwards} />
+                  </div>
+                )}
+                {sortedAwards.length > 0 && <AwardSummary awards={sortedAwards} />}
+                <TeamHistoryYears years={historyYears} bannerOf={bannerOf} />
+              </div>
+            )
+          }
+
+          {teamNews.length > 0 && (
+            <div>
+              <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+                News
+              </h2>
+              {/* NewsCard directly rather than NewsGrid: that component is a filtering
+                  application that builds its own category and team chips and rewrites
+                  location.search, which would put a redundant team filter on a page that is
+                  already scoped to one team. */}
+              <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
+                {teamNews.slice(0, 4).map((post) => (
+                  <NewsCard post={post} />
+                ))}
+              </div>
+              {teamNews.length > 4 && (
+                <p class="mt-6" data-reveal>
+                  <a
+                    href={withBase(`news/?team=${number}`)}
+                    class="font-mono text-sm font-semibold text-brand-accent hover:underline"
+                  >
+                    All news about {name} &rarr;
+                  </a>
+                </p>
+              )}
+            </div>
+          )}
+
+          {related.length > 0 && (
+            <div>
+              <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
+                {/* "Related", not "sibling": the pairing is usually two teams sharing a
+                    school, but the field is general enough to cover any connection worth
+                    surfacing. */}
+                Related teams
+              </h2>
+              <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2" data-reveal-group>
+                {related.map((sibling) => (
+                  <TeamCard team={sibling} />
+                ))}
+              </div>
+            </div>
+          )}
+          </div>
+        )
+      }
+
+      <div>
+      {/* Donate and Get Involved are combined into one row, side by side, rather than
+          two separate blocks stacked with their own gap each — they're both
+          "how do I support this team" asks. items-stretch (grid's own default, restated here
+          for clarity) plus each card's own flex column + mt-auto button wrapper is what
+          keeps both cards the same height and lands their buttons on one baseline, whichever
+          card's copy happens to run longer. */}
+      <div class:list={['grid grid-cols-1 items-stretch gap-6', zeffyFundName && 'sm:grid-cols-2']}>
         {zeffyFundName && <DonateButton teamName={name} fundName={zeffyFundName} />}
-        <div class="card card-pad-lg" data-reveal>
+        <div class="card card-pad-lg flex h-full flex-col" data-reveal>
           <h2 class="font-heading text-lg font-bold text-slate-900">
             Get involved with <FirstText text={`${program} ${number}`} />
           </h2>
@@ -235,7 +316,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           {/* `about` rides along in the submitted message so a reply doesn't have to work out
               which team prompted it. The href stays a real mailto for anyone without JS, and
               carries the same context in its subject line. */}
-          <div class="mt-5 flex flex-wrap gap-3">
+          <div class="mt-auto flex flex-wrap gap-3 pt-5">
             <CTAButton
               href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Joining ${program} ${number}`)}`}
               dialog="contact"
@@ -264,112 +345,19 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  {
-    hasBio && (
-      <section class="section-rule section-rule-tight section-tight">
-        <div class="section-inner section-inner-narrow">
-          {/* .prose is scoped to the team's own copy rather than wrapping the whole page,
-              which is why this uses MarketingLayout instead of ArticleLayout. */}
-          <div class="prose prose-slate max-w-none prose-headings:font-heading prose-a:text-brand-accent" data-reveal>
-            <Content />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {
-    /* One section for the whole record — banners, the award tally, and the year-by-year
-       list all used to be three separate sections a reader had to cross-reference by year
-       themselves. Banners and the tally stay OUTSIDE the per-year collapse deliberately:
-       they're the "give me the shape of this in five seconds" view, and burying either one
-       inside a <details> a reader has to open first would defeat that. */
-    historyYears.length > 0 && (
-      <section class="section-rule section-rule-tight section-tight">
-        <div class="section-inner section-inner-narrow">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
-            Team History
-          </h2>
-          {bannerAwards.length > 0 && (
-            <div class="mt-6" data-reveal>
-              {/* Named for what these are, in the vocabulary the community uses. FRC hangs
-                  blue and FTC hangs orange, so neither color belongs in a shared heading. */}
-              <h3 class="font-heading text-sm font-bold uppercase tracking-wide text-slate-500">Banners</h3>
-              <AwardBanners banners={bannerAwards} />
-            </div>
-          )}
-          {sortedAwards.length > 0 && <AwardSummary awards={sortedAwards} />}
-          <TeamHistoryYears years={historyYears} bannerOf={bannerOf} />
-        </div>
-      </section>
-    )
-  }
-
-  {
-    teamNews.length > 0 && (
-      <section class="section-rule section-rule-tight section-tight">
-        <div class="section-inner section-inner-narrow">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
-            News
-          </h2>
-          {/* NewsCard directly rather than NewsGrid: that component is a filtering
-              application that builds its own category and team chips and rewrites
-              location.search, which would put a redundant team filter on a page that is
-              already scoped to one team. */}
-          <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
-            {teamNews.slice(0, 4).map((post) => (
-              <NewsCard post={post} />
-            ))}
-          </div>
-          {teamNews.length > 4 && (
-            <p class="mt-6" data-reveal>
-              <a
-                href={withBase(`news/?team=${number}`)}
-                class="font-mono text-sm font-semibold text-brand-accent hover:underline"
-              >
-                All news about {name} &rarr;
-              </a>
-            </p>
-          )}
-        </div>
-      </section>
-    )
-  }
-
-
-  {
-    related.length > 0 && (
-      <section class="section-rule section-rule-tight section-tight">
-        <div class="section-inner section-inner-narrow">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
-            {/* "Related", not "sibling": the pairing is usually two teams sharing a school,
-                but the field is general enough to cover any connection worth surfacing. */}
-            Related teams
-          </h2>
-          <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2" data-reveal-group>
-            {related.map((sibling) => (
-              <TeamCard team={sibling} />
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  <section class="section-tight section">
-    <div class="section-inner section-inner-narrow">
-      <TeamNav team={team} teams={teams} />
-      <p class="mt-6">
-        <a
-          href={withBase('about/teams/')}
-          class="font-mono text-sm font-semibold text-brand-accent hover:underline"
-        >
-          &larr; All teams
-        </a>
-      </p>
+      <div>
+        <TeamNav team={team} teams={teams} />
+        <p class="mt-6">
+          <a
+            href={withBase('about/teams/')}
+            class="font-mono text-sm font-semibold text-brand-accent hover:underline"
+          >
+            &larr; All teams
+          </a>
+        </p>
+      </div>
+      </div>
     </div>
   </section>
 </MarketingLayout>
