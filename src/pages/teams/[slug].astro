@@ -20,6 +20,7 @@ import TeamCard from '../../components/cards/TeamCard.astro';
 import AwardBanners from '../../components/teams/AwardBanners.astro';
 import AwardSummary from '../../components/teams/AwardSummary.astro';
 import TeamHistoryYears from '../../components/teams/TeamHistoryYears.astro';
+import DonateButton from '../../components/teams/DonateButton.astro';
 import { groupTeamHistory } from '../../utils/teamHistory';
 
 export async function getStaticPaths() {
@@ -38,7 +39,7 @@ export async function getStaticPaths() {
 const { team, teams } = Astro.props;
 const {
   number, name, program, organization, community, logo, description, metaDescription,
-  highlight, links, socials, banner, rookieYear, awards, robots, seasons,
+  highlight, links, socials, banner, rookieYear, awards, robots, seasons, zeffyFundName,
 } = team.data;
 
 const programName = PROGRAM_NAMES[program];
@@ -300,6 +301,16 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
               <TeamCard team={sibling} />
             ))}
           </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    zeffyFundName && (
+      <section class="section-rule section">
+        <div class="section-inner section-inner-narrow">
+          <DonateButton teamName={name} fundName={zeffyFundName} />
         </div>
       </section>
     )

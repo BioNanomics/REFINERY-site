@@ -1,0 +1,43 @@
+---
+/**
+ * A team-specific "Donate Now" card.
+ *
+ * Zeffy's embed has no supported way to pre-select a fund from outside the form — confirmed
+ * against their production JS, which reads only `?amount=` off the query string, and has no
+ * postMessage hook for it either (see the note on `zeffyFundName` in src/content.config.ts
+ * for how that was established). So instead of a fake "pre-filled" experience, this tells the
+ * donor exactly which fund-dropdown option to pick, using Zeffy's own wording for it.
+ *
+ * The card only renders when a team has a `zeffyFundName` — a team with no fund set up yet
+ * (a brand-new team, say) gets no Donate section at all rather than a button that can't
+ * actually direct a gift anywhere.
+ */
+interface Props {
+  teamName: string;
+  fundName: string;
+}
+
+const { teamName, fundName } = Astro.props;
+
+// One shared campaign for every team's fund — see docs/placeholder-images.md's neighbor,
+// the fund list, for how each team's exact dropdown label was confirmed.
+const ZEFFY_FORM_URL =
+  'https://www.zeffy.com/embed/donation-form/donate-to-support-our-future-engineers-and-entrepreneurs?modal=true';
+---
+
+<div class="card card-pad-lg" data-reveal>
+  <h2 class="font-heading text-lg font-bold text-slate-900">Support {teamName}</h2>
+  <p class="mt-2 text-sm text-slate-600">
+    Gifts go through The REFINERY's shared donation form. In the form, choose <strong class="text-slate-900">{fundName}</strong> from
+    the "What fund would you like your donation to support?" dropdown to direct yours to this team.
+  </p>
+  <div class="mt-5">
+    <a href={ZEFFY_FORM_URL} zeffy-form-link={ZEFFY_FORM_URL} class="btn btn-primary">
+      <span>Donate Now</span>
+    </a>
+  </div>
+</div>
+
+{/* defer, so a third-party DNS lookup + handshake + download can't block parsing — same
+    convention as the /donate page's own Zeffy embed script. */}
+<script is:inline defer src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
