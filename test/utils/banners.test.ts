@@ -66,6 +66,13 @@ describe('bannerFor — FRC', () => {
     expect(bannerFor(frcWin({ typeKey: 'ROOKIE_ALL_STAR' }))).toBeNull();
   });
 
+  it('hangs nothing for the Judges’ Award or a Concept Award', () => {
+    // Both are real, sourced awards on T.H.R.U.S.T.'s record (added alongside these two
+    // typeKeys) but neither is a Winner/Impact/Woodie Flowers result, so neither hangs.
+    expect(bannerFor(frcWin({ typeKey: 'JUDGES_AWARD' }))).toBeNull();
+    expect(bannerFor(frcWin({ typeKey: 'CONCEPT' }))).toBeNull();
+  });
+
   it('hangs blue for an offseason win — event level does not gate FRC', () => {
     // Offseason results count. This is the one place the site's rule is BROADER than a
     // naive reading, so it gets an explicit test rather than relying on the absence of a

@@ -51,6 +51,32 @@ describe('groupTeamHistory', () => {
     expect(grouped.find((g) => g.year === 2021)?.robots).toEqual([]);
   });
 
+  it('carries district rank, points, and their source through onto the year row', () => {
+    const grouped = groupTeamHistory(
+      [],
+      [],
+      [
+        {
+          year: 2025,
+          events: [],
+          districtRank: 6,
+          districtPoints: 250,
+          districtRankSource: 'https://example.com/rank',
+        },
+      ],
+    );
+    expect(grouped[0]).toMatchObject({
+      districtRank: 6,
+      districtPoints: 250,
+      districtRankSource: 'https://example.com/rank',
+    });
+  });
+
+  it('leaves district rank undefined for a season that has none (pre-district era, or a COVID season with no standing)', () => {
+    const grouped = groupTeamHistory([], [], [{ year: 2005, events: [] }]);
+    expect(grouped[0].districtRank).toBeUndefined();
+  });
+
   it('sorts newest year first', () => {
     const grouped = groupTeamHistory(
       [award({ year: 2019 }), award({ year: 2024 }), award({ year: 2021 })],
