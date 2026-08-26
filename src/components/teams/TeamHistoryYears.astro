@@ -12,9 +12,10 @@
  */
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import { awardLabel, type TeamAward } from '../../utils/awards';
+import { ordinal, type TeamAward } from '../../utils/awards';
 import type { BannerColor } from '../../utils/banners';
 import { formatRecord, type TeamYear } from '../../utils/teamHistory';
+import TeamHistoryAwardRow from './TeamHistoryAwardRow.astro';
 
 type TeamRobot = CollectionEntry<'teams'>['data']['robots'][number];
 
@@ -25,16 +26,26 @@ interface Props {
 }
 
 const { years, bannerOf } = Astro.props;
-
-const dotMarker: Record<BannerColor, string> = {
-  blue: 'bg-brand',
-  orange: 'bg-[#b4530f]',
-};
 ---
 
 <div class="mt-6 space-y-3">
   {
-    years.map((entry, index) => (
+    years.map((entry, index) => {
+      // Awards nest under the event they were won at instead of repeating its name a
+      // second time next to each one. Matched by exact event-name string — an award
+      // whose event isn't (yet) in this year's `events` list falls through to its own
+      // "Awards" block below, rather than silently disappearing.
+      const eventsWithAwards = entry.events.map((ev) => ({
+        event: ev,
+        awards: entry.awards.filter((award) => award.event === ev.name),
+      }));
+      // Reference equality, not a string key: several awards in the same year legitimately
+      // share one citation URL (a team-history page covering the whole season), so matching
+      // on `source` would treat them as duplicates of each other.
+      const matchedAwards = new Set(eventsWithAwards.flatMap((e) => e.awards));
+      const unmatchedAwards = entry.awards.filter((award) => !matchedAwards.has(award));
+
+      return (
       <details class="card group overflow-hidden" open={index === 0} data-reveal>
         <summary class="flex cursor-pointer list-none items-center gap-3 px-5 py-4">
           <span class="flex items-baseline gap-2">
@@ -52,6 +63,7 @@ const dotMarker: Record<BannerColor, string> = {
               award and no season record yet just shows the award count. */}
           <span class="flex flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-1 font-mono text-xs text-slate-500">
             {entry.record && <span>{formatRecord(entry.record)}</span>}
+            {entry.districtRank && <span>Rank {ordinal(entry.districtRank)}</span>}
             {entry.events.length > 0 && (
               <span>
                 {entry.events.length} event{entry.events.length === 1 ? '' : 's'}
@@ -114,9 +126,22 @@ const dotMarker: Record<BannerColor, string> = {
                 {/* "Events" alone, not "Events attended" — the record line right above it
                     already frames this as competition, not attendance. */}
                 Events{entry.record && <> &middot; {formatRecord(entry.record)}</>}
+                {entry.districtRank && (
+                  <>
+                    {' '}
+                    &middot;{' '}
+                    <a href={entry.districtRankSource} target="_blank" rel="noopener noreferrer" class="normal-case tracking-normal hover:text-brand-accent hover:underline">
+                      District Rank {ordinal(entry.districtRank)}
+                      {entry.districtPoints !== undefined && ` (${entry.districtPoints} pts)`}
+                    </a>
+                  </>
+                )}
               </h4>
-              <ul class="mt-2 space-y-1 text-sm">
-                {entry.events.map((ev) => (
+              {/* Awards nest right under the event that produced them — see the
+                  eventsWithAwards note above for why this doesn't just repeat the event
+                  name a second time in a separate Awards list. */}
+              <ul class="mt-2 space-y-3 text-sm">
+                {eventsWithAwards.map(({ event: ev, awards: wonHere }) => (
                   <li>
                     <a
                       href={ev.source}
@@ -126,52 +151,37 @@ const dotMarker: Record<BannerColor, string> = {
                     >
                       {ev.name}
                     </a>
+                    {wonHere.length > 0 && (
+                      <ul class="mt-1.5 space-y-1.5 pl-4">
+                        {wonHere.map((award) => (
+                          <TeamHistoryAwardRow award={award} color={bannerOf(award)} showEvent={false} />
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {entry.awards.length > 0 && (
+          {unmatchedAwards.length > 0 && (
             <div>
-              <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">Awards</h4>
+              <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {/* Plain "Awards" when there's no Events list above it to distinguish
+                    from (a team with no season data yet); "Other awards" when there is,
+                    since these are the ones that didn't match a listed event. */}
+                {entry.events.length > 0 ? 'Other Awards' : 'Awards'}
+              </h4>
               <ul class="mt-2 space-y-2 text-sm">
-                {entry.awards.map((award) => {
-                  const color = bannerOf(award);
-                  return (
-                    <li class="flex items-start gap-2">
-                      {color ? (
-                        <span class:list={['mt-1.5 h-2 w-2 shrink-0 rounded-full', dotMarker[color]]} title="Earned a banner" />
-                      ) : (
-                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-slate-300" aria-hidden="true" />
-                      )}
-                      {/* Same mobile fix as the award summary: stacked below `sm` rather than
-                          splitting into two ragged columns. */}
-                      <div class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
-                        <span class="text-slate-900">
-                          {awardLabel(award)}
-                          {color && <span class="sr-only"> — earned a banner</span>}
-                        </span>
-                        <span class="text-slate-500">
-                          <span class="hidden sm:inline">&middot; </span>
-                          <a
-                            href={award.source}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="hover:text-brand-accent hover:underline"
-                          >
-                            {award.event}
-                          </a>
-                        </span>
-                      </div>
-                    </li>
-                  );
-                })}
+                {unmatchedAwards.map((award) => (
+                  <TeamHistoryAwardRow award={award} color={bannerOf(award)} />
+                ))}
               </ul>
             </div>
           )}
         </div>
       </details>
-    ))
+      );
+    })
   }
 </div>

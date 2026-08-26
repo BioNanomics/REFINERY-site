@@ -25,6 +25,9 @@ export interface TeamSeason {
   year: number;
   events: SeasonEvent[];
   record?: SeasonRecord;
+  districtRank?: number;
+  districtPoints?: number;
+  districtRankSource?: string;
 }
 
 export interface TeamYear<TRobot> {
@@ -33,6 +36,9 @@ export interface TeamYear<TRobot> {
   robots: TRobot[];
   events: SeasonEvent[];
   record?: SeasonRecord;
+  districtRank?: number;
+  districtPoints?: number;
+  districtRankSource?: string;
 }
 
 /**
@@ -60,6 +66,9 @@ export function groupTeamHistory<TRobot extends { year: number }>(
     const entry = bucket(season.year);
     entry.events = season.events;
     entry.record = season.record;
+    entry.districtRank = season.districtRank;
+    entry.districtPoints = season.districtPoints;
+    entry.districtRankSource = season.districtRankSource;
   }
 
   return [...years.values()].sort((a, b) => b.year - a.year);

@@ -44,6 +44,7 @@ export const AWARD_TYPE_KEYS = [
   'SAFETY',
   'AUTONOMOUS',
   'JUDGES_AWARD', // FRC's catch-all judges' award — not FTC's JUDGES_CHOICE, different program.
+  'CONCEPT', // FRC's 2021 Game Design Challenge award — the COVID-era remote-season format.
   // FTC judged awards.
   'INSPIRE',
   'THINK',
@@ -132,6 +133,7 @@ export const AWARD_TYPE_LABELS: Record<AwardTypeKey, string> = {
   SAFETY: 'Safety Award',
   AUTONOMOUS: 'Autonomous Award',
   JUDGES_AWARD: "Judges' Award",
+  CONCEPT: 'Concept Award',
   INSPIRE: 'Inspire Award',
   THINK: 'Think Award',
   CONNECT: 'Connect Award',

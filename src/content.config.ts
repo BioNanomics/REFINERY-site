@@ -212,25 +212,43 @@ const teams = defineCollection({
       // here would double-count the same result two different ways.
       seasons: z
         .array(
-          z.object({
-            year: z.number().int().gte(1992),
-            events: z
-              .array(
-                z.object({
-                  name: z.string(),
-                  eventLevel: z.enum(EVENT_LEVELS),
-                  source: z.string().url(),
-                }),
-              )
-              .default([]),
-            record: z
-              .object({
-                wins: z.number().int().nonnegative(),
-                losses: z.number().int().nonnegative(),
-                ties: z.number().int().nonnegative(),
-              })
-              .optional(),
-          }),
+          z
+            .object({
+              year: z.number().int().gte(1992),
+              events: z
+                .array(
+                  z.object({
+                    name: z.string(),
+                    eventLevel: z.enum(EVENT_LEVELS),
+                    source: z.string().url(),
+                  }),
+                )
+                .default([]),
+              record: z
+                .object({
+                  wins: z.number().int().nonnegative(),
+                  losses: z.number().int().nonnegative(),
+                  ties: z.number().int().nonnegative(),
+                })
+                .optional(),
+              // FRC-only: a team's standing within its district that season, from points
+              // earned across its district events — what determines district championship
+              // qualification. Unlike `record`, this isn't derivable by summing the already-
+              // sourced `events` entries, so it carries its own citation requirement below,
+              // same reasoning as an award's `source`.
+              districtRank: z.number().int().positive().optional(),
+              districtPoints: z.number().int().nonnegative().optional(),
+              districtRankSource: z.string().url().optional(),
+            })
+            .superRefine((season, ctx) => {
+              if (season.districtRank !== undefined && !season.districtRankSource) {
+                ctx.addIssue({
+                  code: z.ZodIssueCode.custom,
+                  path: ['districtRankSource'],
+                  message: 'districtRank requires districtRankSource citing where it was published.',
+                });
+              }
+            }),
         )
         .default([]),
 
