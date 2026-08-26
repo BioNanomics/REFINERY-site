@@ -564,6 +564,14 @@
       transparent
     );
   }
+  /* Opt-in companion to .section-rule for a page that stacks many rule-separated sections
+     in a row (a team's detail page, with its Bio/Team History/News/Related/CTA run) — the
+     rule's own margin is otherwise fixed regardless of .section-tight, so a tight section
+     still opened with a full 4.5rem gap above its content. Scoped to its own class rather
+     than changed on .section-rule itself, which stays the sitewide default. */
+  .section-rule-tight::before {
+    margin-block-end: 3rem;
+  }
 
   /* ── Scroll reveal ────────────────────────────────────────────────────
      Gated on html.js-reveal, added by an inline head script only when JS

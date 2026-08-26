@@ -214,9 +214,62 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
     </div>
   </section>
 
+  <section class="section-rule section-rule-tight section-tight">
+    <div class="section-inner section-inner-narrow">
+      {/* The ask sits right after the identifying facts above — not after Team History,
+          News, and Related teams, which can run long (a team with two decades on record
+          has a LOT of scrolling before this used to appear) and read as "gaps in data" for
+          a sparse team in between. Donate and Get Involved are combined into one section,
+          side by side, rather than two separate full-width sections stacked with their own
+          gap each — they're both "how do I support this team" asks. */}
+      <div class:list={['grid grid-cols-1 items-start gap-6', zeffyFundName && 'sm:grid-cols-2']}>
+        {zeffyFundName && <DonateButton teamName={name} fundName={zeffyFundName} />}
+        <div class="card card-pad-lg" data-reveal>
+          <h2 class="font-heading text-lg font-bold text-slate-900">
+            Get involved with <FirstText text={`${program} ${number}`} />
+          </h2>
+          <p class="mt-2 text-sm text-slate-600">
+            Students looking for a team, and adults willing to mentor one, are what keep these
+            teams running. Tell us which and we'll put you in touch.
+          </p>
+          {/* `about` rides along in the submitted message so a reply doesn't have to work out
+              which team prompted it. The href stays a real mailto for anyone without JS, and
+              carries the same context in its subject line. */}
+          <div class="mt-5 flex flex-wrap gap-3">
+            <CTAButton
+              href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Joining ${program} ${number}`)}`}
+              dialog="contact"
+              topic="Joining a team"
+              about={`${program} ${number} — ${name}`}
+              prefill={{ message: `Interested in joining team ${number}` }}
+            >
+              Join this team
+            </CTAButton>
+            {/* `involvement` is the "Where would you like to help?" radio on the Volunteering
+                topic; seeding it lands someone on the mentoring answer rather than the
+                neutral "Open to both" default. */}
+            <CTAButton
+              href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Mentoring ${program} ${number}`)}`}
+              dialog="contact"
+              topic="Volunteering"
+              about={`${program} ${number} — ${name}`}
+              prefill={{
+                message: `Interested in joining team ${number}`,
+                involvement: 'Mentoring a team',
+              }}
+              variant="secondary"
+            >
+              Mentor this team
+            </CTAButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   {
     hasBio && (
-      <section class="section-rule section">
+      <section class="section-rule section-rule-tight section-tight">
         <div class="section-inner section-inner-narrow">
           {/* .prose is scoped to the team's own copy rather than wrapping the whole page,
               which is why this uses MarketingLayout instead of ArticleLayout. */}
@@ -235,7 +288,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
        they're the "give me the shape of this in five seconds" view, and burying either one
        inside a <details> a reader has to open first would defeat that. */
     historyYears.length > 0 && (
-      <section class="section-rule section">
+      <section class="section-rule section-rule-tight section-tight">
         <div class="section-inner section-inner-narrow">
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
             Team History
@@ -257,7 +310,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
 
   {
     teamNews.length > 0 && (
-      <section class="section-rule section">
+      <section class="section-rule section-rule-tight section-tight">
         <div class="section-inner section-inner-narrow">
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
             News
@@ -289,7 +342,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
 
   {
     related.length > 0 && (
-      <section class="section-rule section">
+      <section class="section-rule section-rule-tight section-tight">
         <div class="section-inner section-inner-narrow">
           <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal>
             {/* "Related", not "sibling": the pairing is usually two teams sharing a school,
@@ -305,60 +358,6 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
       </section>
     )
   }
-
-  {
-    zeffyFundName && (
-      <section class="section-rule section">
-        <div class="section-inner section-inner-narrow">
-          <DonateButton teamName={name} fundName={zeffyFundName} />
-        </div>
-      </section>
-    )
-  }
-
-  <section class="section-rule section">
-    <div class="section-inner section-inner-narrow">
-      <div class="card card-pad-lg" data-reveal>
-        <h2 class="font-heading text-lg font-bold text-slate-900">
-          Get involved with <FirstText text={`${program} ${number}`} />
-        </h2>
-        <p class="mt-2 text-sm text-slate-600">
-          Students looking for a team, and adults willing to mentor one, are what keep these
-          teams running. Tell us which and we'll put you in touch.
-        </p>
-        {/* `about` rides along in the submitted message so a reply doesn't have to work out
-            which team prompted it. The href stays a real mailto for anyone without JS, and
-            carries the same context in its subject line. */}
-        <div class="mt-5 flex flex-wrap gap-3">
-          <CTAButton
-            href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Joining ${program} ${number}`)}`}
-            dialog="contact"
-            topic="Joining a team"
-            about={`${program} ${number} — ${name}`}
-            prefill={{ message: `Interested in joining team ${number}` }}
-          >
-            Join this team
-          </CTAButton>
-          {/* `involvement` is the "Where would you like to help?" radio on the Volunteering
-              topic; seeding it lands someone on the mentoring answer rather than the
-              neutral "Open to both" default. */}
-          <CTAButton
-            href={`mailto:info@refineryrobotics.org?subject=${encodeURIComponent(`Mentoring ${program} ${number}`)}`}
-            dialog="contact"
-            topic="Volunteering"
-            about={`${program} ${number} — ${name}`}
-            prefill={{
-              message: `Interested in joining team ${number}`,
-              involvement: 'Mentoring a team',
-            }}
-            variant="secondary"
-          >
-            Mentor this team
-          </CTAButton>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section class="section-tight section">
     <div class="section-inner section-inner-narrow">
