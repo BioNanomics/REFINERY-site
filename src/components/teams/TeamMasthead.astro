@@ -36,7 +36,11 @@ const { name, logo, banner } = team.data;
     picked value, so "overlaps by a third of its own height" stays true by construction
     instead of by two numbers someone has to remember to keep in step. */}
 <div class="[--team-plaque-h:6rem] sm:[--team-plaque-h:9rem]">
-  <div class="relative">
+  {/* -mx-6 bleeds the band out past the section's own 1.5rem inline padding — the same
+      1.5rem, so on a narrow viewport it runs edge-to-edge, and on wider ones it overhangs
+      the plaque and heading below by a consistent amount rather than lining up flush with
+      them. Only this wrapper bleeds; the plaque and heading stay within the section. */}
+  <div class="relative -mx-6">
     {
       banner ? (
         <>
@@ -46,7 +50,7 @@ const { name, logo, banner } = team.data;
             widths={[640, 1024, 1600]}
             sizes="(min-width: 1024px) 832px, 100vw"
             loading="eager"
-            class="card-media aspect-[3/1] w-full object-cover sm:aspect-[4/1]"
+            class="card-media aspect-[9/4] w-full object-cover sm:aspect-[7/2]"
           />
           {/* Overlaid bottom-RIGHT, diagonally opposite the plaque, so the credit can never
               collide with it at any viewport width. Kept on the image rather than moved
@@ -69,7 +73,7 @@ const { name, logo, banner } = team.data;
           </p>
         </>
       ) : (
-        <div class="card-media relative aspect-[3/1] overflow-hidden bg-brand sm:aspect-[4/1]">
+        <div class="card-media relative aspect-[9/4] overflow-hidden bg-brand sm:aspect-[7/2]">
           {/* text-white/[0.09] drives the texture's currentColor. Lighter than the
               page-level texture (brand navy at 5.5%) because it sits on navy rather than
               under it. */}
@@ -79,13 +83,15 @@ const { name, logo, banner } = team.data;
     }
   </div>
 
-  {/* The wrapper spans two fifths of the band and centres its child, which puts the plaque's
-      midpoint exactly on the one-FIFTH width point — half of two fifths. The plaque itself
-      shrinks to fit its logo rather than filling that space, so a square badge gets a narrow
-      plaque and a wide wordmark a wider one, both centred on the same line.
+  {/* The wrapper spans two fifths of the band and left-aligns its child, so the plaque's own
+      left edge sits flush with the heading's below — the band itself bleeds past both (see
+      the -mx-6 above), so the plaque no longer collides with a square corner even at a full
+      third of its height overlapping the photo. The plaque itself shrinks to fit its logo
+      rather than filling that space, so a square badge gets a narrow plaque and a wide
+      wordmark a wider one, both anchored to that same left edge.
 
       `max-w-full` on the plaque is what stops a very wide mark overflowing past the band's
-      left edge: it can grow to the wrapper's width and no further. Note that tightening the
+      right edge: it can grow to the wrapper's width and no further. Note that tightening the
       wrapper also tightens that ceiling — on a narrow viewport the widest wordmarks are
       clamped by it rather than by their own height.
 
@@ -110,7 +116,7 @@ const { name, logo, banner } = team.data;
        onto the band. A team with no logo simply gets the band; the eyebrow and <h1> below
        already identify it by program, number and name. */
     logo && (
-      <div class="relative z-10 mt-[calc(var(--team-plaque-h)/-3)] flex w-2/5 justify-center">
+      <div class="relative z-10 mt-[calc(var(--team-plaque-h)/-3)] flex w-2/5 justify-start">
         <div class="flex h-[var(--team-plaque-h)] max-w-full items-center justify-center rounded-media bg-white px-4 shadow-float sm:px-6">
           <Image
             src={logo}
