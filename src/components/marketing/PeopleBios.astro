@@ -103,7 +103,15 @@ function initials(name: string) {
                   “<FirstText text={person.data.quote} />”
                 </blockquote>
               )}
-              {person.data.bio && <p class="mt-3 text-sm text-slate-600"><FirstText text={person.data.bio} /></p>}
+              {person.data.bio &&
+                person.data.bio
+                  .split('\n')
+                  .filter(Boolean)
+                  .map((paragraph) => (
+                    <p class="mt-3 text-sm text-slate-600">
+                      <FirstText text={paragraph} />
+                    </p>
+                  ))}
             </div>
           </div>
         );
