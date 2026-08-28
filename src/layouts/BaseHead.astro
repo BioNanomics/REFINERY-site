@@ -30,6 +30,11 @@ interface Props {
 const DEFAULT_OG_IMAGE_ALT =
   "A competition robot and shop equipment inside The REFINERY's makerspace";
 
+// REVIEW MODE: flip to true as part of the real launch (see README.md → Deployment). While
+// false, every page emits noindex regardless of the `index` prop passed in, so the GitHub
+// Pages review URL can be shared without landing in search results.
+const SITE_INDEXABLE = false;
+
 const {
   title: rawTitle,
   description: rawDescription,
@@ -45,6 +50,7 @@ const {
   publishedTime,
 } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const indexable = index && SITE_INDEXABLE;
 
 // <title> and meta content can't carry italics, so FIRST® gets the closest compliant
 // treatment the medium allows: capitals plus a registered symbol on first use.
@@ -78,7 +84,7 @@ const documentTitle = fullTitle
     to be treated as a real, indexable page. GitHub Pages serves 404.html with a genuine
     404 status, so this is belt-and-braces rather than a soft-404 fix. */}
 {
-  index ? (
+  indexable ? (
     <link rel="canonical" href={canonicalURL} />
   ) : (
     <meta name="robots" content="noindex" />
