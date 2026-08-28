@@ -26,9 +26,9 @@ const defaultTopic = form.topics.find((topic) => topic.value === form.defaultTop
    whenever [open] is absent (dialog.astro base rule), so it costs nothing while closed and
    only takes effect once open.
 
-   This note sits ABOVE the tag rather than among its attributes. A {/* */} comment inside an
-   attribute list parses at runtime but breaks `astro check`, which then silently skips type
-   checking for this entire template — the bug that hid every other error in this file. */}
+   This note sits ABOVE the tag rather than among its attributes: a JSX comment placed inside
+   an attribute list parses at runtime but breaks `astro check`, which then silently skips
+   type checking for this entire template — the bug that hid every other error in this file. */}
 <dialog
   id={`dialog-${form.id}`}
   class="dialog-panel"
