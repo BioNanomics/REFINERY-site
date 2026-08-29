@@ -17,12 +17,32 @@ interface Props {
    * Leave unset for a general-purpose contact button.
    */
   topic?: string;
+  /**
+   * What the message is about, for triggers that know — "FRC 1501 T.H.R.U.S.T." from a team
+   * page. Rides along in the submitted payload so a reply doesn't have to guess which team
+   * prompted it. Unlike `topic` it changes nothing on screen; the popup asks the same
+   * questions either way.
+   */
+  about?: string;
+  /**
+   * Seed values for named form fields — `{ message: 'Interested in joining team 1501' }`.
+   * Applied only to a field the visitor hasn't typed into, so reopening the popup can never
+   * erase a draft; see applyPrefill() in ContactDialogs.astro.
+   */
+  prefill?: Record<string, string>;
 }
 
-const { href, variant = 'primary', dialog, topic } = Astro.props;
+const { href, variant = 'primary', dialog, topic, about, prefill } = Astro.props;
 ---
 
-<a href={href} data-contact-open={dialog} data-contact-topic={topic} class:list={['btn', `btn-${variant}`]}>
+<a
+  href={href}
+  data-contact-open={dialog}
+  data-contact-topic={topic}
+  data-contact-about={about}
+  data-contact-prefill={prefill ? JSON.stringify(prefill) : undefined}
+  class:list={['btn', `btn-${variant}`]}
+>
   {/* The label lives in one span so it stays a single flex item. Labels that contain inline
       markup — the italic <First /> mark, for instance — would otherwise split into separate
       flex items and lose the spaces around them. */}

@@ -1,0 +1,187 @@
+---
+/**
+ * The collapsible year-by-year record: one native <details> per season, combining that
+ * year's events, win-loss-tie record, awards, and named robot into a single row instead of
+ * three separate sections a reader has to cross-reference by year themselves.
+ *
+ * <details>/<summary> rather than a scripted accordion — free keyboard and screen-reader
+ * support, works with JS disabled, and matches the one other disclosure widget on the site
+ * (SiteHeader's mobile menu). Only the most recent season opens by default; a team with
+ * decades on record (T.H.R.U.S.T. runs 2005-2026) would otherwise render exactly as long a
+ * page as before this component existed.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { ordinal, type TeamAward } from '../../utils/awards';
+import type { BannerColor } from '../../utils/banners';
+import { formatRecord, type TeamYear } from '../../utils/teamHistory';
+import TeamHistoryAwardRow from './TeamHistoryAwardRow.astro';
+
+type TeamRobot = CollectionEntry<'teams'>['data']['robots'][number];
+
+interface Props {
+  years: TeamYear<TeamRobot>[];
+  /** Same banner-eligibility function the wall and the (now-merged) award rows both use. */
+  bannerOf: (award: TeamAward) => BannerColor | null;
+}
+
+const { years, bannerOf } = Astro.props;
+---
+
+<div class="mt-6 space-y-3">
+  {
+    years.map((entry, index) => {
+      // Awards nest under the event they were won at instead of repeating its name a
+      // second time next to each one. Matched by exact event-name string — an award
+      // whose event isn't (yet) in this year's `events` list falls through to its own
+      // "Awards" block below, rather than silently disappearing.
+      const eventsWithAwards = entry.events.map((ev) => ({
+        event: ev,
+        awards: entry.awards.filter((award) => award.event === ev.name),
+      }));
+      // Reference equality, not a string key: several awards in the same year legitimately
+      // share one citation URL (a team-history page covering the whole season), so matching
+      // on `source` would treat them as duplicates of each other.
+      const matchedAwards = new Set(eventsWithAwards.flatMap((e) => e.awards));
+      const unmatchedAwards = entry.awards.filter((award) => !matchedAwards.has(award));
+
+      return (
+      <details class="card group overflow-hidden" open={index === 0} data-reveal>
+        <summary class="flex cursor-pointer list-none items-center gap-3 px-5 py-4">
+          <span class="flex items-baseline gap-2">
+            <span class="font-heading text-base font-bold text-slate-900">{entry.year}</span>
+            {/* The robot's name lives here, not in the collapsed body — it's the one fact
+                about a season worth seeing without opening it. Game/description/image (when
+                there is one) stay below, since those are too long for a summary row. */}
+            {entry.robots.length > 0 && (
+              <span class="text-sm text-slate-500">
+                | Robot: {entry.robots.map((robot) => robot.name).join(', ')}
+              </span>
+            )}
+          </span>
+          {/* Meta line: only the facts this season actually has. A rookie season with one
+              award and no season record yet just shows the award count. */}
+          <span class="flex flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-1 font-mono text-xs text-slate-500">
+            {entry.record && <span>{formatRecord(entry.record)}</span>}
+            {entry.districtRank && <span>Rank {ordinal(entry.districtRank)}</span>}
+            {entry.events.length > 0 && (
+              <span>
+                {entry.events.length} event{entry.events.length === 1 ? '' : 's'}
+              </span>
+            )}
+            {entry.awards.length > 0 && (
+              <span>
+                {entry.awards.length} award{entry.awards.length === 1 ? '' : 's'}
+              </span>
+            )}
+          </span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-base group-open:rotate-180"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </summary>
+
+        <div class="space-y-5 border-t border-slate-100 px-5 pb-5 pt-4">
+          {/* Name is already in the summary above — this only renders what wouldn't fit
+              there: the season name, a description, and/or a photo. A robot entry that's
+              name-only (the common case) contributes nothing here, by design. */}
+          {entry.robots.some((robot) => robot.game || robot.description || robot.image) && (
+            <div class="space-y-4">
+              {entry.robots
+                .filter((robot) => robot.game || robot.description || robot.image)
+                .map((robot) => (
+                  <div class="flex flex-col gap-4 sm:flex-row sm:gap-6">
+                    <div class="flex-1">
+                      {entry.robots.length > 1 && (
+                        <h4 class="font-heading text-sm font-bold text-slate-900">{robot.name}</h4>
+                      )}
+                      {robot.game && <p class="mt-0.5 font-mono text-xs text-slate-500">{robot.game}</p>}
+                      {robot.description && <p class="mt-2 text-sm text-slate-600">{robot.description}</p>}
+                      {robot.image && (
+                        <Image
+                          src={robot.image}
+                          alt={robot.imageAlt ?? ''}
+                          widths={[400, 800]}
+                          sizes="(min-width: 640px) 400px, 100vw"
+                          class="card-media mt-3 w-full max-w-md"
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {entry.events.length > 0 && (
+            <div>
+              <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {/* "Events" alone, not "Events attended" — the record line right above it
+                    already frames this as competition, not attendance. */}
+                Events{entry.record && <> &middot; {formatRecord(entry.record)}</>}
+                {entry.districtRank && (
+                  <>
+                    {' '}
+                    &middot;{' '}
+                    <a href={entry.districtRankSource} target="_blank" rel="noopener noreferrer" class="normal-case tracking-normal hover:text-brand-accent hover:underline">
+                      District Rank {ordinal(entry.districtRank)}
+                      {entry.districtPoints !== undefined && ` (${entry.districtPoints} pts)`}
+                    </a>
+                  </>
+                )}
+              </h4>
+              {/* Awards nest right under the event that produced them — see the
+                  eventsWithAwards note above for why this doesn't just repeat the event
+                  name a second time in a separate Awards list. */}
+              <ul class="mt-2 space-y-3 text-sm">
+                {eventsWithAwards.map(({ event: ev, awards: wonHere }) => (
+                  <li>
+                    <a
+                      href={ev.source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-slate-700 hover:text-brand-accent hover:underline"
+                    >
+                      {ev.name}
+                    </a>
+                    {wonHere.length > 0 && (
+                      <ul class="mt-1.5 space-y-1.5 pl-4">
+                        {wonHere.map((award) => (
+                          <TeamHistoryAwardRow award={award} color={bannerOf(award)} showEvent={false} />
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {unmatchedAwards.length > 0 && (
+            <div>
+              <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {/* Plain "Awards" when there's no Events list above it to distinguish
+                    from (a team with no season data yet); "Other awards" when there is,
+                    since these are the ones that didn't match a listed event. */}
+                {entry.events.length > 0 ? 'Other Awards' : 'Awards'}
+              </h4>
+              <ul class="mt-2 space-y-2 text-sm">
+                {unmatchedAwards.map((award) => (
+                  <TeamHistoryAwardRow award={award} color={bannerOf(award)} />
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </details>
+      );
+    })
+  }
+</div>

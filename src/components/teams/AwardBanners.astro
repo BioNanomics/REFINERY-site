@@ -1,0 +1,98 @@
+---
+/**
+ * The banner wall: one pennant per banner-earning award.
+ *
+ * Rendered as text inside a CSS-clipped shape, never as an image of a banner. Two reasons,
+ * and both matter:
+ *
+ *   Trademark. The physical blue banner is FIRST's visual device. This is deliberately
+ *   evocative of one — a hanging pennant with a swallowtail — in The REFINERY's own colors,
+ *   and is not a facsimile of FIRST's artwork. Do not add FIRST logos or match their exact
+ *   banner design.
+ *
+ *   Accessibility. An image of a banner is a picture of text: unreadable to a screen reader
+ *   beyond its alt, and it pixelates on zoom. A list of text in a shape survives both, and
+ *   reflows on a phone.
+ *
+ * FRC hangs blue and FTC hangs orange — two award systems with different qualifying rules,
+ * not one system with a color variant. See src/utils/banners.ts for which awards qualify
+ * and where that rule came from.
+ */
+import type { BannerColor } from '../../utils/banners';
+import { awardLabel, type TeamAward } from '../../utils/awards';
+
+interface Props {
+  banners: { award: TeamAward; color: BannerColor }[];
+}
+
+const { banners } = Astro.props;
+
+// Blue is the site's own brand navy rather than FIRST's banner blue, which keeps the
+// pennant on-brand and well clear of reproducing their asset. Orange is tuned to sit at the
+// same visual weight and to clear AA against the white text it carries.
+const palette: Record<BannerColor, string> = {
+  blue: 'bg-brand',
+  orange: 'bg-[#b4530f]',
+};
+---
+
+{
+  /* Every pennant matches the tallest one on THIS wall — not a fixed guessed height with
+     text clamped/cropped to fit it, which is what a CSS-only fixed height would force.
+     Award names and event names both vary wildly in length ("Winning Alliance" next to
+     "Woodie Flowers Award (Chris Elston)"; "St. Louis Regional" next to a sponsor-laden
+     district event name), so without equalizing them at all every row would be a different
+     height — a ragged skyline instead of a wall. CSS can match every item in one WRAPPED
+     ROW to that row's own tallest (flex's default stretch), but not every item on the page
+     to the tallest anywhere, so the script below measures after layout and applies that
+     max as a fixed height on all of them. */
+}
+<ul class="mt-6 flex flex-wrap gap-4" data-reveal-group data-banner-wall>
+  {
+    banners.map(({ award, color }) => (
+      <li
+        class:list={[
+          'relative flex w-[9.5rem] flex-col items-center justify-center px-4 pb-8 pt-5 text-center text-white sm:w-[10.5rem]',
+          palette[color],
+        ]}
+        style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%)"
+      >
+        <span class="font-mono text-[0.65rem] font-semibold uppercase tracking-wider text-white/70">
+          {award.year}
+        </span>
+        <span class="mt-1.5 font-heading text-sm font-bold leading-snug">{awardLabel(award)}</span>
+        <span class="mt-1.5 text-[0.7rem] leading-snug text-white/80">{award.event}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<script>
+  function equalizeBannerHeights(wall: HTMLUListElement) {
+    const items = Array.from(wall.querySelectorAll<HTMLLIElement>(':scope > li'));
+    if (items.length === 0) return;
+    // Clear any height this ran on before measuring — otherwise a previous equalized
+    // height (from before a resize made the text rewrap shorter) would win the max() below
+    // and the wall could only ever grow, never shrink back down.
+    items.forEach((item) => {
+      item.style.height = '';
+    });
+    const tallest = Math.max(...items.map((item) => item.getBoundingClientRect().height));
+    items.forEach((item) => {
+      item.style.height = `${tallest}px`;
+    });
+  }
+
+  const walls = document.querySelectorAll<HTMLUListElement>('[data-banner-wall]');
+
+  walls.forEach(equalizeBannerHeights);
+
+  // Each pennant's natural height depends on how its text wraps, which depends on the
+  // viewport (the sm: breakpoint widens them), so the tallest has to be remeasured after a
+  // resize rather than locked in once on load.
+  let resizeTimer: ReturnType<typeof setTimeout>;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => walls.forEach(equalizeBannerHeights), 150);
+  });
+</script>

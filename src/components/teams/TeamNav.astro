@@ -1,0 +1,56 @@
+---
+/**
+ * Previous/next links between team pages.
+ *
+ * Same program only, and no wrap-around at the ends — see teamNeighbors() in
+ * src/utils/teams.ts for why. Renders nothing at all when a program has only one team,
+ * rather than an empty rule across the bottom of the page.
+ */
+import type { CollectionEntry } from 'astro:content';
+import FirstText from '../brand/FirstText.astro';
+import { PROGRAM_NAMES, teamNeighbors, teamPath } from '../../utils/teams';
+
+interface Props {
+  team: CollectionEntry<'teams'>;
+  teams: CollectionEntry<'teams'>[];
+}
+
+const { team, teams } = Astro.props;
+const { prev, next } = teamNeighbors(teams, team);
+
+const linkClass =
+  'group flex max-w-[48%] flex-col gap-0.5 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
+const labelClass = 'font-mono text-xs font-semibold text-brand-accent';
+const nameClass =
+  'font-heading text-sm font-bold text-slate-900 transition-colors duration-fast ease-out-soft group-hover:text-brand-accent';
+---
+
+{
+  (prev || next) && (
+    <nav
+      class="mt-4 flex items-start justify-between gap-6 border-t border-slate-200 pt-6"
+      aria-label={`More ${PROGRAM_NAMES[team.data.program]} teams`}
+    >
+      {/* Rendered as an empty span rather than omitted when there is no previous team, so
+          `next` stays flush right instead of sliding across to fill the gap. */}
+      {prev ? (
+        <a href={teamPath(prev)} class={linkClass}>
+          <span class={labelClass}>&larr; {prev.data.program} {prev.data.number}</span>
+          <span class={nameClass}>
+            <FirstText text={prev.data.name} />
+          </span>
+        </a>
+      ) : (
+        <span />
+      )}
+      {next && (
+        <a href={teamPath(next)} class:list={[linkClass, 'items-end text-right']}>
+          <span class={labelClass}>{next.data.program} {next.data.number} &rarr;</span>
+          <span class={nameClass}>
+            <FirstText text={next.data.name} />
+          </span>
+        </a>
+      )}
+    </nav>
+  )
+}

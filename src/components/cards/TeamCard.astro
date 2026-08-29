@@ -1,8 +1,9 @@
 ---
 import { Image } from 'astro:assets';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import FirstText from '../brand/FirstText.astro';
-import { withBase } from '../../utils/base';
+import SocialLinks from '../marketing/SocialLinks.astro';
+import { PROGRAM_NAMES, teamPath } from '../../utils/teams';
 
 interface Props {
   team: CollectionEntry<'teams'>;
@@ -18,52 +19,32 @@ interface Props {
   forceReg?: boolean;
 }
 
+const { team, forceReg } = Astro.props;
+const { number, name, program, organization, community, logo, description, highlight, socials, newTeam } = team.data;
+
 // The schema's FRC/FTC values are internal data keys. A card badge is a standalone label
 // with no guaranteed earlier mention on the page, so it carries the full program name —
 // which also satisfies the guidelines' requirement (p. 32) that team identification appear
-// in conjunction with the program name.
-const programNames: Record<CollectionEntry<'teams'>['data']['program'], string> = {
-  FRC: 'FIRST Robotics Competition',
-  FTC: 'FIRST Tech Challenge',
-};
-
-const { team, forceReg } = Astro.props;
-const { number, name, program, organization, community, logo, description, highlight, links, socials, newTeam } = team.data;
-
-// Rendered in a fixed, predictable order regardless of frontmatter key order; only
-// platforms a team actually has get a spot, so the row's width tracks what's real.
-// The news page's team filter is keyed on team number, so a card can offer a deep link
-// into it. Only when the team is actually referenced somewhere — a chip that matches
-// nothing would land the visitor on an empty grid. The draft predicate must match
-// src/pages/news/index.astro, or the link can promise coverage the grid never renders.
-const newsPosts = await getCollection('news', ({ data }) => !data.draft);
-const hasNews = newsPosts.some((p) => p.data.teamRefs.includes(number));
-
-// Every item in the links row carries the divider; `last:` drops it from whichever
-// item ends up last in the DOM, so the rule never dangles whether the row is one
-// News link, one outbound link, or all of them. `gap-3` still separates the items;
-// the padding widens that gap on either side of the rule so it has room to read.
-const linkDivider =
-  'mr-1 border-r border-slate-200 pr-4 last:mr-0 last:border-r-0 last:pr-0';
-
-const socialLinks = socials
-  ? (
-      [
-        { key: 'instagram', url: socials.instagram, label: 'Instagram' },
-        { key: 'facebook', url: socials.facebook, label: 'Facebook' },
-        { key: 'twitter', url: socials.twitter, label: 'X (Twitter)' },
-        { key: 'tiktok', url: socials.tiktok, label: 'TikTok' },
-        { key: 'youtube', url: socials.youtube, label: 'YouTube' },
-        { key: 'flickr', url: socials.flickr, label: 'Flickr' },
-        { key: 'tumblr', url: socials.tumblr, label: 'Tumblr' },
-        { key: 'github', url: socials.github, label: 'GitHub' },
-        { key: 'website', url: socials.website, label: 'Website' },
-      ] as const
-    ).filter((s): s is (typeof s) & { url: string } => Boolean(s.url))
-  : [];
+// in conjunction with the program name. PROGRAM_NAMES lives in src/utils/teams.ts so this
+// card and the detail page can't drift apart on the wording.
+const href = teamPath(team);
 ---
 
-<div class="card card-pad" data-reveal>
+{/* Whole-card click, but still a <div> rather than an <a>. Wrapping the card in an anchor
+    would nest the heading link and social icons it still contains inside another one, which
+    is invalid and breaks assistive tech; a stretched ::after overlay would instead sit ON TOP
+    of those links and kill text selection. So the navigation is delegated in the script below,
+    which defers to any real link the click landed on.
+
+    The heading link is what makes this reachable without a mouse — the card itself is
+    deliberately not focusable, since a tabindex here would add a second tab stop to every
+    tile leading exactly where the heading already leads. `.card-link` supplies the hover
+    lift; its own comment in marketing.css scopes it to cards that ARE or CONTAIN a link. */}
+<div
+  class="card card-link card-pad group cursor-pointer"
+  data-reveal
+  data-team-card-link={href}
+>
   {
     newTeam && (
       <span class="absolute -top-2.5 right-4 border border-brand-accent-fill bg-brand-accent-fill px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-wide text-slate-900">
@@ -77,107 +58,56 @@ const socialLinks = socials
     {logo && <Image src={logo} alt={`${name} logo`} class="h-12 w-auto max-w-[5rem] shrink-0 object-contain" />}
     <div>
       <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">
-        <FirstText text={programNames[program]} reg={forceReg} /> {number}
+        <FirstText text={PROGRAM_NAMES[program]} reg={forceReg} /> {number}
       </p>
-      <h3 class="font-heading text-base font-bold text-slate-900">{name}</h3>
+      <h3 class="font-heading text-base font-bold text-slate-900">
+        <a
+          href={href}
+          class="rounded-sm transition-colors duration-fast ease-out-soft group-hover:text-brand-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
+        >
+          {name}
+        </a>
+      </h3>
     </div>
   </div>
   <p class="mt-2 text-xs text-slate-500">{organization} &middot; {community}</p>
   <p class="mt-2 text-sm text-slate-600"><FirstText text={description} reg={forceReg} /></p>
   {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
-  {
-    (hasNews || links.length > 0) && (
-      <ul class="mt-4 flex flex-wrap gap-3">
-        {/* Leads the row: the one destination that stays on this site, so it takes
-            &rarr; where the team's own outbound links take &nearr;. */}
-        {hasNews && (
-          <li class={linkDivider}>
-            <a
-              href={withBase(`news/?team=${number}`)}
-              class="font-mono text-xs font-semibold text-brand-accent hover:underline"
-              aria-label={`News about ${name}`}
-            >
-              News &rarr;
-            </a>
-          </li>
-        )}
-        {links.map((link) => (
-          <li class={linkDivider}>
-            <a href={link.url} target="_blank" rel="noopener noreferrer" class="font-mono text-xs font-semibold text-brand-accent hover:underline">
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
-  {
-    socialLinks.length > 0 && (
-      <ul class="mt-3 flex flex-wrap items-center gap-3 text-slate-500">
-        {socialLinks.map((social) => (
-          <li>
-            <a
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-no-external-arrow
-              class="transition-colors duration-base ease-out-soft hover:text-brand-accent"
-              aria-label={`${name} on ${social.label}`}
-            >
-              {social.key === 'instagram' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <circle cx="12" cy="12" r="5" />
-                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
-                </svg>
-              )}
-              {social.key === 'facebook' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
-                </svg>
-              )}
-              {social.key === 'twitter' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z" />
-                </svg>
-              )}
-              {social.key === 'tiktok' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
-                </svg>
-              )}
-              {social.key === 'youtube' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8zM9.6 15.6V8.4L15.8 12l-6.2 3.6z" />
-                </svg>
-              )}
-              {social.key === 'flickr' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <circle cx="6.5" cy="12" r="4.5" />
-                  <circle cx="17.5" cy="12" r="4.5" />
-                </svg>
-              )}
-              {social.key === 'tumblr' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <path d="M14.563 24c-5.093 0-7.031-3.756-7.031-6.411V9.747H5.116V6.648c3.63-1.313 4.512-4.596 4.71-6.469C9.84.051 9.941 0 9.999 0h3.517v6.114h4.801v3.633h-4.82v7.47c.016 1.001.375 2.371 2.207 2.371h.09c.631-.02 1.486-.205 1.936-.419l1.156 3.425c-.436.636-2.4 1.374-4.156 1.404h-.178l.011.002z" />
-                </svg>
-              )}
-              {social.key === 'github' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.378.203 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" />
-                </svg>
-              )}
-              {social.key === 'website' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                </svg>
-              )}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  {/* TBA/FTC Events/FTCScout and the News deep link used to live here, but every one of
+      them is now front and center on the team's own detail page (Team History section and
+      News section) — a card repeating them was redundant with the page one click away. */}
+  <SocialLinks socials={socials} owner={name} class="mt-3" />
 </div>
+
+<script>
+  // Delegated from the document, not bound per card: /about/teams/ renders fifteen of these
+  // and the About page renders every team into the DOM to reveal a random few. Astro bundles
+  // this module once however many times the component appears.
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    const card = target.closest<HTMLElement>('[data-team-card-link]');
+    if (!card) return;
+
+    // Any real link or button inside the card wins outright — the heading link and the
+    // social icon row are what live in here now.
+    if (target.closest('a, button')) return;
+
+    // Someone dragging out a team name or address ends their mouseup on the card. Treating
+    // that as a click would navigate away from the text they just selected.
+    if (window.getSelection()?.toString()) return;
+
+    const href = card.dataset.teamCardLink;
+    if (!href) return;
+
+    // Honour the modifiers a real link would: cmd/ctrl/middle-click opens a new tab rather
+    // than yanking the visitor off the directory they were browsing.
+    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+      window.open(href, '_blank', 'noopener');
+      return;
+    }
+
+    window.location.assign(href);
+  });
+</script>

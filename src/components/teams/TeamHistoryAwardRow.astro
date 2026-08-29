@@ -1,0 +1,54 @@
+---
+/**
+ * One award row — a banner-eligibility dot, the award's label, and (only when there's no
+ * parent event line already showing it) a sourced link to the event it was won at.
+ *
+ * Extracted out of TeamHistoryYears.astro because it renders in two places there: nested
+ * under its event in the common case, and standalone (with the event shown) for the rare
+ * award whose event isn't in that season's `events` list yet.
+ */
+import { awardLabel, type TeamAward } from '../../utils/awards';
+import type { BannerColor } from '../../utils/banners';
+
+interface Props {
+  award: TeamAward;
+  color: BannerColor | null;
+  /** False when this row already sits under its event in the parent list. */
+  showEvent?: boolean;
+}
+
+const { award, color, showEvent = true } = Astro.props;
+
+const dotMarker: Record<BannerColor, string> = {
+  blue: 'bg-brand',
+  orange: 'bg-[#b4530f]',
+};
+---
+
+<li class="flex items-start gap-2">
+  {
+    color ? (
+      <span class:list={['mt-1.5 h-2 w-2 shrink-0 rounded-full', dotMarker[color]]} title="Earned a banner" />
+    ) : (
+      <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-slate-300" aria-hidden="true" />
+    )
+  }
+  {/* Stacked below `sm` rather than splitting into two ragged columns, same fix as the
+      award summary. Only matters when showEvent renders a second segment. */}
+  <div class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+    <span class="text-slate-900">
+      {awardLabel(award)}
+      {color && <span class="sr-only"> — earned a banner</span>}
+    </span>
+    {
+      showEvent && (
+        <span class="text-slate-500">
+          <span class="hidden sm:inline">&middot; </span>
+          <a href={award.source} target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent hover:underline">
+            {award.event}
+          </a>
+        </span>
+      )
+    }
+  </div>
+</li>

@@ -9,14 +9,17 @@ import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-  // Served from the apex domain root, so there is no `base`. If this ever moves to a Pages
-  // project subpath, re-add `base` — withBase() in src/utils/base.ts routes every internal
-  // link through one place, so that stays a one-line change.
+  // REVIEW MODE: pointed at the GitHub Pages project URL instead of the eventual custom
+  // domain, and `base` is set for the project subpath this implies. Revert both — drop `base`
+  // and restore `site` to 'https://refineryrobotics.org' — as part of the real launch (see
+  // README.md → Deployment). withBase() in src/utils/base.ts routes every internal link
+  // through one place, so that revert stays a one-line change.
   //
   // public/CNAME is deliberately absent until launch: GitHub Pages reads that file from the
   // deployed artifact and claims the custom domain from it, so creating it is the act of going
   // live. See the Deployment section in README.md.
-  site: 'https://refineryrobotics.org',
+  site: 'https://bionanomics.github.io',
+  base: '/REFINERY-site',
 
   vite: {
     plugins: [tailwindcss()],
@@ -78,4 +81,13 @@ export default defineConfig({
   // date available is a news pubDate — an event's dateStart is in the future, and a build-time
   // stamp is worse than no date at all.
   integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404') })],
+
+  // Team detail pages live at /teams/<program><number>/, but the directory that lists them
+  // stays at /about/teams/ — moving it would break an already-indexed URL. A visitor who
+  // trims a team URL back to /teams/ should land on that directory rather than a 404. On a
+  // static build Astro emits a meta-refresh page for this, which is the only redirect
+  // mechanism GitHub Pages offers.
+  redirects: {
+    '/teams': '/about/teams/',
+  },
 });

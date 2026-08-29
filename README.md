@@ -37,10 +37,27 @@ The numbers are also repeated in prose in `public/llms.txt`, which is not genera
 
 ## Deployment
 
-**Not deployed yet, on purpose.** GitHub Pages should be set to Source: **None** until launch.
-`site` in `astro.config.mjs` is `https://refineryrobotics.org` and DNS already points there via
-Cloudflare, but `public/CNAME` is deliberately absent, so nothing claims the domain. Pushes to
-`main` will fail `.github/workflows/deploy.yml` while Pages is off — expected, not a regression.
+**Currently in review mode, not launched.** The repo is public and GitHub Pages (Source:
+GitHub Actions) serves the site at `https://bionanomics.github.io/REFINERY-site/` so it can be
+reviewed before the real launch. `site` in `astro.config.mjs` is temporarily
+`https://bionanomics.github.io` with `base: '/REFINERY-site'`, `public/robots.txt` disallows
+all crawling, and `SITE_INDEXABLE` in `src/layouts/BaseHead.astro` is `false` (forces noindex
+on every page). `public/CNAME` is still deliberately absent, so nothing claims
+`refineryrobotics.org` — the repo's prior private visibility was the only thing protecting it
+from being publicly reachable, and that protection is now gone in exchange for a link anyone
+can view without a GitHub account.
+
+Reverting to the pre-review state (e.g. if review needs to pause): re-run
+`gh repo edit --visibility private`, restore `Allow: /` + the `Sitemap:` line in
+`public/robots.txt`, and drop the `base`/`site` review-mode change in `astro.config.mjs` back to
+`https://refineryrobotics.org` with no `base`.
+
+Launch order, when ready — this replaces review mode entirely: flip `SITE_INDEXABLE` to `true`,
+restore `astro.config.mjs`'s `site`/`base` to the apex-domain values above, and restore
+`public/robots.txt` to `Allow: /` plus its `Sitemap:` line. Then work through the domain steps
+below. `site` in `astro.config.mjs` is `https://refineryrobotics.org` and DNS already points
+there via Cloudflare, but `public/CNAME` is deliberately absent, so nothing claims the domain
+until step 1.
 
 Launch order, when ready. Step 1 is the arming step: GitHub Pages reads `CNAME` from the
 deployed artifact and claims the custom domain from it, so don't enable Pages before it.

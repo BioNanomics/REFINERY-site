@@ -138,6 +138,86 @@ import { contactForm } from '../../config/contact-forms';
     dialog.querySelector<HTMLElement>('[data-dialog-close]')?.focus();
   }
 
+  /**
+   * Values this mechanism seeded, keyed by field name.
+   *
+   * Needed because the form deliberately survives an accidental close WITHOUT resetting —
+   * see the 'close' handler, which only calls form.reset() after a successful send. So a
+   * later open must be able to tell "still showing what we put there" from "the visitor
+   * typed this", and overwrite only the former. Clearing a draft someone was mid-way
+   * through would be a far worse bug than a stale seed.
+   */
+  const seeded = new Map<string, string>();
+
+  /**
+   * Seeds form fields from a trigger's data-contact-prefill, e.g. a team page's CTA filling
+   * in "Interested in joining team 1501" and pre-selecting the mentoring option.
+   *
+   * Runs AFTER applyTopic, which enables and disables the topic-scoped fields — the message
+   * box exists in several topic-scoped variants sharing one name, and only the on-topic one
+   * is enabled, so filtering on `disabled` is what picks the right box.
+   */
+  function applyPrefill(dialog: HTMLDialogElement, raw: string | undefined) {
+    const form = dialog.querySelector<HTMLFormElement>('[data-contact-form]');
+    if (!form) return;
+
+    let prefill: Record<string, string> = {};
+    if (raw) {
+      try {
+        prefill = JSON.parse(raw);
+      } catch {
+        // A malformed attribute is an authoring bug, not a reason to refuse to open.
+        prefill = {};
+      }
+    }
+
+    // Union with everything previously seeded, so a trigger that supplies nothing CLEARS
+    // an earlier seed rather than leaving another team's text stranded in the box.
+    const names = new Set([...Object.keys(prefill), ...seeded.keys()]);
+
+    names.forEach((name) => {
+      const value = prefill[name] ?? '';
+      const controls = Array.from(
+        form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`),
+      ).filter((control) => !control.disabled);
+      if (controls.length === 0) return;
+
+      const radios = controls.filter(
+        (control): control is HTMLInputElement => (control as HTMLInputElement).type === 'radio',
+      );
+
+      if (radios.length > 0) {
+        const checked = radios.find((radio) => radio.checked);
+        // Untouched means still on the server-rendered default (defaultChecked, which is
+        // the `default` declared in contact-forms.ts) or still on our own last seed.
+        const untouched =
+          !checked || checked.defaultChecked || checked.value === seeded.get(name);
+        if (!untouched) return;
+
+        const target = radios.find((radio) => radio.value === value);
+        if (target) {
+          target.checked = true;
+          seeded.set(name, value);
+        } else {
+          // Nothing to seed: put the group back on its declared default rather than
+          // leaving another trigger's choice selected.
+          const fallback = radios.find((radio) => radio.defaultChecked);
+          if (fallback) fallback.checked = true;
+          seeded.delete(name);
+        }
+        return;
+      }
+
+      const field = controls[0];
+      const untouched = field.value === field.defaultValue || field.value === seeded.get(name);
+      if (!untouched) return;
+
+      field.value = value;
+      if (value) seeded.set(name, value);
+      else seeded.delete(name);
+    });
+  }
+
   function closeDialog(dialog: HTMLDialogElement) {
     if (!dialog.open) return;
     dialog.close(); // fires 'close' — cleanup lives in that listener, shared with Esc/backdrop/etc.
@@ -166,6 +246,14 @@ import { contactForm } from '../../config/contact-forms';
         declaredTopic ?? visitorChosenTopic ?? contactForm.defaultTopic,
         Boolean(declaredTopic),
       );
+
+      // What the message is about, when the trigger knows — a team page's CTA names its
+      // team. Reset on every open rather than only when present, so context from one
+      // trigger can't leak into a later message opened from a generic button.
+      const aboutField = dialog.querySelector<HTMLInputElement>('[data-contact-about-field]');
+      if (aboutField) aboutField.value = trigger.dataset.contactAbout ?? '';
+
+      applyPrefill(dialog, trigger.dataset.contactPrefill);
 
       openDialog(dialog);
     });
@@ -264,6 +352,9 @@ import { contactForm } from '../../config/contact-forms';
         const payload: Record<string, string> = {};
         new FormData(form).forEach((value, key) => {
           if (key === 'website') return;
+          // `about` is set only by triggers that know what the message concerns (a team
+          // page's CTA). Every other message would otherwise carry an empty one.
+          if (key === 'about' && !String(value).trim()) return;
           // Checkbox groups repeat one key per ticked box — collapse them into a
           // single readable value instead of letting the last one win.
           payload[key] = payload[key] ? `${payload[key]}, ${value}` : String(value);
