@@ -110,10 +110,11 @@ const jsonLd = sportsTeam({
   sameAs,
 });
 
-// Short form for the last crumb and the browser tab — "FRC 1501 — T.H.R.U.S.T." fits
-// BaseHead's 60-character budget once the brand suffix is appended, where the full program
-// name would not. BaseHead applies firstPlain() itself, so this is passed raw.
-const shortLabel = `${program} ${number}`;
+// Short form for the last crumb and the browser tab — bare number rather than
+// "FRC 1501"/"FTC 1501", since FIRST has asked partner sites not to display the program
+// abbreviations and the full program name would blow BaseHead's 60-character title budget.
+// `programName` above already carries the full name for everywhere else on this page.
+const shortLabel = `${number}`;
 
 // One definition, so the three labels can't drift apart in size or colour.
 const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
