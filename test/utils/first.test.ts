@@ -26,11 +26,25 @@ describe('tokenizeFirst', () => {
     expect(tokenizeFirst('FIRST FRC FTC LEGO')).toEqual([
       { type: 'mark', value: 'FIRST', token: 'FIRST' },
       { type: 'text', value: ' ' },
-      { type: 'mark', value: 'FRC', token: 'FRC' },
+      { type: 'mark', value: 'FIRST', token: 'FIRST' },
+      { type: 'text', value: ' Robotics Competition' },
       { type: 'text', value: ' ' },
-      { type: 'mark', value: 'FTC', token: 'FTC' },
+      { type: 'mark', value: 'FIRST', token: 'FIRST' },
+      { type: 'text', value: ' Tech Challenge' },
       { type: 'text', value: ' ' },
       { type: 'mark', value: 'LEGO', token: 'LEGO' },
+    ]);
+  });
+
+  it('expands FRC/FTC to the FIRST mark plus the program name, never the bare abbreviation', () => {
+    expect(tokenizeFirst('Our FRC team plays alongside an FTC team')).toEqual([
+      { type: 'text', value: 'Our ' },
+      { type: 'mark', value: 'FIRST', token: 'FIRST' },
+      { type: 'text', value: ' Robotics Competition' },
+      { type: 'text', value: ' team plays alongside an ' },
+      { type: 'mark', value: 'FIRST', token: 'FIRST' },
+      { type: 'text', value: ' Tech Challenge' },
+      { type: 'text', value: ' team' },
     ]);
   });
 
@@ -97,8 +111,16 @@ describe('firstPlain', () => {
     expect(firstPlain('FIRST loves FIRST robotics')).toBe('FIRST® loves FIRST robotics');
   });
 
-  it('marks each distinct token on its own first use', () => {
-    expect(firstPlain('FIRST, FRC, and FTC')).toBe('FIRST®, FRC®, and FTC®');
+  it('expands FRC/FTC to the full program name, sharing the FIRST claim rather than getting their own ®', () => {
+    expect(firstPlain('FIRST, FRC, and FTC')).toBe(
+      'FIRST®, FIRST Robotics Competition, and FIRST Tech Challenge',
+    );
+  });
+
+  it('registers FIRST on first expansion when no bare FIRST precedes it', () => {
+    expect(firstPlain('FRC teams and FTC teams')).toBe(
+      'FIRST® Robotics Competition teams and FIRST Tech Challenge teams',
+    );
   });
 
   it('starts a fresh claim set on every call', () => {

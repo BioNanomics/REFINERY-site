@@ -39,12 +39,49 @@ describe('rehypeFirstMarks', () => {
     expect(children[3]).toEqual({ type: 'text', value: ' today' });
   });
 
-  it('does not italicize FRC/FTC/LEGO, but does mark their first use', () => {
+  it('expands FRC to the FIRST mark plus "Robotics Competition", never the bare abbreviation', () => {
     const tree = root(element('p', [text('FRC teams build robots')]));
     run(tree);
     const children = tree.children[0].children;
-    expect(children[0]).toEqual({ type: 'text', value: 'FRC' });
+    expect(children[0]).toMatchObject({
+      tagName: 'i',
+      children: [{ type: 'text', value: 'FIRST' }],
+    });
     expect(children[1]).toMatchObject({ tagName: 'sup' });
+    expect(children[2]).toEqual({ type: 'text', value: ' Robotics Competition' });
+    expect(children[3]).toEqual({ type: 'text', value: ' teams build robots' });
+  });
+
+  it('expands FTC to the FIRST mark plus "Tech Challenge"', () => {
+    const tree = root(element('p', [text('an FTC event')]));
+    run(tree);
+    const children = tree.children[0].children;
+    expect(children[1]).toMatchObject({
+      tagName: 'i',
+      children: [{ type: 'text', value: 'FIRST' }],
+    });
+    expect(children[3]).toEqual({ type: 'text', value: ' Tech Challenge' });
+  });
+
+  it('does not italicize LEGO, but does mark its first use', () => {
+    const tree = root(element('p', [text('LEGO bricks')]));
+    run(tree);
+    const children = tree.children[0].children;
+    expect(children[0]).toEqual({ type: 'text', value: 'LEGO' });
+    expect(children[1]).toMatchObject({ tagName: 'sup' });
+  });
+
+  it('shares the FIRST claim between a bare mention and an FRC/FTC expansion', () => {
+    const tree = root(
+      element('p', [text('FIRST is great.')]),
+      element('p', [text('Our FRC team competes every spring.')]),
+    );
+    run(tree);
+    const secondParagraph = tree.children[1].children;
+    // The expansion still gets the italic FIRST, but no second ® — FIRST was already
+    // claimed by the first paragraph's bare mention.
+    expect(secondParagraph.some((n: any) => n.tagName === 'i')).toBe(true);
+    expect(secondParagraph.some((n: any) => n.tagName === 'sup')).toBe(false);
   });
 
   it('only marks the first use of a token across the whole document', () => {

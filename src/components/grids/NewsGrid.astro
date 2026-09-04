@@ -24,7 +24,7 @@ const categories = [
 // Only teams that appear somewhere get a chip, so no chip can filter down to an
 // empty grid. This predicate must match the one TeamCard uses to decide whether
 // to show its News link, or that link can land on a team with no chip.
-// Sorted by team number, FRC-style.
+// Sorted by team number.
 const teamStoryRefs = new Set(posts.flatMap((p) => p.data.teamRefs));
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 const teamFilters = [
@@ -32,7 +32,11 @@ const teamFilters = [
   ...allTeams
     .filter((t) => teamStoryRefs.has(t.data.number))
     .sort((a, b) => Number(a.data.number) - Number(b.data.number))
-    .map((t) => ({ value: t.data.number, label: `${t.data.program} ${t.data.number}` })),
+    // Bare number rather than "FRC 1501"/"FTC 1501" — FIRST has asked partner sites not to
+    // display the program abbreviations, and a chip this compact has no room for the full
+    // program name. The pill sits under the "Teams" category chip, so the program itself is
+    // never in question here, only which team.
+    .map((t) => ({ value: t.data.number, label: t.data.number })),
 ];
 // Two visually distinct tiers. Category chips are the primary control: squared
 // corners, solid navy when active. Team chips are subordinate to Teams, so they
