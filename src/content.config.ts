@@ -119,16 +119,21 @@ const teams = defineCollection({
           image: image(),
           alt: z.string(),
           credit: z.object({ text: z.string(), url: z.string().url().optional() }),
-          // The band crops to a fixed 2:1 (see TeamMasthead.astro), which centers on the
-          // source photo by default. A photo shot at roughly 2:1 with its subject already
-          // centered needs nothing here. A typical team photo runs far taller than that (a
-          // group's subjects span nearly its full height, well over double a 2:1 band's
-          // visible slice) and needs a focal point, or the crop centers on chests and cuts
-          // off both the faces above and whatever they're standing around below — and even
-          // with a focal point, 2:1 usually isn't tall enough to keep both; pick which one
-          // matters more. Any valid CSS `object-position` value (e.g. "center 20%", "center
-          // bottom"); passed through unvalidated, so preview it before committing.
+          // The band shows the photo at its own aspect ratio down to a floor of 5:3 (see
+          // TeamMasthead.astro), centering on the source photo by default. A photo shot at
+          // 5:3 or wider, with its subject already centered, needs nothing here. A photo
+          // taller than that (a group shot is the common case: subjects run nearly its full
+          // height) gets clamped to the floor and cropped, and centering isn't always right
+          // for it — this overrides where that crop centers. Any valid CSS `object-position`
+          // value (e.g. "center 20%", "center bottom"); passed through unvalidated, so
+          // preview it before committing.
           focalPoint: z.string().optional(),
+          // For the rare banner that already carries the team's logo baked into the image
+          // itself (a pit banner graphic, say, rather than event photography) — set so
+          // TeamMasthead skips its own logo plaque instead of showing the mark twice.
+          // `logo` above stays populated regardless: it still feeds the page's schema.org
+          // metadata, which has nothing to do with what the masthead renders on top of it.
+          logoInBanner: z.boolean().optional(),
         })
         .optional(),
 
