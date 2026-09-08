@@ -46,11 +46,20 @@ const teamFilters = [
 const categoryChip =
   'rounded-control border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft';
 const categoryChipOn = 'border-brand bg-brand text-brand-light';
-const categoryChipOff = 'border-slate-300 text-slate-600 hover:border-brand';
+// bg-slate-50, not transparent (the old value): this grid sits on the page's fixed
+// grid-texture layer (MarketingLayout.astro) — an unfilled chip let it show straight
+// through. Solid slate-50 needs no color-mix (unlike the team chip's tinted "on" state
+// below): it's already an opaque color, not an alpha blend.
+const categoryChipOff = 'border-slate-300 bg-slate-50 text-slate-600 hover:border-brand';
 
 const teamChip =
   'rounded-full border px-2.5 py-1 font-mono text-[0.65rem] font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft';
-const teamChipOn = 'border-brand bg-brand/10 text-brand';
+// A solid color-mix, not an alpha tint: this grid sits on the page's fixed grid-texture
+// layer (MarketingLayout.astro), and a translucent fill lets each faint grid line bleed
+// through unevenly. Mixing against --color-page (that layer's own opaque backdrop) instead
+// of leaving it to composite at render time gives the same light tint with a uniform, solid
+// result regardless of what's behind it — see the identical fix on AwardSummary.astro's tiles.
+const teamChipOn = 'border-brand bg-[color-mix(in_srgb,var(--color-brand)_10%,var(--color-page))] text-brand';
 const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-brand hover:text-brand';
 ---
 
@@ -120,10 +129,10 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
     // constants in the frontmatter above.
     const CATEGORY_STATE = {
       on: ['border-brand', 'bg-brand', 'text-brand-light'],
-      off: ['border-slate-300', 'text-slate-600', 'hover:border-brand'],
+      off: ['border-slate-300', 'bg-slate-50', 'text-slate-600', 'hover:border-brand'],
     };
     const TEAM_STATE = {
-      on: ['border-brand', 'bg-brand/10', 'text-brand'],
+      on: ['border-brand', 'bg-[color-mix(in_srgb,var(--color-brand)_10%,var(--color-page))]', 'text-brand'],
       off: ['border-slate-200', 'bg-slate-50', 'text-slate-500', 'hover:border-brand', 'hover:text-brand'],
     };
 
