@@ -119,6 +119,16 @@ const teams = defineCollection({
           image: image(),
           alt: z.string(),
           credit: z.object({ text: z.string(), url: z.string().url().optional() }),
+          // The band crops to a fixed 2:1 (see TeamMasthead.astro), which centers on the
+          // source photo by default. A photo shot at roughly 2:1 with its subject already
+          // centered needs nothing here. A typical team photo runs far taller than that (a
+          // group's subjects span nearly its full height, well over double a 2:1 band's
+          // visible slice) and needs a focal point, or the crop centers on chests and cuts
+          // off both the faces above and whatever they're standing around below — and even
+          // with a focal point, 2:1 usually isn't tall enough to keep both; pick which one
+          // matters more. Any valid CSS `object-position` value (e.g. "center 20%", "center
+          // bottom"); passed through unvalidated, so preview it before committing.
+          focalPoint: z.string().optional(),
         })
         .optional(),
 
