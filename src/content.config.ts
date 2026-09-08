@@ -210,15 +210,19 @@ const teams = defineCollection({
       relatedTeams: z.array(reference('teams')).default([]),
 
       // One entry per season the team has a robot worth naming. `year` rather than a
-      // free-text season so the list sorts; `game` carries the season name verbatim when
-      // published. Note FIRST game names are marks in their own right but are NOT in
-      // FIRST_TOKENS, so they render exactly as authored rather than picking up a ®.
+      // free-text season so the list sorts.
       robots: z
         .array(
           z.object({
             name: z.string(),
             year: z.number().int().gte(1992),
-            game: z.string().optional(),
+            // The season's official game name/mark lives once in src/utils/games.ts —
+            // keyed by the team's own `program` plus this `year` — rather than repeated
+            // (and risking drift) across every team that played it. This just opts a
+            // specific robot into showing whatever that shared directory has on file for
+            // its year; a team whose robot predates the directory being populated for that
+            // season, or one that deliberately shouldn't show it, simply leaves this false.
+            showGame: z.boolean().default(false),
             description: z.string().max(280).optional(),
             image: image().optional(),
             imageAlt: z.string().optional(),

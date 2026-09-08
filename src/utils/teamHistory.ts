@@ -78,3 +78,15 @@ export function groupTeamHistory<TRobot extends { year: number }>(
 export function formatRecord(record: SeasonRecord): string {
   return `${record.wins}-${record.losses}-${record.ties}`;
 }
+
+/**
+ * FRC labels a season by the single calendar year it plays in ("2026"); FTC spans two
+ * ("2024–2025") since its season runs across a school year. `year` is always the LATER of
+ * the two — the convention this site already uses everywhere a season is stored (events,
+ * awards, robots), matching FTCScout's own URLs, which key on that same ending year. This
+ * just formats that one stored number back into the two-year label FTC actually publishes
+ * seasons under; it doesn't change what's stored.
+ */
+export function formatSeasonYear(program: 'FRC' | 'FTC', year: number): string {
+  return program === 'FTC' ? `${year - 1}–${year}` : String(year);
+}
