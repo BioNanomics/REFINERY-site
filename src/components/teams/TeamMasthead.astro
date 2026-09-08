@@ -19,6 +19,14 @@
  * white page, and they range from near-white wordmarks to dark navy badges — dropping them
  * straight onto a navy band makes roughly half of them illegible. A plaque gives every one
  * of the fourteen the background it was designed for, with no per-team overrides.
+ *
+ * The band is a single 2:1 aspect at every viewport width (no separate mobile/desktop
+ * ratio) — two different ratios per breakpoint would fight over a single `focalPoint` (a
+ * value tuned for one breakpoint's crop window generally isn't right for the other's). 2:1
+ * still crops most source photos hard: a group photo's subjects run nearly the photo's full
+ * height, so this band can show faces OR what they're standing around, not both — pick with
+ * `banner.focalPoint`, which overrides where `object-cover`'s crop centers (see the field's
+ * comment in content.config.ts).
  */
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
@@ -50,7 +58,8 @@ const { name, logo, banner } = team.data;
             widths={[640, 1024, 1600]}
             sizes="(min-width: 1024px) 832px, 100vw"
             loading="eager"
-            class="card-media aspect-[9/4] w-full object-cover sm:aspect-[7/2]"
+            class="card-media aspect-[2/1] w-full object-cover"
+            style={banner.focalPoint ? { objectPosition: banner.focalPoint } : undefined}
           />
           {/* Overlaid bottom-RIGHT, diagonally opposite the plaque, so the credit can never
               collide with it at any viewport width. Kept on the image rather than moved
@@ -73,7 +82,7 @@ const { name, logo, banner } = team.data;
           </p>
         </>
       ) : (
-        <div class="card-media relative aspect-[9/4] overflow-hidden bg-brand sm:aspect-[7/2]">
+        <div class="card-media relative aspect-[2/1] overflow-hidden bg-brand">
           {/* text-white/[0.09] drives the texture's currentColor. Lighter than the
               page-level texture (brand navy at 5.5%) because it sits on navy rather than
               under it. */}
