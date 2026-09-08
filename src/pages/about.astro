@@ -251,7 +251,13 @@ const aboutSchema = [
                 title={firstPlain(partner.data.name)}
                 data-reveal
               >
-                <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[102px] w-auto max-w-[290px] rounded-media object-contain" />
+                {/* The Amp Lab mark has almost no built-in padding, so at the shared
+                    102px height it reads noticeably larger than the other partners' logos. */}
+                {partner.id === 'amp-lab' ? (
+                  <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[84px] w-auto max-w-[290px] object-contain" />
+                ) : (
+                  <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[102px] w-auto max-w-[290px] object-contain" />
+                )}
               </a>
             ))}
           </div>
