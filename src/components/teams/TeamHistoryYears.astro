@@ -10,22 +10,38 @@
  * decades on record (T.H.R.U.S.T. runs 2005-2026) would otherwise render exactly as long a
  * page as before this component existed.
  */
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { ordinal, type TeamAward } from '../../utils/awards';
 import type { BannerColor } from '../../utils/banners';
-import { formatRecord, type TeamYear } from '../../utils/teamHistory';
+import { seasonGame } from '../../utils/games';
+import { formatRecord, formatSeasonYear, type TeamYear } from '../../utils/teamHistory';
 import TeamHistoryAwardRow from './TeamHistoryAwardRow.astro';
+import TeamHistoryEvents from './TeamHistoryEvents.astro';
 
 type TeamRobot = CollectionEntry<'teams'>['data']['robots'][number];
 
 interface Props {
   years: TeamYear<TeamRobot>[];
+  /** Which season-games directory to look `robot.showGame` up in — FRC and FTC run
+   * different games in the same year, so this can't be inferred from the year alone. */
+  program: 'FRC' | 'FTC';
   /** Same banner-eligibility function the wall and the (now-merged) award rows both use. */
   bannerOf: (award: TeamAward) => BannerColor | null;
 }
 
-const { years, bannerOf } = Astro.props;
+const { years, program, bannerOf } = Astro.props;
+
+// Precomputed once, up front, rather than inside the per-year map below: getImage() is
+// async, so it can't run inline in a synchronous .map() callback. Keyed by each photo's raw
+// module src (unique per source file) so the click handler can look up which full-size URL
+// belongs to whichever thumbnail was clicked, without re-deriving it client-side — the
+// lightbox <img> is a plain <img>, not Astro's <Image>, since its src is set by that click
+// handler rather than known at build time.
+const robotImages = years.flatMap((year) => year.robots.flatMap((robot) => (robot.image ? [robot.image] : [])));
+const fullSizeBySrc = new Map(
+  await Promise.all(robotImages.map(async (image) => [image.src, (await getImage({ src: image, width: 1600 })).src] as const)),
+);
 ---
 
 <div class="mt-6 space-y-3">
@@ -45,11 +61,22 @@ const { years, bannerOf } = Astro.props;
       const matchedAwards = new Set(eventsWithAwards.flatMap((e) => e.awards));
       const unmatchedAwards = entry.awards.filter((award) => !matchedAwards.has(award));
 
+      // Resolved once per robot rather than repeated below: `showGame` is just this robot's
+      // opt-in, the actual name/mark (if FIRST's directory has this program+year on file)
+      // comes from seasonGame(). A robot can opt in before the directory catches up to its
+      // year — that just means nothing renders for `game` yet, same as leaving it off.
+      const robotsWithGame = entry.robots.map((robot) => ({
+        robot,
+        game: robot.showGame ? seasonGame(program, robot.year) : undefined,
+      }));
+
+      const filteredRobots = robotsWithGame.filter(({ robot, game }) => game || robot.description || robot.image);
+
       return (
       <details class="card group overflow-hidden" open={index === 0} data-reveal>
         <summary class="flex cursor-pointer list-none items-center gap-3 px-5 py-4">
           <span class="flex items-baseline gap-2">
-            <span class="font-heading text-base font-bold text-slate-900">{entry.year}</span>
+            <span class="font-heading text-base font-bold text-slate-900">{formatSeasonYear(program, entry.year)}</span>
             {/* The robot's name lives here, not in the collapsed body — it's the one fact
                 about a season worth seeing without opening it. Game/description/image (when
                 there is one) stay below, since those are too long for a summary row. */}
@@ -91,76 +118,109 @@ const { years, bannerOf } = Astro.props;
 
         <div class="space-y-5 border-t border-slate-100 px-5 pb-5 pt-4">
           {/* Name is already in the summary above — this only renders what wouldn't fit
-              there: the season name, a description, and/or a photo. A robot entry that's
-              name-only (the common case) contributes nothing here, by design. */}
-          {entry.robots.some((robot) => robot.game || robot.description || robot.image) && (
-            <div class="space-y-4">
-              {entry.robots
-                .filter((robot) => robot.game || robot.description || robot.image)
-                .map((robot) => (
-                  <div class="flex flex-col gap-4 sm:flex-row sm:gap-6">
-                    <div class="flex-1">
-                      {entry.robots.length > 1 && (
-                        <h4 class="font-heading text-sm font-bold text-slate-900">{robot.name}</h4>
-                      )}
-                      {robot.game && <p class="mt-0.5 font-mono text-xs text-slate-500">{robot.game}</p>}
-                      {robot.description && <p class="mt-2 text-sm text-slate-600">{robot.description}</p>}
-                      {robot.image && (
-                        <Image
-                          src={robot.image}
-                          alt={robot.imageAlt ?? ''}
-                          widths={[400, 800]}
-                          sizes="(min-width: 640px) 400px, 100vw"
-                          class="card-media mt-3 w-full max-w-md"
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          )}
-
-          {entry.events.length > 0 && (
-            <div>
-              <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {/* "Events" alone, not "Events attended" — the record line right above it
-                    already frames this as competition, not attendance. */}
-                Events{entry.record && <> &middot; {formatRecord(entry.record)}</>}
-                {entry.districtRank && (
-                  <>
-                    {' '}
-                    &middot;{' '}
-                    <a href={entry.districtRankSource} target="_blank" rel="noopener noreferrer" class="normal-case tracking-normal hover:text-brand-accent hover:underline">
-                      District Rank {ordinal(entry.districtRank)}
-                      {entry.districtPoints !== undefined && ` (${entry.districtPoints} pts)`}
-                    </a>
-                  </>
+              there: the season name, a description, a photo, and the events list. A robot
+              entry that's name-only, with no events either, contributes nothing here, by
+              design. */}
+          {(filteredRobots.length > 0 || entry.events.length > 0) && (
+            <div class="flex flex-col gap-4 sm:flex-row sm:gap-6">
+              {/* Events always anchors the bottom of this column — game/description (when
+                  either is present) sit above it; when neither is, events simply starts the
+                  column instead of following something. One column regardless of how many
+                  of the three a given season actually has, rather than a separate
+                  full-width block for events that would either duplicate this one or force
+                  choosing which case gets a photo beside it. */}
+              <div class="flex-1 space-y-4">
+                {filteredRobots.map(
+                  ({ robot, game }) =>
+                    (entry.robots.length > 1 || game || robot.description) && (
+                      <div>
+                        {entry.robots.length > 1 && (
+                          <h4 class="font-heading text-sm font-bold text-slate-900">{robot.name}</h4>
+                        )}
+                        {game && (
+                          <p class="mt-0.5 font-mono text-xs text-slate-500">
+                            {/* No case transform — game names render exactly as authored (see
+                                games.ts), since FIRST's own stylization varies season to season
+                                and isn't this component's call to normalize. game.mark is the
+                                same reasoning applied to the trademark glyph itself: FIRST
+                                treats each season's mark differently (™, ℠, or none), so it's
+                                supplied verbatim rather than derived, and gets the same
+                                superscript treatment (.first-reg) as FIRST's own ® elsewhere.
+                                mark renders directly against the game word — presentedBy comes
+                                after it, not after presentedBy, matching how FIRST itself
+                                attaches the glyph. */}
+                            {game.name}
+                            {game.mark && <sup class="first-reg">{game.mark}</sup>}
+                            {game.presentedBy && <> presented by {game.presentedBy}</>}
+                          </p>
+                        )}
+                        {robot.description && <p class="mt-2 text-sm text-slate-600">{robot.description}</p>}
+                      </div>
+                    ),
                 )}
-              </h4>
-              {/* Awards nest right under the event that produced them — see the
-                  eventsWithAwards note above for why this doesn't just repeat the event
-                  name a second time in a separate Awards list. */}
-              <ul class="mt-2 space-y-3 text-sm">
-                {eventsWithAwards.map(({ event: ev, awards: wonHere }) => (
-                  <li>
-                    <a
-                      href={ev.source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-slate-700 hover:text-brand-accent hover:underline"
-                    >
-                      {ev.name}
-                    </a>
-                    {wonHere.length > 0 && (
-                      <ul class="mt-1.5 space-y-1.5 pl-4">
-                        {wonHere.map((award) => (
-                          <TeamHistoryAwardRow award={award} color={bannerOf(award)} showEvent={false} />
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                {entry.events.length > 0 && (
+                  <TeamHistoryEvents
+                    eventsWithAwards={eventsWithAwards}
+                    record={entry.record}
+                    districtRank={entry.districtRank}
+                    districtPoints={entry.districtPoints}
+                    districtRankSource={entry.districtRankSource}
+                    bannerOf={bannerOf}
+                  />
+                )}
+              </div>
+              {/* A second flex child, not nested in the column above — that's what makes
+                  sm:flex-row on the parent actually produce two side-by-side columns instead
+                  of one. w-full sm:w-48 is the same "stack on mobile, fixed-width column on
+                  sm+" split as the parent's own flex-col/sm:flex-row. aspect-[4/3] replaces
+                  reliance on a source photo's own (often near-square) proportions, so every
+                  robot photo crops to the same shape regardless of what it was shot at. A
+                  second robot's photo (rare — see entry.robots.length > 1 above) stacks
+                  below the first rather than needing its own row. */}
+              {filteredRobots.some(({ robot }) => robot.image) && (
+                <div class="flex flex-col gap-4 sm:w-48 sm:shrink-0">
+                  {filteredRobots.map(
+                    ({ robot }) =>
+                      robot.image && (
+                        <button
+                          type="button"
+                          class="group relative block shrink-0 overflow-hidden rounded-media"
+                          data-photo-trigger
+                          data-photo-src={fullSizeBySrc.get(robot.image.src)}
+                          data-photo-alt={robot.imageAlt ?? ''}
+                        >
+                          <Image
+                            src={robot.image}
+                            alt={robot.imageAlt ?? ''}
+                            widths={[400, 800]}
+                            sizes="(min-width: 640px) 192px, 100vw"
+                            class="aspect-[4/3] w-full object-cover"
+                          />
+                          {/* Hover-only affordance: opacity/flex both gated on group-hover,
+                              which never activates on a touch device (no hover), so this cue
+                              simply never appears there — the click-to-open behavior below
+                              still fires on tap regardless, this only skips advertising it
+                              where a hover cue would never be seen anyway. */}
+                          <span class="pointer-events-none absolute inset-0 hidden items-center justify-center bg-brand/0 transition-colors duration-fast ease-out-soft group-hover:flex group-hover:bg-brand/50">
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                              class="h-6 w-6 text-white opacity-0 transition-opacity duration-fast ease-out-soft group-hover:opacity-100"
+                            >
+                              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                            </svg>
+                          </span>
+                          <span class="sr-only">Open full-size photo</span>
+                        </button>
+                      ),
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -185,3 +245,43 @@ const { years, bannerOf } = Astro.props;
     })
   }
 </div>
+
+{/* One shared lightbox for every season's photo on this page, opened via event delegation
+    from any [data-photo-trigger] rather than one dialog per photo. showModal() (not
+    FormDialog.astro's hand-rolled show()) is the right call here — that component avoids
+    showModal() only because a showModal()'d dialog's browser "top layer" paints above a
+    normal-layer hCaptcha widget; a plain image viewer has no such third-party overlay to
+    conflict with, so showModal()'s native backdrop, focus trap, and Esc-to-close come free
+    instead of needing to be hand-rolled again. */}
+<dialog class="photo-lightbox" data-photo-dialog aria-label="Season photo">
+  <button type="button" data-photo-dialog-close aria-label="Close" class="photo-lightbox-close">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  </button>
+  <img data-photo-dialog-img alt="" />
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-photo-dialog]');
+  const img = dialog?.querySelector<HTMLImageElement>('[data-photo-dialog-img]');
+
+  if (dialog && img) {
+    document.addEventListener('click', (e) => {
+      const trigger = (e.target as Element).closest<HTMLElement>('[data-photo-trigger]');
+      if (!trigger?.dataset.photoSrc) return;
+      img.src = trigger.dataset.photoSrc;
+      img.alt = trigger.dataset.photoAlt ?? '';
+      dialog.showModal();
+    });
+
+    dialog.querySelector('[data-photo-dialog-close]')?.addEventListener('click', () => dialog.close());
+
+    // A click on the dialog element itself (rather than something inside it) is a click on
+    // its own ::backdrop — dialog fills the content box, so anything inside is a descendant
+    // the event would bubble through instead of landing on `dialog` as e.target directly.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+</script>

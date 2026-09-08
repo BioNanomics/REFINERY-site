@@ -242,11 +242,11 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
                         hangs blue and FTC hangs orange, so neither color belongs in a shared
                         heading. */}
                     <h3 class="font-heading text-sm font-bold uppercase tracking-wide text-slate-500">Banners</h3>
-                    <AwardBanners banners={bannerAwards} />
+                    <AwardBanners banners={bannerAwards} program={program} />
                   </div>
                 )}
                 {sortedAwards.length > 0 && <AwardSummary awards={sortedAwards} />}
-                <TeamHistoryYears years={historyYears} bannerOf={bannerOf} />
+                <TeamHistoryYears years={historyYears} program={program} bannerOf={bannerOf} />
               </div>
             )
           }
