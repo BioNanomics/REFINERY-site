@@ -1,0 +1,67 @@
+---
+/**
+ * A season's event list — the "Events · record · rank" header plus the events themselves,
+ * each with its own awards nested underneath.
+ *
+ * Extracted out of TeamHistoryYears.astro because it renders in two places there: standalone
+ * in the common case, or moved up beside a robot's photo when that robot has no game or
+ * description text to fill that column with — see the caller for which case applies.
+ */
+import { ordinal, type TeamAward } from '../../utils/awards';
+import type { BannerColor } from '../../utils/banners';
+import { formatRecord, type SeasonEvent, type SeasonRecord } from '../../utils/teamHistory';
+import TeamHistoryAwardRow from './TeamHistoryAwardRow.astro';
+
+interface Props {
+  eventsWithAwards: { event: SeasonEvent; awards: TeamAward[] }[];
+  record?: SeasonRecord;
+  districtRank?: number;
+  districtPoints?: number;
+  districtRankSource?: string;
+  bannerOf: (award: TeamAward) => BannerColor | null;
+}
+
+const { eventsWithAwards, record, districtRank, districtPoints, districtRankSource, bannerOf } = Astro.props;
+---
+
+<div>
+  <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+    {/* "Events" alone, not "Events attended" — the record line right after it already
+        frames this as competition, not attendance. */}
+    Events{record && <> &middot; {formatRecord(record)}</>}
+    {districtRank && (
+      <>
+        {' '}
+        &middot;{' '}
+        <a href={districtRankSource} target="_blank" rel="noopener noreferrer" class="normal-case tracking-normal hover:text-brand-accent hover:underline">
+          District Rank {ordinal(districtRank)}
+          {districtPoints !== undefined && ` (${districtPoints} pts)`}
+        </a>
+      </>
+    )}
+  </h4>
+  {/* Awards nest right under the event that produced them — see TeamHistoryYears.astro's
+      eventsWithAwards note for why this doesn't just repeat the event name a second time in
+      a separate Awards list. */}
+  <ul class="mt-2 space-y-3 text-sm">
+    {eventsWithAwards.map(({ event: ev, awards: wonHere }) => (
+      <li>
+        <a
+          href={ev.source}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-slate-700 hover:text-brand-accent hover:underline"
+        >
+          {ev.name}
+        </a>
+        {wonHere.length > 0 && (
+          <ul class="mt-1.5 space-y-1.5 pl-4">
+            {wonHere.map((award) => (
+              <TeamHistoryAwardRow award={award} color={bannerOf(award)} showEvent={false} />
+            ))}
+          </ul>
+        )}
+      </li>
+    ))}
+  </ul>
+</div>

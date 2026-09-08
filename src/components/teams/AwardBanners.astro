@@ -20,12 +20,16 @@
  */
 import type { BannerColor } from '../../utils/banners';
 import { awardLabel, type TeamAward } from '../../utils/awards';
+import { formatSeasonYear } from '../../utils/teamHistory';
 
 interface Props {
   banners: { award: TeamAward; color: BannerColor }[];
+  /** FRC labels a season by one year, FTC by the span it runs across — see
+   * formatSeasonYear(). */
+  program: 'FRC' | 'FTC';
 }
 
-const { banners } = Astro.props;
+const { banners, program } = Astro.props;
 
 // Blue is the site's own brand navy rather than FIRST's banner blue, which keeps the
 // pennant on-brand and well clear of reproducing their asset. Orange is tuned to sit at the
@@ -58,7 +62,7 @@ const palette: Record<BannerColor, string> = {
         style="clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%)"
       >
         <span class="font-mono text-[0.65rem] font-semibold uppercase tracking-wider text-white/70">
-          {award.year}
+          {formatSeasonYear(program, award.year)}
         </span>
         <span class="mt-1.5 font-heading text-sm font-bold leading-snug">{awardLabel(award)}</span>
         <span class="mt-1.5 text-[0.7rem] leading-snug text-white/80">{award.event}</span>

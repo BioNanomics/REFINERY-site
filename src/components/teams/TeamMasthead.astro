@@ -19,6 +19,15 @@
  * white page, and they range from near-white wordmarks to dark navy badges — dropping them
  * straight onto a navy band makes roughly half of them illegible. A plaque gives every one
  * of the fourteen the background it was designed for, with no per-team overrides.
+ *
+ * The band's aspect ratio is the photo's own, uncropped, down to a floor of 5:3 — a group
+ * photo shot at 5:3 or wider (a typical landscape frame) shows in full with no crop at all.
+ * Only a photo taller than that, where showing it in full would make the band uncomfortably
+ * tall (a near-square group shot is the common case: subjects run nearly its full height),
+ * gets clamped to the 5:3 floor and `object-cover`-cropped down to it — pick which end
+ * survives with `banner.focalPoint` (see the field's comment in content.config.ts). The floor
+ * is one fixed ratio at every viewport width, not a separate mobile/desktop pair, so a single
+ * `focalPoint` value stays correct everywhere it applies.
  */
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
@@ -29,6 +38,20 @@ interface Props {
 
 const { team } = Astro.props;
 const { name, logo, banner } = team.data;
+
+// Never let the band go taller than 5:3, but never force a wider photo down to it either —
+// `object-cover` only crops the axis where the box is smaller than the source, so a ratio
+// above the floor renders as a no-op crop.
+const MIN_BANNER_RATIO = 5 / 3;
+const bannerAspectRatio = banner
+  ? Math.max(banner.image.width / banner.image.height, MIN_BANNER_RATIO)
+  : undefined;
+
+// Fed to the credit's flex-row-reverse/wrap-reverse layout below in reverse order, so the
+// browser's normal greedy line-fill (which always maxes out the FIRST line it lays out)
+// maxes out the line ending in the credit's last word instead — see the comment at the
+// credit markup for how that turns into "fullest line at the bottom" on screen.
+const creditWords = banner ? banner.credit.text.trim().split(/\s+/).reverse() : [];
 ---
 
 {/* --team-plaque-h is the single source for both the plaque's height and how far it rides
@@ -43,37 +66,67 @@ const { name, logo, banner } = team.data;
   <div class="relative -mx-6">
     {
       banner ? (
-        <>
+        <div
+          class="card-media relative w-full overflow-hidden bg-brand"
+          style={{ aspectRatio: bannerAspectRatio }}
+        >
           <Image
             src={banner.image}
             alt={banner.alt}
             widths={[640, 1024, 1600]}
             sizes="(min-width: 1024px) 832px, 100vw"
             loading="eager"
-            class="card-media aspect-[9/4] w-full object-cover sm:aspect-[7/2]"
+            class="h-full w-full object-cover"
+            style={banner.focalPoint ? { objectPosition: banner.focalPoint } : undefined}
           />
           {/* Overlaid bottom-RIGHT, diagonally opposite the plaque, so the credit can never
               collide with it at any viewport width. Kept on the image rather than moved
               below the band because the permission this photography is used under depends
-              on attribution a reader can actually see. */}
-          <p class="absolute bottom-2 right-3 font-mono text-[0.65rem] text-white/85 [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]">
+              on attribution a reader can actually see.
+
+              max-w-[60%] is what actually keeps that promise on a narrow viewport: the
+              plaque wrapper below is a fixed w-2/5 (40%) of this same band, so capping the
+              credit to the remaining 60% reserves it a column the plaque can never reach
+              into, no matter how long a team's credit text is or how narrow the screen gets.
+              Left free to wrap (rather than truncated) it grows upward from `bottom-2`
+              instead of sideways, so full attribution always stays readable.
+
+              The normal CSS line-break algorithm always fills the FIRST line as full as
+              possible and dumps whatever's left on the last one — for right-aligned text
+              anchored to a bottom corner, that puts a short line hard against the plaque and
+              a mostly-empty one dangling above it. flex-row-reverse + flex-wrap-reverse on
+              `creditWords` (already reversed in the frontmatter) inverts both axes at once:
+              feeding words last-to-first means the greedy algorithm's "first, fullest" line
+              ends up holding the credit's LAST words, and wrap-reverse then places that line
+              at the bottom instead of the top — so the fullest line is the one nearest
+              `bottom-2`, and only the minimum overflow spills onto the line above it. Each
+              word is its own flex item (`gap-x` stands in for the word spaces line-splitting
+              would otherwise collapse), and `justify-start` reads as right-aligned here
+              specifically because row-reverse already flipped which edge "start" is. */}
+          <p class="absolute bottom-2 right-3 max-w-[60%] font-mono text-[0.65rem] text-white/85 [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]">
             {banner.credit.url ? (
               <a
                 href={banner.credit.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-no-external-arrow
-                class="hover:text-white hover:underline"
+                class="flex flex-row-reverse flex-wrap-reverse justify-start gap-x-[0.3em] hover:text-white hover:underline"
               >
-                {banner.credit.text}
+                {creditWords.map((word) => (
+                  <span>{word}</span>
+                ))}
               </a>
             ) : (
-              banner.credit.text
+              <span class="flex flex-row-reverse flex-wrap-reverse justify-start gap-x-[0.3em]">
+                {creditWords.map((word) => (
+                  <span>{word}</span>
+                ))}
+              </span>
             )}
           </p>
-        </>
+        </div>
       ) : (
-        <div class="card-media relative aspect-[9/4] overflow-hidden bg-brand sm:aspect-[7/2]">
+        <div class="card-media relative h-24 overflow-hidden bg-brand sm:h-32">
           {/* text-white/[0.09] drives the texture's currentColor. Lighter than the
               page-level texture (brand navy at 5.5%) because it sits on navy rather than
               under it. */}
@@ -114,8 +167,13 @@ const { name, logo, banner } = team.data;
     /* Gated on the logo as a whole, wrapper included — an empty plaque says nothing, and
        leaving the wrapper behind would keep its negative margin and drag the heading up
        onto the band. A team with no logo simply gets the band; the eyebrow and <h1> below
-       already identify it by program, number and name. */
-    logo && (
+       already identify it by program, number and name.
+
+       Also gated on banner.logoInBanner: when the banner photo already carries the team's
+       mark (a pit banner graphic, rather than event photography of the team), a second copy
+       in the plaque is pure duplication. `logo` itself stays populated in that case — this
+       only turns off the plaque, not the schema.org metadata the page still feeds from it. */
+    logo && !banner?.logoInBanner && (
       <div class="relative z-10 mt-[calc(var(--team-plaque-h)/-3)] flex w-2/5 justify-start">
         <div class="flex h-[var(--team-plaque-h)] max-w-full items-center justify-center rounded-media bg-white px-4 shadow-float sm:px-6">
           <Image

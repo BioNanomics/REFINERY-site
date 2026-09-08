@@ -119,6 +119,21 @@ const teams = defineCollection({
           image: image(),
           alt: z.string(),
           credit: z.object({ text: z.string(), url: z.string().url().optional() }),
+          // The band shows the photo at its own aspect ratio down to a floor of 5:3 (see
+          // TeamMasthead.astro), centering on the source photo by default. A photo shot at
+          // 5:3 or wider, with its subject already centered, needs nothing here. A photo
+          // taller than that (a group shot is the common case: subjects run nearly its full
+          // height) gets clamped to the floor and cropped, and centering isn't always right
+          // for it — this overrides where that crop centers. Any valid CSS `object-position`
+          // value (e.g. "center 20%", "center bottom"); passed through unvalidated, so
+          // preview it before committing.
+          focalPoint: z.string().optional(),
+          // For the rare banner that already carries the team's logo baked into the image
+          // itself (a pit banner graphic, say, rather than event photography) — set so
+          // TeamMasthead skips its own logo plaque instead of showing the mark twice.
+          // `logo` above stays populated regardless: it still feeds the page's schema.org
+          // metadata, which has nothing to do with what the masthead renders on top of it.
+          logoInBanner: z.boolean().optional(),
         })
         .optional(),
 
@@ -195,15 +210,19 @@ const teams = defineCollection({
       relatedTeams: z.array(reference('teams')).default([]),
 
       // One entry per season the team has a robot worth naming. `year` rather than a
-      // free-text season so the list sorts; `game` carries the season name verbatim when
-      // published. Note FIRST game names are marks in their own right but are NOT in
-      // FIRST_TOKENS, so they render exactly as authored rather than picking up a ®.
+      // free-text season so the list sorts.
       robots: z
         .array(
           z.object({
             name: z.string(),
             year: z.number().int().gte(1992),
-            game: z.string().optional(),
+            // The season's official game name/mark lives once in src/utils/games.ts —
+            // keyed by the team's own `program` plus this `year` — rather than repeated
+            // (and risking drift) across every team that played it. This just opts a
+            // specific robot into showing whatever that shared directory has on file for
+            // its year; a team whose robot predates the directory being populated for that
+            // season, or one that deliberately shouldn't show it, simply leaves this false.
+            showGame: z.boolean().default(false),
             description: z.string().max(280).optional(),
             image: image().optional(),
             imageAlt: z.string().optional(),

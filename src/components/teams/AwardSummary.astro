@@ -13,12 +13,19 @@ interface Props {
 
 const { awards } = Astro.props;
 const summary = summarizeAwards(awards);
+
+// The tile's background is a solid color-mix, not an alpha tint (bg-brand/10 or similar):
+// this renders directly on the page's fixed grid-texture layer (MarketingLayout.astro), and
+// a translucent fill lets each faint grid line bleed through unevenly — visible as a slight
+// blotchiness across the tile. Mixing against --color-page (that layer's own opaque
+// backdrop) instead of leaving it to composite at render time gives the same light tint with
+// a uniform, solid result regardless of what's behind it.
 ---
 
 <ul class="mt-4 flex flex-wrap gap-2" data-reveal>
   {
     summary.map((entry) => (
-      <li class="rounded-control border border-brand/20 bg-brand/5 px-3 py-1 text-sm text-brand">
+      <li class="rounded-control border border-brand/20 bg-[color-mix(in_srgb,var(--color-brand)_10%,var(--color-page))] px-3 py-1 text-sm text-brand">
         <span class="font-mono font-bold">{entry.count}</span> {entry.label}
       </li>
     ))
