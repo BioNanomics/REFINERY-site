@@ -234,30 +234,44 @@ const aboutSchema = [
     <div class="section-inner">
       <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
       <SectionHeading title="Partners" align="left" />
-      {/* The logo row is centered until two logos fit on a line (the two widest need
-          ~592px, so md is the first breakpoint that reliably holds a pair). Below that
-          every logo wraps to its own row, where flush-left leaves the narrow ones
-          looking stranded; from md it left-aligns to match the section heading. */}
+      {/* A CSS grid, not flex-wrap, is what makes the two-line case land as an even, centered
+          2-per-row block instead of however many logos a greedy flex-wrap happens to fit on
+          the first line (3-then-1 at some widths, for four logos of these widths). Below sm
+          even a pair doesn't reliably fit, so it's one logo per row; from xl there's room for
+          every logo on one line, so the grid gives way to a single flex row. justify-center
+          there (not justify-start) matters whenever the logos don't fill that whole line —
+          fewer partners than today, or a wider viewport — so they land centered rather than
+          flush left with dead space trailing them. */}
       {
         partners.length > 0 ? (
-          <div class="partner-row mt-8 flex flex-wrap items-center justify-center gap-8 md:justify-start" data-reveal-group>
-            {partners.map((partner) => (
+          <div
+            class="partner-row mx-auto mt-8 grid w-fit grid-cols-1 place-items-center gap-8 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-nowrap xl:justify-center"
+            data-reveal-group
+          >
+            {partners.map((partner, i) => (
               <a
                 href={partner.data.url ?? '#'}
                 target={partner.data.url ? '_blank' : undefined}
                 data-no-external-arrow
                 rel={partner.data.url ? 'noopener noreferrer' : undefined}
-                class="transition duration-base ease-out-soft hover:-translate-y-0.5"
+                class:list={[
+                  'transition duration-base ease-out-soft hover:-translate-y-0.5',
+                  // An odd logo out spans both grid columns so it centers under the pair
+                  // above it instead of sitting alone in the left column beside an empty cell.
+                  i === partners.length - 1 && partners.length % 2 !== 0 && 'col-span-2 xl:col-span-1',
+                ]}
                 title={firstPlain(partner.data.name)}
                 data-reveal
               >
-                {/* The Amp Lab mark has almost no built-in padding, so at the shared
-                    102px height it reads noticeably larger than the other partners' logos. */}
-                {partner.id === 'amp-lab' ? (
-                  <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[84px] w-auto max-w-[290px] object-contain" />
-                ) : (
-                  <Image src={partner.data.logo} alt={firstPlain(partner.data.name)} class="h-[102px] w-auto max-w-[290px] object-contain" />
-                )}
+                {/* logoHeight (content.config.ts) overrides the shared 102px height for a
+                    logo — like Amp Lab's, which has almost no built-in padding — that would
+                    otherwise read noticeably larger or smaller than the rest at that height. */}
+                <Image
+                  src={partner.data.logo}
+                  alt={firstPlain(partner.data.name)}
+                  class="w-auto max-w-[290px] object-contain"
+                  style={`height: ${partner.data.logoHeight ?? 102}px`}
+                />
               </a>
             ))}
           </div>

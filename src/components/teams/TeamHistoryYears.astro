@@ -32,6 +32,19 @@ interface Props {
 
 const { years, program, bannerOf } = Astro.props;
 
+// Claims at most one event per award, in event order — two events sharing a name (a generic
+// "Scrimmage" logged twice, say) would otherwise both match the same award and render it
+// twice. `claimed` tracks what's already been claimed by reference, not a string key: several
+// awards in the same year legitimately share one citation URL (a team-history page covering
+// the whole season), and matching on `source` would treat them as duplicates of each other.
+function claimEventAwards(eventName: string, awards: TeamAward[], claimed: TeamAward[]): TeamAward[] {
+  return awards.filter((award) => {
+    if (award.event !== eventName || claimed.includes(award)) return false;
+    claimed.push(award);
+    return true;
+  });
+}
+
 // Precomputed once, up front, rather than inside the per-year map below: getImage() is
 // async, so it can't run inline in a synchronous .map() callback. Keyed by each photo's raw
 // module src (unique per source file) so the click handler can look up which full-size URL
@@ -50,16 +63,14 @@ const fullSizeBySrc = new Map(
       // Awards nest under the event they were won at instead of repeating its name a
       // second time next to each one. Matched by exact event-name string — an award
       // whose event isn't (yet) in this year's `events` list falls through to its own
-      // "Awards" block below, rather than silently disappearing.
+      // "Awards" block below, rather than silently disappearing. See claimEventAwards()
+      // above for why each award can only be claimed once.
+      const matchedAwards: TeamAward[] = [];
       const eventsWithAwards = entry.events.map((ev) => ({
         event: ev,
-        awards: entry.awards.filter((award) => award.event === ev.name),
+        awards: claimEventAwards(ev.name, entry.awards, matchedAwards),
       }));
-      // Reference equality, not a string key: several awards in the same year legitimately
-      // share one citation URL (a team-history page covering the whole season), so matching
-      // on `source` would treat them as duplicates of each other.
-      const matchedAwards = new Set(eventsWithAwards.flatMap((e) => e.awards));
-      const unmatchedAwards = entry.awards.filter((award) => !matchedAwards.has(award));
+      const unmatchedAwards = entry.awards.filter((award) => !matchedAwards.includes(award));
 
       // Resolved once per robot rather than repeated below: `showGame` is just this robot's
       // opt-in, the actual name/mark (if FIRST's directory has this program+year on file)

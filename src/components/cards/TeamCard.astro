@@ -102,12 +102,28 @@ const href = teamPath(team);
     if (!href) return;
 
     // Honour the modifiers a real link would: cmd/ctrl/middle-click opens a new tab rather
-    // than yanking the visitor off the directory they were browsing.
+    // than yanking the visitor off the directory they were browsing. Middle-click is handled
+    // below, via 'auxclick' — a middle-button press on a non-anchor element never fires 'click'.
     if (event.metaKey || event.ctrlKey || event.shiftKey) {
       window.open(href, '_blank', 'noopener');
       return;
     }
 
     window.location.assign(href);
+  });
+
+  document.addEventListener('auxclick', (event) => {
+    if (event.button !== 1) return; // middle button only
+
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    const card = target.closest<HTMLElement>('[data-team-card-link]');
+    if (!card) return;
+    if (target.closest('a, button')) return;
+    if (window.getSelection()?.toString()) return;
+
+    const href = card.dataset.teamCardLink;
+    if (href) window.open(href, '_blank', 'noopener');
   });
 </script>

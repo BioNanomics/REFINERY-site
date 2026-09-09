@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { withBase } from '../../utils/base';
+import { formatUtcDate } from '../../utils/dates';
 import { NEWS_CATEGORY_BADGES } from '../../utils/news-categories';
 import FirstText from '../brand/FirstText.astro';
 
@@ -12,9 +13,7 @@ interface Props {
 
 const { post, loading = 'lazy' } = Astro.props;
 const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, sourceName } = post.data;
-// timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
-// Without this, formatting in a behind-UTC locale renders the previous day.
-const formattedDate = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const formattedDate = formatUtcDate(pubDate);
 const href = sourceUrl ?? withBase(`news/${post.id}/`);
 // data-no-external-arrow: the whole card is the anchor, so the automatic ::after would
 // trail the entire card. The arrow lives beside the source attribution below instead.
