@@ -15,6 +15,7 @@ import { socialLinks } from '../../utils/socials';
 import { awardCitation, sortAwards } from '../../utils/awards';
 import { resolveBanner } from '../../utils/banners';
 import { hasRenderableBody } from '../../utils/mdx-body';
+import { byNewest } from '../../utils/dates';
 import CTAButton from '../../components/marketing/CTAButton.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
 import AwardBanners from '../../components/teams/AwardBanners.astro';
@@ -28,15 +29,19 @@ export async function getStaticPaths() {
   // Both surfaces that render a TeamCard already filter on the same predicate, so every
   // card that links to a team page links to one that was actually built.
   const teams = await getCollection('teams', ({ data }) => !data.draft);
+  // Also hoisted, for the same reason as `teams`: every generated page needs the same
+  // full news list to find its own team's stories, so fetch it once here rather than
+  // inside each page render.
+  const news = await getCollection('news', ({ data }) => !data.draft);
   return teams.map((team) => ({
     params: { slug: teamSlug(team) },
     // The full roster rides along for prev/next; computing it here beats a second
     // getCollection call inside every page render.
-    props: { team, teams },
+    props: { team, teams, news },
   }));
 }
 
-const { team, teams } = Astro.props;
+const { team, teams, news } = Astro.props;
 const {
   number, name, program, organization, community, logo, description, metaDescription,
   highlight, links, socials, banner, rookieYear, awards, robots, seasons, zeffyFundName,
@@ -67,12 +72,10 @@ const historyYears = groupTeamHistory(sortedAwards, robots, seasons);
 const related = relatedTeamsFor(team, teams);
 
 // Newest first. teamRefs holds bare team numbers — see the note on the field in
-// src/content.config.ts. The draft predicate matches src/pages/news/index.astro so this
-// section and the /news/?team= filter it links to can never disagree about what exists.
-const allNews = await getCollection('news', ({ data }) => !data.draft);
-const teamNews = allNews
-  .filter((post) => post.data.teamRefs.includes(number))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+// src/content.config.ts. The draft predicate matches src/pages/news/index.astro (applied in
+// getStaticPaths above, on the same `news` fetch) so this section and the /news/?team= filter
+// it links to can never disagree about what exists.
+const teamNews = news.filter((post) => post.data.teamRefs.includes(number)).sort(byNewest);
 
 // Every outbound URL this page actually renders, and nothing else — sameAs is a claim that
 // these profiles identify this team, so a URL the page doesn't show has no business here.

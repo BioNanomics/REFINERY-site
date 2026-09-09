@@ -3,9 +3,10 @@ import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import SectionHeading from '../../components/marketing/SectionHeading.astro';
 import NewsGrid from '../../components/grids/NewsGrid.astro';
 import { getCollection } from 'astro:content';
+import { byNewest } from '../../utils/dates';
 
 const allPosts = await getCollection('news', ({ data }) => !data.draft);
-const posts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = allPosts.sort(byNewest);
 ---
 
 <MarketingLayout

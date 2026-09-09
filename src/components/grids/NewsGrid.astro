@@ -66,7 +66,13 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
 {
   posts.length > 0 ? (
     <div class="news-grid">
-      <div class="mb-4 flex flex-wrap gap-2" role="group" aria-label="Filter news by category">
+      <div
+        class="news-category-filters mb-4 flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter news by category"
+        data-chip-on={categoryChipOn}
+        data-chip-off={categoryChipOff}
+      >
         {categories.map((c, i) => (
           <button
             type="button"
@@ -83,6 +89,8 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
           class="news-team-filters mb-8 hidden flex-wrap gap-2 border-l-2 border-brand/20 pl-3"
           role="group"
           aria-label="Filter team news by team"
+          data-chip-on={teamChipOn}
+          data-chip-off={teamChipOff}
           hidden
         >
           {teamFilters.map((t, i) => (
@@ -115,6 +123,7 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
   if (grid) {
     const categoryButtons = grid.querySelectorAll<HTMLButtonElement>('.news-filter-btn');
     const teamButtons = grid.querySelectorAll<HTMLButtonElement>('.news-team-filter-btn');
+    const categoryRow = grid.querySelector<HTMLElement>('.news-category-filters');
     const teamRow = grid.querySelector<HTMLElement>('.news-team-filters');
     const items = grid.querySelectorAll<HTMLElement>('[data-category]');
 
@@ -124,17 +133,15 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
     let activeCategory = 'all';
     let activeTeam = 'all';
 
-    // Each tier has its own palette, so the on/off class sets are passed in
-    // rather than hardcoded. These must stay in sync with the *ChipOn/*ChipOff
-    // constants in the frontmatter above.
-    const CATEGORY_STATE = {
-      on: ['border-brand', 'bg-brand', 'text-brand-light'],
-      off: ['border-slate-300', 'bg-slate-50', 'text-slate-600', 'hover:border-brand'],
-    };
-    const TEAM_STATE = {
-      on: ['border-brand', 'bg-[color-mix(in_srgb,var(--color-brand)_10%,var(--color-page))]', 'text-brand'],
-      off: ['border-slate-200', 'bg-slate-50', 'text-slate-500', 'hover:border-brand', 'hover:text-brand'],
-    };
+    // Each tier has its own palette, so the on/off class sets are read from the
+    // data-chip-on/data-chip-off attributes the frontmatter above sets on each row — the
+    // single source of truth for these classes — rather than a second hardcoded copy here.
+    const chipState = (row: HTMLElement | null) => ({
+      on: (row?.dataset.chipOn ?? '').split(' ').filter(Boolean),
+      off: (row?.dataset.chipOff ?? '').split(' ').filter(Boolean),
+    });
+    const CATEGORY_STATE = chipState(categoryRow);
+    const TEAM_STATE = chipState(teamRow);
 
     const markActive = (
       buttons: NodeListOf<HTMLButtonElement>,

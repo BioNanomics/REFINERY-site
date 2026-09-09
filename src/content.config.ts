@@ -338,6 +338,10 @@ const partners = defineCollection({
     z.object({
       name: z.string(),
       logo: image(),
+      // Every partner logo renders at the same shared height by default; this overrides it
+      // for the rare logo (e.g. one with almost no built-in padding) that reads noticeably
+      // larger or smaller than the rest at that height.
+      logoHeight: z.number().int().positive().optional(),
       url: z.string().url().optional(),
       description: z.string().optional(),
       draft: z.boolean().default(false),
