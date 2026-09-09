@@ -72,15 +72,26 @@ const teams = defineCollection({
       links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
 
       // The exact label this team's donation "fund" carries in the org's shared Zeffy
-      // donation form's dropdown — e.g. "FRC Team 1501 - T.H.R.U.S.T." — verbatim from
-      // Zeffy's own form_getFormFunds API, not derived from `name`/`number`. Zeffy's embed
-      // has no supported way to pre-select a fund from a URL or postMessage (confirmed
-      // against their production JS, which reads only `?amount=` from the query string), so
-      // a team's detail page instead shows a Donate button plus this exact string as a hint
-      // for which dropdown option to pick. Three East Noble teams (8103/8431/8432) share one
-      // combined fund and so share this same value. Absent for a team with no fund set up
-      // yet (e.g. a brand-new team) — the Donate button simply doesn't render for those.
+      // donation form's dropdown — e.g. "1501 - T.H.R.U.S.T." — verbatim from Zeffy's own
+      // form_getFormFunds API, not derived from `name`/`number`. Zeffy's fund names dropped
+      // their "FRC Team"/"FTC Team" prefix after FIRST's request that partner sites never
+      // display those abbreviations (see src/utils/first.ts) — the site's own DonateButton
+      // and FirstText still expand FRC/FTC defensively if a value ever carries one again.
+      // Zeffy's embed has no supported way to pre-select a fund from a URL or postMessage
+      // (confirmed against their production JS, which reads only `?amount=` from the query
+      // string), so a team's detail page instead shows a Donate button plus this exact
+      // string as a hint for which dropdown option to pick. Three East Noble teams
+      // (8103/8431/8432) share one combined fund and so share this same value. Absent for a
+      // team with no fund set up yet (e.g. a brand-new team) — the Donate button simply
+      // doesn't render for those.
       zeffyFundName: z.string().optional(),
+
+      // Hides the Donate card even when `zeffyFundName` is set, without deleting that
+      // value — e.g. a team's fund is temporarily paused, or its window this season has
+      // closed. Distinct from omitting `zeffyFundName`: that means "no fund exists yet";
+      // this means "a fund exists but donations are off for now." The Get Involved card
+      // expands to fill the row either way — see the grid in src/pages/teams/[slug].astro.
+      hideDonation: z.boolean().default(false),
       socials: z
         .object({
           instagram: z.string().url().optional(),

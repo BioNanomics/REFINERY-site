@@ -72,7 +72,7 @@ const href = teamPath(team);
   </div>
   <p class="mt-2 text-xs text-slate-500">{organization} &middot; {community}</p>
   <p class="mt-2 text-sm text-slate-600"><FirstText text={description} reg={forceReg} /></p>
-  {highlight && <p class="mt-2 font-mono text-xs text-brand-accent">{highlight}</p>}
+  {highlight && <p class="mt-2 font-mono text-xs text-brand-accent"><FirstText text={highlight} reg={forceReg} /></p>}
   {/* TBA/FTC Events/FTCScout and the News deep link used to live here, but every one of
       them is now front and center on the team's own detail page (Team History section and
       News section) — a card repeating them was redundant with the page one click away. */}

@@ -9,6 +9,7 @@
  */
 import { awardLabel, type TeamAward } from '../../utils/awards';
 import type { BannerColor } from '../../utils/banners';
+import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   award: TeamAward;
@@ -37,7 +38,7 @@ const dotMarker: Record<BannerColor, string> = {
       award summary. Only matters when showEvent renders a second segment. */}
   <div class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
     <span class="text-slate-900">
-      {awardLabel(award)}
+      <FirstText text={awardLabel(award)} />
       {color && <span class="sr-only"> — earned a banner</span>}
     </span>
     {
@@ -45,7 +46,7 @@ const dotMarker: Record<BannerColor, string> = {
         <span class="text-slate-500">
           <span class="hidden sm:inline">&middot; </span>
           <a href={award.source} target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent hover:underline">
-            {award.event}
+            <FirstText text={award.event} />
           </a>
         </span>
       )

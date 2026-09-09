@@ -31,6 +31,7 @@
  */
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { firstPlain } from '../../utils/first';
 
 interface Props {
   team: CollectionEntry<'teams'>;
@@ -51,7 +52,11 @@ const bannerAspectRatio = banner
 // browser's normal greedy line-fill (which always maxes out the FIRST line it lays out)
 // maxes out the line ending in the credit's last word instead — see the comment at the
 // credit markup for how that turns into "fullest line at the bottom" on screen.
-const creditWords = banner ? banner.credit.text.trim().split(/\s+/).reverse() : [];
+// firstPlain expands FRC/FTC to their full program names and appends a ® to FIRST-owned
+// marks — the credit can't hold the italicized <FirstText /> markup since it's split into
+// individual words below, so this is the plain-text path other unmarked-up spots (alt text,
+// meta tags) already use.
+const creditWords = banner ? firstPlain(banner.credit.text).trim().split(/\s+/).reverse() : [];
 ---
 
 {/* --team-plaque-h is the single source for both the plaque's height and how far it rides
@@ -72,7 +77,7 @@ const creditWords = banner ? banner.credit.text.trim().split(/\s+/).reverse() : 
         >
           <Image
             src={banner.image}
-            alt={banner.alt}
+            alt={firstPlain(banner.alt)}
             widths={[640, 1024, 1600]}
             sizes="(min-width: 1024px) 832px, 100vw"
             loading="eager"

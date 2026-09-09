@@ -21,6 +21,7 @@
 import type { BannerColor } from '../../utils/banners';
 import { awardLabel, type TeamAward } from '../../utils/awards';
 import { formatSeasonYear } from '../../utils/teamHistory';
+import FirstText from '../brand/FirstText.astro';
 
 interface Props {
   banners: { award: TeamAward; color: BannerColor }[];
@@ -64,8 +65,8 @@ const palette: Record<BannerColor, string> = {
         <span class="font-mono text-[0.65rem] font-semibold uppercase tracking-wider text-white/70">
           {formatSeasonYear(program, award.year)}
         </span>
-        <span class="mt-1.5 font-heading text-sm font-bold leading-snug">{awardLabel(award)}</span>
-        <span class="mt-1.5 text-[0.7rem] leading-snug text-white/80">{award.event}</span>
+        <span class="mt-1.5 font-heading text-sm font-bold leading-snug"><FirstText text={awardLabel(award)} /></span>
+        <span class="mt-1.5 text-[0.7rem] leading-snug text-white/80"><FirstText text={award.event} /></span>
       </li>
     ))
   }

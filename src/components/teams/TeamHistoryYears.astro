@@ -14,8 +14,10 @@ import { Image, getImage } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { ordinal, type TeamAward } from '../../utils/awards';
 import type { BannerColor } from '../../utils/banners';
+import { firstPlain } from '../../utils/first';
 import { seasonGame } from '../../utils/games';
 import { formatRecord, formatSeasonYear, type TeamYear } from '../../utils/teamHistory';
+import FirstText from '../brand/FirstText.astro';
 import TeamHistoryAwardRow from './TeamHistoryAwardRow.astro';
 import TeamHistoryEvents from './TeamHistoryEvents.astro';
 
@@ -165,7 +167,7 @@ const fullSizeBySrc = new Map(
                             {game.presentedBy && <> presented by {game.presentedBy}</>}
                           </p>
                         )}
-                        {robot.description && <p class="mt-2 text-sm text-slate-600">{robot.description}</p>}
+                        {robot.description && <p class="mt-2 text-sm text-slate-600"><FirstText text={robot.description} /></p>}
                       </div>
                     ),
                 )}
@@ -198,11 +200,11 @@ const fullSizeBySrc = new Map(
                           class="group relative block shrink-0 overflow-hidden rounded-media"
                           data-photo-trigger
                           data-photo-src={fullSizeBySrc.get(robot.image.src)}
-                          data-photo-alt={robot.imageAlt ?? ''}
+                          data-photo-alt={robot.imageAlt ? firstPlain(robot.imageAlt) : ''}
                         >
                           <Image
                             src={robot.image}
-                            alt={robot.imageAlt ?? ''}
+                            alt={robot.imageAlt ? firstPlain(robot.imageAlt) : ''}
                             widths={[400, 800]}
                             sizes="(min-width: 640px) 192px, 100vw"
                             class="aspect-[4/3] w-full object-cover"

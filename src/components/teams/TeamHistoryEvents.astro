@@ -10,6 +10,7 @@
 import { ordinal, type TeamAward } from '../../utils/awards';
 import type { BannerColor } from '../../utils/banners';
 import { formatRecord, type SeasonEvent, type SeasonRecord } from '../../utils/teamHistory';
+import FirstText from '../brand/FirstText.astro';
 import TeamHistoryAwardRow from './TeamHistoryAwardRow.astro';
 
 interface Props {
@@ -52,7 +53,7 @@ const { eventsWithAwards, record, districtRank, districtPoints, districtRankSour
           rel="noopener noreferrer"
           class="text-slate-700 hover:text-brand-accent hover:underline"
         >
-          {ev.name}
+          <FirstText text={ev.name} />
         </a>
         {wonHere.length > 0 && (
           <ul class="mt-1.5 space-y-1.5 pl-4">
