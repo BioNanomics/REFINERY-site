@@ -45,7 +45,10 @@ const { team, teams, news } = Astro.props;
 const {
   number, name, program, organization, community, logo, description, metaDescription,
   highlight, links, socials, banner, rookieYear, awards, robots, seasons, zeffyFundName,
+  hideDonation,
 } = team.data;
+
+const showDonation = Boolean(zeffyFundName) && !hideDonation;
 
 const programName = PROGRAM_NAMES[program];
 
@@ -189,7 +192,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
             description and the JSON-LD `description` — which keeps schema.ts's rule that a
             value trace to something the page publishes, since the page publishes it as its
             own meta description exactly as organization() already does on the homepage. */}
-        {highlight && <p class="mt-4 font-mono text-sm text-brand-accent">{highlight}</p>}
+        {highlight && <p class="mt-4 font-mono text-sm text-brand-accent"><FirstText text={highlight} /></p>}
 
         {
           // One row: the team's own website leads (ahead of TBA/FTCScout and the social
@@ -307,8 +310,8 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           for clarity) plus each card's own flex column + mt-auto button wrapper is what
           keeps both cards the same height and lands their buttons on one baseline, whichever
           card's copy happens to run longer. */}
-      <div class:list={['grid grid-cols-1 items-stretch gap-6', zeffyFundName && 'sm:grid-cols-2']}>
-        {zeffyFundName && <DonateButton teamName={name} fundName={zeffyFundName} />}
+      <div class:list={['grid grid-cols-1 items-stretch gap-6', showDonation && 'sm:grid-cols-2']}>
+        {zeffyFundName && !hideDonation && <DonateButton teamName={name} fundName={zeffyFundName} />}
         <div class="card card-pad-lg flex h-full flex-col" data-reveal>
           <h2 class="font-heading text-lg font-bold text-slate-900">
             Get involved with <FirstText text={`${program} ${number}`} />
