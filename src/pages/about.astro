@@ -101,10 +101,40 @@ const aboutSchema = [
     </div>
   </section>
 
+  <section id="service-area" class="section-rule scroll-mt-6 section">
+    <div class="section-inner">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
+      <SectionHeading title="Where We Serve" align="left" />
+      <p class="mt-4 max-w-2xl text-slate-600" data-reveal>
+        The REFINERY supports <First /> robotics teams across 12 counties in Northeast Indiana:
+      </p>
+      <ul class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" data-reveal>
+        {
+          [
+            'Adams',
+            'Allen',
+            'DeKalb',
+            'Grant',
+            'Huntington',
+            'Kosciusko',
+            'LaGrange',
+            'Noble',
+            'Steuben',
+            'Wabash',
+            'Wells',
+            'Whitley',
+          ].map((county) => (
+            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{county}</li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
   <section id="model" class="section-rule scroll-mt-6 section">
     <div class="section-inner section-split">
       <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
         <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>How the Model Works</h2>
       </div>
       <p
@@ -125,7 +155,7 @@ const aboutSchema = [
 
   <section id="teams" class="section-rule scroll-mt-6 section">
     <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
+      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
       <SectionHeading title="Meet the Teams" align="left" />
       <RandomTeamsTeaser teams={allTeams} />
       <div class="mt-8" data-reveal>
@@ -137,7 +167,7 @@ const aboutSchema = [
   <section id="impact" class="section-rule scroll-mt-6 section">
     <div class="section-inner section-split">
       <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
         <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact</h2>
       </div>
       <div>
@@ -149,7 +179,7 @@ const aboutSchema = [
 
   <section id="people" class="section-rule scroll-mt-6 section">
     <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
+      <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
       <SectionHeading title="People & Leadership" align="left" />
       <PeopleBios people={people} />
     </div>
@@ -158,7 +188,7 @@ const aboutSchema = [
   <section id="facility" class="section-rule scroll-mt-6 section">
     <div class="section-inner section-split">
       <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
         <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Facility</h2>
       </div>
       <div>
@@ -232,7 +262,7 @@ const aboutSchema = [
 
   <section id="partners" class="section-rule scroll-mt-6 section">
     <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
+      <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
       <SectionHeading title="Partners" align="left" />
       {/* A CSS grid, not flex-wrap, is what makes the two-line case land as an even, centered
           2-per-row block instead of however many logos a greedy flex-wrap happens to fit on
@@ -285,7 +315,7 @@ const aboutSchema = [
   <section id="contact" class="section-rule section-loose scroll-mt-6 section">
     <div class="section-inner section-split">
       <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>10</p>
         <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Policies</h2>
       </div>
       <div>
