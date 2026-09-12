@@ -1,0 +1,339 @@
+---
+import countyData from '../../data/service-area-counties.json';
+
+export interface ServiceAreaMarker {
+  lat: number;
+  lng: number;
+  name: string;
+  type: 'FRC' | 'FTC' | 'FLL' | 'REFINERY';
+  url: string;
+}
+
+interface Props {
+  markers: ServiceAreaMarker[];
+}
+
+const { markers } = Astro.props;
+
+// Passed to the client script as JSON on the container's own dataset — the county polygons
+// and the marker list are both static at build time, so there's nothing to fetch client-side.
+const countiesJson = JSON.stringify(countyData);
+const markersJson = JSON.stringify(markers);
+---
+
+<div class="service-area-map-wrap" data-reveal>
+  <div
+    id="service-area-map"
+    class="service-area-map"
+    data-counties={countiesJson}
+    data-markers={markersJson}
+    role="img"
+    aria-label="Map of the 12 Northeast Indiana counties The REFINERY serves, with pins for member teams and The REFINERY's facility"
+  >
+  </div>
+</div>
+
+<style is:global>
+  .service-area-map-wrap {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .service-area-map {
+    min-height: 30rem;
+    border-radius: 0.5rem;
+    background: var(--refinery-color-bg, #f7f9fa);
+    isolation: isolate;
+  }
+
+  /* At the same `lg` breakpoint about.astro switches this section to its two-column layout
+     (list beside map), shrink the map to roughly match the county list's own height instead
+     of towering over it — the taller default height stays for mobile/tablet, where the map
+     is full-width and stacked below the list rather than squeezed beside it. */
+  @media (width >= 64rem) {
+    .service-area-map {
+      min-height: 17rem;
+    }
+  }
+
+  /* --- Leaflet chrome: default tile attribution/zoom controls, restyled to match the site's
+     rounded, soft-shadow language instead of Leaflet's stock square panels. --- */
+  .service-area-map .leaflet-control-zoom a {
+    border-radius: 0.35rem !important;
+    color: var(--refinery-color-primary, #134b70);
+  }
+  .service-area-map .leaflet-control-attribution {
+    border-radius: 0.35rem;
+    font-size: 0.7rem;
+  }
+
+  /* --- Marker pins --- a plain circle, not a rotated teardrop: simpler to read at this size
+     and never looks "tilted" at rest. */
+  .map-pin {
+    position: relative;
+    display: block;
+    width: 1.35rem;
+    height: 1.35rem;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  .map-pin::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.34rem;
+    height: 0.34rem;
+    border-radius: 50%;
+    background: #fff;
+    transform: translate(-50%, -50%);
+  }
+
+  .map-pin--frc {
+    background: var(--map-frc, #134b70);
+  }
+  .map-pin--ftc {
+    background: var(--map-ftc, #2b7252);
+  }
+  .map-pin--fll {
+    background: var(--map-fll, #d39b2c);
+  }
+
+  /* The REFINERY's own pin breaks from the plain circle on purpose — bigger, rounded-square,
+     glowing — so the facility itself is never mistaken for a team at a glance. */
+  .map-pin--refinery {
+    width: 1.7rem;
+    height: 1.7rem;
+    background: var(--map-refinery, #40a578);
+    border-radius: 0.45rem;
+    box-shadow:
+      0 3px 10px rgba(0, 0, 0, 0.35),
+      0 0 0 6px rgba(64, 165, 120, 0.45);
+  }
+  .map-pin--refinery::after {
+    width: 0.4rem;
+    height: 0.4rem;
+  }
+
+  /* --- Click popups --- */
+  .service-area-map .leaflet-popup-content-wrapper {
+    padding: 0;
+    border: 2px solid rgba(0, 0, 0, 0.16);
+    border-radius: 0.5rem;
+    box-shadow: 7px 7px 0 rgba(19, 75, 112, 0.16);
+  }
+  .service-area-map .leaflet-popup-content {
+    margin: 0;
+  }
+  .service-area-map .leaflet-popup-tip-container {
+    display: none;
+  }
+
+  /* `.leaflet-popup-content-wrapper .map-popup-link` (two classes), not just `.map-popup-link`
+     — Leaflet's own stylesheet ships `.leaflet-container a { color: #0078A8 }`, a class+tag
+     selector that outranks a single class and would otherwise win over this. */
+  .leaflet-popup-content-wrapper .map-popup-link {
+    display: block;
+    padding: 0.75rem;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--refinery-color-accent, #2b7252);
+    text-decoration: none;
+  }
+  .leaflet-popup-content-wrapper .map-popup-link:hover,
+  .leaflet-popup-content-wrapper .map-popup-link:focus-visible {
+    color: var(--refinery-color-primary, #134b70);
+    text-decoration: underline;
+  }
+
+  /* More than one team shares a single pin's exact location (e.g. three teams at the same
+     school) — the popup then stacks one link per team instead of one link filling the box. */
+  .leaflet-popup-content-wrapper .map-popup-list .map-popup-link {
+    padding: 0.6rem 0.75rem;
+  }
+  .leaflet-popup-content-wrapper .map-popup-list .map-popup-link:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  /* Extra `.leaflet-tooltip` qualifier to outrank leaflet.css's own same-specificity
+     `.leaflet-tooltip { color: #222 }` regardless of stylesheet load order. */
+  .leaflet-tooltip.county-tooltip {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--refinery-color-primary, #134b70);
+  }
+
+  /* The county polygons are hover/click-interactive only for their tooltip label — there's no
+     keyboard action tied to focusing one, so the browser's default post-click focus ring just
+     reads as a stray orange box. */
+  .service-area-map .leaflet-interactive:focus {
+    outline: none;
+  }
+</style>
+
+<script>
+  import L from 'leaflet';
+  import 'leaflet/dist/leaflet.css';
+  import type { GeoJsonObject } from 'geojson';
+
+  interface ServiceAreaMarker {
+    lat: number;
+    lng: number;
+    name: string;
+    type: 'FRC' | 'FTC' | 'FLL' | 'REFINERY';
+    url: string;
+  }
+
+  // The actual bounding box of the 12 county polygons in service-area-counties.json (min/max
+  // lat/lng across every ring, plus a ~0.02° margin), NOT a hand-eyeballed region box — an
+  // approximate box that undershoots the real geometry on any edge means fitBounds crops that
+  // county's corner instead of showing all 12 "just barely" fully in view. Locking
+  // panning/zooming to this keeps the map from ever drifting to show area outside the
+  // footprint The REFINERY actually serves.
+  const SERVICE_AREA_BOUNDS: L.LatLngBoundsExpression = [
+    [40.36, -86.1],
+    [41.78, -84.78],
+  ];
+
+  function pinIcon(type: ServiceAreaMarker['type']) {
+    const size: [number, number] = type === 'REFINERY' ? [30, 30] : [24, 24];
+    return L.divIcon({
+      className: `map-pin map-pin--${type.toLowerCase()}`,
+      iconSize: size,
+      // Dead center, not the bottom edge — these are plain circles/badges with no pointed
+      // tip, so the marker's coordinate is the shape's own center.
+      iconAnchor: [size[0] / 2, size[1] / 2],
+      html: '',
+    });
+  }
+
+  // Priority for picking ONE icon when several markers share a location (e.g. three East
+  // Noble teams at one school) — REFINERY always wins since that pin marks the org's own
+  // facility, then whichever program type happens to be listed first.
+  const TYPE_PRIORITY: ServiceAreaMarker['type'][] = ['REFINERY', 'FRC', 'FTC', 'FLL'];
+
+  function groupByLocation(markers: ServiceAreaMarker[]): ServiceAreaMarker[][] {
+    const groups = new Map<string, ServiceAreaMarker[]>();
+    for (const marker of markers) {
+      // Rounded to ~11m — enough to merge geocoded duplicates for the same building without
+      // merging two genuinely different addresses that happen to be close together.
+      const key = `${marker.lat.toFixed(4)},${marker.lng.toFixed(4)}`;
+      const group = groups.get(key);
+      if (group) group.push(marker);
+      else groups.set(key, [marker]);
+    }
+    return [...groups.values()];
+  }
+
+  function escapeHtml(value: string) {
+    return value.replace(/[&<>"']/g, (char) =>
+      char === '&' ? '&amp;' : char === '<' ? '&lt;' : char === '>' ? '&gt;' : char === '"' ? '&quot;' : '&#39;',
+    );
+  }
+
+  // In dev, Vite injects this component's own <style> asynchronously (a JS-driven CSS
+  // module update rather than a blocking <link>), so the container can still measure 0×0
+  // — collapsed, since `min-height` hasn't landed yet — at the instant this script's top
+  // level runs. fitBounds() on a zero-size container computes a nonsensical (whole-world)
+  // zoom, which then gets locked in as minZoom. Waiting a frame for a real, laid-out size
+  // sidesteps that regardless of what's actually delaying the CSS.
+  function whenSized(el: HTMLElement, callback: () => void) {
+    if (el.clientWidth > 0 && el.clientHeight > 0) {
+      callback();
+      return;
+    }
+    requestAnimationFrame(() => whenSized(el, callback));
+  }
+
+  function initServiceAreaMap() {
+    document.querySelectorAll<HTMLElement>('.service-area-map').forEach((el) => {
+      // Guards against a duplicate init if this script ever re-runs on the same DOM node —
+      // Leaflet throws if L.map() is called twice on one container.
+      if (el.dataset.mapInit) return;
+      el.dataset.mapInit = 'true';
+
+      whenSized(el, () => setUpMap(el));
+    });
+  }
+
+  function setUpMap(el: HTMLElement) {
+    const counties = JSON.parse(el.dataset.counties ?? 'null') as GeoJsonObject | null;
+    const markers = JSON.parse(el.dataset.markers ?? '[]') as ServiceAreaMarker[];
+
+    // zoomSnap: 0 lets fitBounds land on the exact fractional zoom that fits the region
+    // snugly. The default (zoomSnap: 1) instead FLOORS that to the nearest whole level to
+    // guarantee the bounds still fit — which on a narrow, portrait-ish container rounds down
+    // more than necessary and leaves a wide, empty margin around the region. Continuous zoom
+    // is what makes "all counties visible, but just barely" the actual default on every
+    // container width, mobile included, with no separate per-viewport case needed.
+    const map = L.map(el, { scrollWheelZoom: false, maxBoundsViscosity: 1.0, zoomSnap: 0 });
+
+    // fitBounds first, with no maxBounds yet in effect, so it can zoom out as far as the
+    // container needs to show the whole region — THEN pin minZoom to whatever that turned
+    // out to be and lock panning to the same box.
+    //
+    // paddingBottomRight reserves room for the attribution strip Leaflet docks in that
+    // corner — a "just barely visible" fit computed against the RAW container would put
+    // Grant County's southern edge right where that strip sits on top of the map, hiding it
+    // behind "Leaflet | © OpenStreetMap ... © CARTO" instead of actually cropping it.
+    const ATTRIBUTION_HEIGHT = 40;
+    map.fitBounds(SERVICE_AREA_BOUNDS, { paddingBottomRight: [0, ATTRIBUTION_HEIGHT] });
+    map.setMinZoom(map.getZoom());
+    map.setMaxBounds(SERVICE_AREA_BOUNDS);
+
+    // CARTO's raster tiles now watermark unauthenticated requests ("API KEY REQUIRED") — see
+    // https://docs.carto.com/faqs/carto-basemaps. A free key (no CARTO account needed, 5M
+    // tiles/month) from https://carto.com/basemaps/apikey removes it: set PUBLIC_CARTO_API_KEY
+    // in .env (see .env.example) and rebuild. `/rastertiles/light_all/...` (no `{s}.` subdomain)
+    // is CARTO's current documented path — the older `{s}.basemaps.cartocdn.com/light_all/...`
+    // form is what's now watermarked.
+    const cartoApiKey = import.meta.env.PUBLIC_CARTO_API_KEY as string | undefined;
+    L.tileLayer(
+      `https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png${cartoApiKey ? `?key=${cartoApiKey}` : ''}`,
+      {
+        detectRetina: true,
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors &copy; <a href="https://carto.com/">CARTO</a>',
+      },
+    ).addTo(map);
+
+    // Added before the marker layer so county outlines render underneath the pins.
+    if (counties) {
+      L.geoJSON(counties, {
+        style: {
+          fillColor: '#134b70',
+          fillOpacity: 0.08,
+          color: '#134b70',
+          weight: 2,
+        },
+        onEachFeature: (feature, layer) => {
+          const name = feature.properties?.COUNTY_NAME as string | undefined;
+          if (name) layer.bindTooltip(name, { className: 'county-tooltip', sticky: true });
+        },
+      }).addTo(map);
+    }
+
+    for (const group of groupByLocation(markers)) {
+      const iconType = TYPE_PRIORITY.find((type) => group.some((marker) => marker.type === type)) ?? group[0].type;
+      const links = group
+        .map((marker) => `<a class="map-popup-link" href="${marker.url}">${escapeHtml(marker.name)}</a>`)
+        .join('');
+      const popupHtml = group.length > 1 ? `<div class="map-popup-list">${links}</div>` : links;
+
+      L.marker([group[0].lat, group[0].lng], { icon: pinIcon(iconType) }).addTo(map).bindPopup(popupHtml);
+    }
+
+    // Re-enable scroll-to-zoom once the map has focus/hover, so a page scroll past the map
+    // doesn't get hijacked into a map zoom — a common complaint with embedded Leaflet maps.
+    el.addEventListener('mouseenter', () => map.scrollWheelZoom.enable());
+    el.addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
+  }
+
+  initServiceAreaMap();
+  // Matches MarketingLayout's reveal script: a no-op today (view transitions are off), but
+  // correct if they're ever turned on — this component would otherwise never re-init on a
+  // client-side navigation into a page that embeds it.
+  document.addEventListener('astro:page-load', initServiceAreaMap);
+</script>

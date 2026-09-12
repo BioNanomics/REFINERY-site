@@ -5,6 +5,7 @@ import CTAButton from '../components/marketing/CTAButton.astro';
 import RandomTeamsTeaser from '../components/marketing/RandomTeamsTeaser.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import PeopleBios from '../components/marketing/PeopleBios.astro';
+import ServiceAreaMap, { type ServiceAreaMarker } from '../components/marketing/ServiceAreaMap.astro';
 import First from '../components/brand/First.astro';
 import { firstPlain } from '../utils/first';
 import { Image, getImage } from 'astro:assets';
@@ -13,8 +14,35 @@ import { withBase } from '../utils/base';
 import { formatFacilityAddress } from '../utils/facility';
 import { facility, person, personId } from '../utils/schema';
 import { linkedinProfiles } from '../utils/people';
+import { REFINERY_LOCATION, TEAM_LOCATIONS } from '../data/team-locations';
+import { teamPath, teamSlug } from '../utils/teams';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
+
+// Static marker list for the service-area map: every team with a geocoded home location in
+// team-locations.ts, plus The REFINERY's own facility. A team missing a location entry (a
+// brand-new one, before its coordinates are looked up) just doesn't get a pin rather than
+// failing the build.
+const serviceAreaMarkers: ServiceAreaMarker[] = [
+  ...allTeams.flatMap((team): ServiceAreaMarker[] => {
+    const location = TEAM_LOCATIONS[teamSlug(team)];
+    if (!location) return [];
+    return [
+      {
+        ...location,
+        name: team.data.name,
+        type: team.data.program,
+        url: teamPath(team),
+      },
+    ];
+  }),
+  {
+    ...REFINERY_LOCATION,
+    name: 'The REFINERY',
+    type: 'REFINERY',
+    url: withBase('about/#facility'),
+  },
+];
 
 // Derived from the structured address in src/utils/facility.ts, which the Organization and
 // facility JSON-LD also read — so the visible address and the markup can't disagree.
@@ -101,40 +129,10 @@ const aboutSchema = [
     </div>
   </section>
 
-  <section id="service-area" class="section-rule scroll-mt-6 section">
-    <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
-      <SectionHeading title="Where We Serve" align="left" />
-      <p class="mt-4 max-w-2xl text-slate-600" data-reveal>
-        The REFINERY supports <First /> robotics teams across 12 counties in Northeast Indiana:
-      </p>
-      <ul class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" data-reveal>
-        {
-          [
-            'Adams',
-            'Allen',
-            'DeKalb',
-            'Grant',
-            'Huntington',
-            'Kosciusko',
-            'LaGrange',
-            'Noble',
-            'Steuben',
-            'Wabash',
-            'Wells',
-            'Whitley',
-          ].map((county) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{county}</li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
   <section id="model" class="section-rule scroll-mt-6 section">
     <div class="section-inner section-split">
       <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
+        <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
         <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>How the Model Works</h2>
       </div>
       <p
@@ -150,6 +148,43 @@ const aboutSchema = [
         <span>Community</span><span class="text-brand-accent">=</span>
         <span class="text-brand-accent">Stronger, More Sustainable Teams</span>
       </p>
+    </div>
+  </section>
+
+  <section id="service-area" class="section-rule scroll-mt-6 section">
+    <div class="section-inner">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
+      <SectionHeading title="Where We Serve" align="left" />
+      <div class="mt-4 grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr] lg:items-start">
+        <div data-reveal>
+          <p class="max-w-2xl text-slate-600">
+            The REFINERY supports <First /> robotics teams across 12 counties in Northeast Indiana:
+          </p>
+          <ul class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
+            {
+              [
+                'Adams',
+                'Allen',
+                'DeKalb',
+                'Grant',
+                'Huntington',
+                'Kosciusko',
+                'LaGrange',
+                'Noble',
+                'Steuben',
+                'Wabash',
+                'Wells',
+                'Whitley',
+              ].map((county) => (
+                <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{county}</li>
+              ))
+            }
+          </ul>
+        </div>
+        <div data-reveal>
+          <ServiceAreaMap markers={serviceAreaMarkers} />
+        </div>
+      </div>
     </div>
   </section>
 
