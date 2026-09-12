@@ -22,6 +22,11 @@ export const FACILITY_ADDRESS = {
   addressCountry: 'US',
 } as const;
 
+// Geocoded against FACILITY_ADDRESS (OpenStreetMap Nominatim) for the service-area map's own
+// pin (About page) — kept alongside the address it was derived from, same reasoning as
+// formatFacilityAddress() below.
+export const FACILITY_LOCATION = { lat: 41.0708005, lng: -85.1496599 };
+
 /**
  * US postal convention: street, city, then state and ZIP separated by a space rather than a
  * comma. `addressCountry` is deliberately left out — it belongs in the structured data, not

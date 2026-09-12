@@ -11,25 +11,23 @@ import { firstPlain } from '../utils/first';
 import { Image, getImage } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { withBase } from '../utils/base';
-import { formatFacilityAddress } from '../utils/facility';
+import { FACILITY_LOCATION, formatFacilityAddress } from '../utils/facility';
 import { facility, person, personId } from '../utils/schema';
 import { linkedinProfiles } from '../utils/people';
-import { REFINERY_LOCATION, TEAM_LOCATIONS } from '../data/team-locations';
-import { teamPath, teamSlug } from '../utils/teams';
+import { teamPath } from '../utils/teams';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 
-// Static marker list for the service-area map: every team with a geocoded home location in
-// team-locations.ts, plus The REFINERY's own facility. A team missing a location entry (a
-// brand-new one, before its coordinates are looked up) just doesn't get a pin rather than
-// failing the build.
+// Static marker list for the service-area map: every team with a `location` set in its own
+// frontmatter (src/content.config.ts), plus The REFINERY's own facility. A team without one
+// (brand-new, before its coordinates are geocoded) just doesn't get a pin rather than failing
+// the build.
 const serviceAreaMarkers: ServiceAreaMarker[] = [
   ...allTeams.flatMap((team): ServiceAreaMarker[] => {
-    const location = TEAM_LOCATIONS[teamSlug(team)];
-    if (!location) return [];
+    if (!team.data.location) return [];
     return [
       {
-        ...location,
+        ...team.data.location,
         name: team.data.name,
         type: team.data.program,
         url: teamPath(team),
@@ -37,7 +35,7 @@ const serviceAreaMarkers: ServiceAreaMarker[] = [
     ];
   }),
   {
-    ...REFINERY_LOCATION,
+    ...FACILITY_LOCATION,
     name: 'The REFINERY',
     type: 'REFINERY',
     url: withBase('about/#facility'),
