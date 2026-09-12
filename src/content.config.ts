@@ -66,6 +66,11 @@ const teams = defineCollection({
       // nonprofits, libraries, and other community groups.
       organization: z.string(),
       community: z.string(),
+      // Where this team's pin lands on the service-area map (About page). Geocoded from
+      // `organization` + `community` against OpenStreetMap Nominatim — not derived
+      // automatically at build time, so it's absent rather than wrong for a team that hasn't
+      // been geocoded yet, and ServiceAreaMap.astro simply skips a team with no location.
+      location: z.object({ lat: z.number(), lng: z.number() }).optional(),
       logo: image().optional(),
       description: z.string(),
       highlight: z.string().optional(),

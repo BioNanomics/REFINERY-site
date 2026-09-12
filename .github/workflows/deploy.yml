@@ -38,6 +38,10 @@ jobs:
       - uses: withastro/action@v6
         with:
           node-version: 24
+        env:
+          # See "Environment variables" in README.md — without this secret set, the build
+          # still succeeds, but the service-area map's CARTO basemap tiles carry a watermark.
+          PUBLIC_CARTO_API_KEY: ${{ secrets.PUBLIC_CARTO_API_KEY }}
 
   deploy:
     needs: build

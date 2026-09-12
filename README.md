@@ -25,6 +25,23 @@ npm run dev       # http://localhost:4321
 | `npm run preview`     | Preview the production build locally                  |
 | `npm run astro check` | Type-check the project                                |
 
+## Environment variables
+
+Copy `.env.example` to `.env` for local development:
+
+```sh
+cp .env.example .env
+```
+
+| Variable | Required for | Notes |
+| :--- | :--- | :--- |
+| `PUBLIC_CARTO_API_KEY` | The service-area map on `/about/` (`src/components/marketing/ServiceAreaMap.astro`) | CARTO now watermarks its basemap tiles ("API KEY REQUIRED") without one. Free, no CARTO account needed, 5M tiles/month — request one at <https://carto.com/basemaps/apikey>. Without it, the map still renders (county outlines, pins, popups all still work) — only the basemap tiles underneath carry the watermark. |
+
+`PUBLIC_CARTO_API_KEY` also has to be set as a **repository secret** (Settings → Secrets and
+variables → Actions → New repository secret, named exactly `PUBLIC_CARTO_API_KEY`) for the
+deployed site — `.env` is local-only and gitignored, so the GitHub Actions build in
+`.github/workflows/deploy.yml` reads the value from that secret instead.
+
 ## Updating the impact stats
 
 The impact numbers shown on the homepage and in the About page's Impact section live in **one
