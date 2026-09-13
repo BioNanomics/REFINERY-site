@@ -69,6 +69,17 @@
      well under ~150ms or scrolling feels laggy rather than choreographed. */
   --refinery-reveal-distance: 14px;
   --refinery-reveal-stagger: 45ms;
+
+  /* Service-area map pins (ServiceAreaMap.astro) — one hue per program plus one for The
+     REFINERY itself, distinct from --refinery-color-primary/-accent/-accent-fill so a map
+     pin never gets mistaken for a change to those site-wide roles. --map-fll deliberately
+     isn't --refinery-color-accent-fill (#40a578): fine as a button/badge FILL per the
+     ACCENT SPLIT note above, but not distinct enough at a glance from --map-ftc's green
+     when the two sit side by side as small map pins. */
+  --map-frc: #134b70;
+  --map-ftc: #2b7252;
+  --map-fll: #d39b2c;
+  --map-refinery: #40a578;
 }
 
 /**

@@ -100,6 +100,7 @@ name: "Team name"
 program: FRC          # FRC | FTC
 organization: "Parent organization — school, 4-H club, nonprofit, etc."
 community: "City, State"
+location: { lat: 41.05, lng: -85.30 }  # optional — see "Map location" below
 logo: ../../assets/teams/1501.svg   # optional
 description: "One or two sentences about the team."
 metaDescription: "Shorter copy for search results."  # optional, max 160 chars
@@ -158,6 +159,7 @@ Where each field surfaces:
 | `links`, `socials` | yes | yes |
 | `zeffyFundName` | no | yes (Donate card) |
 | `hideDonation` | no | yes (Donate card) |
+| `location` | no | no — About page map only, see "Map location" below |
 
 `description` is deliberately **not** rendered on the team page. It is the card blurb, and a
 visitor arriving from a card has just read it. It still feeds the page's meta description and
@@ -315,6 +317,33 @@ Drafts and self-references are dropped automatically.
 picks its teams at random in the browser on every visit, so `featured` only decides the
 server-rendered default set that a visitor without JavaScript sees (`RandomTeamsTeaser.astro`).
 It has no effect on the full teams list at `/about/teams/`, which sorts by program and number.
+
+#### Map location
+
+```yaml
+location: { lat: 41.05, lng: -85.30 }
+```
+
+Optional. Places a pin for this team on the service-area map in the About page's "Where We
+Serve" section (`src/components/marketing/ServiceAreaMap.astro`), linking to the team's page.
+A team with no `location` simply gets no pin — this never fails the build, so there's no rush
+to geocode a brand-new team before its page can go live.
+
+**Don't guess the coordinates.** Geocode the team's `organization` against
+[OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/), e.g.:
+
+```
+https://nominatim.openstreetmap.org/search?format=json&q=South+Side+High+School,+Fort+Wayne,+IN
+```
+
+Use the `lat`/`lon` from the first real result (a `school`/`building` type, not an unrelated
+place that happens to share a name). If several teams share one building — three teams at the
+same high school, say — give them the identical `lat`/`lng` pair; the map groups markers by
+location automatically and lists every team sharing a pin in its popup, rather than stacking
+identical pins on top of each other.
+
+The REFINERY's own facility marker isn't part of this collection — it's derived from
+`FACILITY_LOCATION` in `src/utils/facility.ts`, next to the address it was geocoded from.
 
 ### Program — `src/content/programs/*.mdx`
 
