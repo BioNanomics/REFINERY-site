@@ -189,9 +189,11 @@ const markersJson = JSON.stringify(markers);
   // The actual bounding box of the 12 county polygons in service-area-counties.json (min/max
   // lat/lng across every ring, plus a ~0.02° margin), NOT a hand-eyeballed region box — an
   // approximate box that undershoots the real geometry on any edge means fitBounds crops that
-  // county's corner instead of showing all 12 "just barely" fully in view. Locking
-  // panning/zooming to this keeps the map from ever drifting to show area outside the
-  // footprint The REFINERY actually serves.
+  // county's corner instead of showing all 12 "just barely" fully in view. This drives the
+  // initial fit and minZoom below; the actual pan lock is derived FROM the resulting view
+  // (see the maxBounds comment in setUpMap) rather than reusing this box directly, so it
+  // still keeps the map from drifting outside the served footprint without disagreeing with
+  // what fitBounds already put on screen.
   const SERVICE_AREA_BOUNDS: L.LatLngBoundsExpression = [
     [40.36, -86.1],
     [41.78, -84.78],
@@ -278,10 +280,18 @@ const markersJson = JSON.stringify(markers);
     // corner — a "just barely visible" fit computed against the RAW container would put
     // Grant County's southern edge right where that strip sits on top of the map, hiding it
     // behind "Leaflet | © OpenStreetMap ... © CARTO" instead of actually cropping it.
+    //
+    // maxBounds is set to the PADDED view's own bounds (map.getBounds(), read back right
+    // after fitBounds), not the raw SERVICE_AREA_BOUNDS box. The padding makes fitBounds
+    // zoom out slightly further than SERVICE_AREA_BOUNDS alone needs, so at that zoom the
+    // box is already smaller on screen than the viewport — locking panning to the raw box
+    // then immediately violates itself and Leaflet snaps/pans the view to correct it, a
+    // visible jump right on load. Reading back what's actually on screen guarantees the
+    // initial view and the locked pan box agree from the first frame.
     const ATTRIBUTION_HEIGHT = 40;
     map.fitBounds(SERVICE_AREA_BOUNDS, { paddingBottomRight: [0, ATTRIBUTION_HEIGHT] });
     map.setMinZoom(map.getZoom());
-    map.setMaxBounds(SERVICE_AREA_BOUNDS);
+    map.setMaxBounds(map.getBounds());
 
     // CARTO's raster tiles now watermark unauthenticated requests ("API KEY REQUIRED") — see
     // https://docs.carto.com/faqs/carto-basemaps. A free key (no CARTO account needed, 5M
