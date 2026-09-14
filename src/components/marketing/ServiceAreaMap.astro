@@ -289,9 +289,42 @@ const markersJson = JSON.stringify(markers);
     // visible jump right on load. Reading back what's actually on screen guarantees the
     // initial view and the locked pan box agree from the first frame.
     const ATTRIBUTION_HEIGHT = 40;
-    map.fitBounds(SERVICE_AREA_BOUNDS, { paddingBottomRight: [0, ATTRIBUTION_HEIGHT] });
-    map.setMinZoom(map.getZoom());
-    map.setMaxBounds(map.getBounds());
+    function applyFit() {
+      map.fitBounds(SERVICE_AREA_BOUNDS, { paddingBottomRight: [0, ATTRIBUTION_HEIGHT] });
+      map.setMinZoom(map.getZoom());
+      map.setMaxBounds(map.getBounds());
+    }
+    applyFit();
+
+    // whenSized only waits for a non-zero size, which this container already has the instant
+    // the page loads — well before MarketingLayout's scroll-reveal system brings it into
+    // view. Real visitors (anyone without prefers-reduced-motion) get [data-reveal]'s
+    // opacity/transform transition on this element's own wrapper (see marketing.css), so
+    // Leaflet's very first measurement above happens while that wrapper still carries
+    // `transform: translate3d(0, 14px, 0)`. Leaflet doesn't support initializing inside a
+    // transformed ancestor — the pixel origin it captures at that moment stays wrong for the
+    // rest of the page's life once the transform later resolves to `none`, offsetting every
+    // marker and the whole view by an amount that has nothing to do with the 14px itself
+    // (it comes out as a materially different fit/zoom, not a small nudge). Nothing in the
+    // reduced-motion path hits this — that's why it never showed up testing with motion
+    // reduced. Re-running the same fit once the transform has actually finished re-measures
+    // against the container's real, final position and corrects it. The transitionend
+    // listener catches the common case; the timeout is a fallback in case that event doesn't
+    // fire (reveal already resolved before this ran, transitionend not supported, etc.) —
+    // 700ms comfortably clears the reveal's own worst case (460ms duration + the reveal
+    // system's own 3-stagger cap of 45ms each, 135ms — see MarketingLayout.astro).
+    const wrapper = el.parentElement;
+    let refit = false;
+    const refitOnce = () => {
+      if (refit) return;
+      refit = true;
+      applyFit();
+      map.invalidateSize();
+    };
+    wrapper?.addEventListener('transitionend', (event) => {
+      if (event.target === wrapper && event.propertyName === 'transform') refitOnce();
+    });
+    setTimeout(refitOnce, 700);
 
     // CARTO's raster tiles now watermark unauthenticated requests ("API KEY REQUIRED") — see
     // https://docs.carto.com/faqs/carto-basemaps. A free key (no CARTO account needed, 5M
