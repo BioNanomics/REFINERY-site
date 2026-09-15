@@ -69,7 +69,14 @@ const markersJson = JSON.stringify(markers);
   /* --- Marker pins --- a plain circle, not a rotated teardrop: simpler to read at this size
      and never looks "tilted" at rest. */
   .map-pin {
-    position: relative;
+    /* No `position` here on purpose: this class is applied to the SAME element as Leaflet's
+       own `.leaflet-marker-icon` (which needs `position: absolute` to place the marker via
+       `transform: translate3d`). Both selectors have identical specificity, so declaring
+       `position: relative` here becomes a cascade-order coin flip with Leaflet's own rule —
+       dev happened to load leaflet.css last (absolute wins), the production bundle didn't
+       (relative won instead), leaving every marker's transform applied from its in-flow
+       position instead of the map's origin. `::after` below still gets a valid positioning
+       context from `.leaflet-marker-icon`'s own `absolute`, so this isn't needed anyway. */
     display: block;
     width: 1.35rem;
     height: 1.35rem;
