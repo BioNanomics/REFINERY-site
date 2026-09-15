@@ -14,13 +14,17 @@ export async function getStaticPaths() {
   // sourceUrl link straight to the original publisher from the news grid.
   // Drafts are excluded outright, so an unreviewed story has no URL to index.
   const posts = await getCollection('news', ({ data }) => !data.sourceUrl && !data.draft);
+  // Also hoisted, for the same reason as `posts`: every generated page needs the same full
+  // team roster to resolve its own teamRefs, so fetch it once here rather than inside each
+  // page render.
+  const teams = await getCollection('teams', ({ data }) => !data.draft);
   return posts.map((post) => ({
     params: { id: post.id },
-    props: { post },
+    props: { post, teams },
   }));
 }
 
-const { post } = Astro.props;
+const { post, teams } = Astro.props;
 const { title, summary, metaDescription, pubDate, author, authorType, heroImage, heroImageAlt, draft, category } =
   post.data;
 const { Content } = await render(post);
@@ -35,9 +39,8 @@ const searchDescription = metaDescription ?? summary;
 // own (that is the whole reason the field is numbers rather than a reference()). Those
 // simply drop out here — teamByNumber returns undefined both for an unknown number and for
 // an ambiguous one, and either way there is no page to link to.
-const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 const storyTeams = post.data.teamRefs
-  .map((number) => teamByNumber(allTeams, number))
+  .map((number) => teamByNumber(teams, number))
   .filter((team) => team !== undefined);
 
 const articleSchema = article({

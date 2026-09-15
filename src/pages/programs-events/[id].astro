@@ -5,6 +5,7 @@ import { getCollection, render } from 'astro:content';
 import { firstPlain } from '../../utils/first';
 import { event as eventSchema } from '../../utils/schema';
 import { withBase } from '../../utils/base';
+import { formatUtcDate } from '../../utils/dates';
 
 export async function getStaticPaths() {
   // Deliberately no date filter. Past events stop appearing on the listing page, but keep
@@ -35,6 +36,12 @@ const jsonLd = venueAddress
       registrationUrl,
     })
   : undefined;
+
+// Only shown when it's actually a different day — see the identical check on EventCard.astro.
+const formattedEndDate =
+  dateEnd && dateEnd.getTime() !== dateStart.getTime()
+    ? formatUtcDate(dateEnd, { year: 'numeric', month: 'long', day: 'numeric' })
+    : undefined;
 ---
 
 <ArticleLayout
@@ -50,6 +57,11 @@ const jsonLd = venueAddress
     { label: title },
   ]}
 >
+  {
+    formattedEndDate && (
+      <p class="not-prose -mt-6 mb-8 font-mono text-xs text-slate-500">Through {formattedEndDate}</p>
+    )
+  }
   <Content />
   {
     (registrationUrl || isFree) && (

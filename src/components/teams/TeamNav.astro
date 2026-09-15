@@ -33,9 +33,12 @@ const nameClass =
     >
       {/* Rendered as an empty span rather than omitted when there is no previous team, so
           `next` stays flush right instead of sliding across to fill the gap. */}
+      {/* Bare number, not "FRC 1501"/"FTC 1501" — FIRST has asked partner sites not to
+          display the program abbreviations, and the aria-label above already says which
+          program this nav is scoped to. */}
       {prev ? (
         <a href={teamPath(prev)} class={linkClass}>
-          <span class={labelClass}>&larr; {prev.data.program} {prev.data.number}</span>
+          <span class={labelClass}>&larr; {prev.data.number}</span>
           <span class={nameClass}>
             <FirstText text={prev.data.name} />
           </span>
@@ -45,7 +48,7 @@ const nameClass =
       )}
       {next && (
         <a href={teamPath(next)} class:list={[linkClass, 'items-end text-right']}>
-          <span class={labelClass}>{next.data.program} {next.data.number} &rarr;</span>
+          <span class={labelClass}>{next.data.number} &rarr;</span>
           <span class={nameClass}>
             <FirstText text={next.data.name} />
           </span>

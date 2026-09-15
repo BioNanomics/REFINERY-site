@@ -12,6 +12,8 @@
  * (a brand-new team, say) gets no Donate section at all rather than a button that can't
  * actually direct a gift anywhere.
  */
+import FirstText from '../brand/FirstText.astro';
+
 interface Props {
   teamName: string;
   fundName: string;
@@ -32,7 +34,7 @@ const ZEFFY_FORM_URL =
 <div class="card card-pad-lg flex h-full flex-col" data-reveal>
   <h2 class="font-heading text-lg font-bold text-slate-900">Support {teamName}</h2>
   <p class="mt-2 text-sm text-slate-600">
-    Gifts go through The REFINERY's shared donation form. In the form, choose <strong class="text-slate-900">{fundName}</strong> from
+    Gifts go through The REFINERY's shared donation form. In the form, choose <strong class="text-slate-900"><FirstText text={fundName} /></strong> from
     the "What fund would you like your donation to support?" dropdown to direct yours to this team.
   </p>
   <div class="mt-auto pt-5">

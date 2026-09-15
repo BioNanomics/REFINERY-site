@@ -100,6 +100,7 @@ name: "Team name"
 program: FRC          # FRC | FTC
 organization: "Parent organization — school, 4-H club, nonprofit, etc."
 community: "City, State"
+location: { lat: 41.05, lng: -85.30 }  # optional — see "Map location" below
 logo: ../../assets/teams/1501.svg   # optional
 description: "One or two sentences about the team."
 metaDescription: "Shorter copy for search results."  # optional, max 160 chars
@@ -128,6 +129,8 @@ socials:                      # optional, all keys optional — see note below
   github: "https://github.com/..."
   linkedin: "https://linkedin.com/company/..."
   website: "https://..."
+zeffyFundName: "1501 - Team Name"  # optional — see "Donations" below
+hideDonation: false            # optional — see "Donations" below
 featured: false               # narrow effect — see note below
 newTeam: false                # set true to put a "New!" badge on the team card
 draft: false
@@ -154,6 +157,9 @@ Where each field surfaces:
 | `robots` | no | yes |
 | `relatedTeams` | no | yes |
 | `links`, `socials` | yes | yes |
+| `zeffyFundName` | no | yes (Donate card) |
+| `hideDonation` | no | yes (Donate card) |
+| `location` | no | no — About page map only, see "Map location" below |
 
 `description` is deliberately **not** rendered on the team page. It is the card blurb, and a
 visitor arriving from a card has just read it. It still feeds the page's meta description and
@@ -186,6 +192,27 @@ The masthead is a band with the logo plaque overlapping its lower edge. The band
 `banner` photo when there is one and a brand-navy panel otherwise, which is a designed state
 rather than a placeholder — a team needs no photo for its page to look finished. A team with
 no `logo` gets the band alone and is identified by the eyebrow and heading instead.
+
+#### Donations
+
+Every team's Donate card points at the same shared Zeffy donation form — there is no
+per-team form. Zeffy's embed has no supported way to pre-select a fund from outside the
+form, so instead of a broken "pre-filled" experience, the card tells the donor exactly
+which option to pick from the form's own fund dropdown.
+
+`zeffyFundName` is that dropdown label, copied **verbatim** from Zeffy (e.g. `"1501 -
+T.H.R.U.S.T."`) — not derived from `name`/`number`. Zeffy's fund names used to carry an
+"FRC Team"/"FTC Team" prefix; those were dropped fund-side per the FIRST trademark policy
+below, so don't reintroduce one here. (The Donate card still runs this value through
+`<FirstText>` — see "Writing FIRST and program names" — in case a future fund name ever
+does carry an FRC/FTC mention.) Leave `zeffyFundName` unset for a team with no fund set up
+yet (a brand-new team, say); the Donate card simply doesn't render, and the "Get Involved"
+card next to it expands to fill the row.
+
+`hideDonation: true` hides the Donate card even though `zeffyFundName` is still set —
+use it to pause donations for a team without losing the fund name (e.g. the fund is
+temporarily closed, or the team asked to pause it for the season). The "Get Involved"
+card expands to fill the row exactly as it does when there's no fund at all.
 
 #### Team awards
 
@@ -290,6 +317,33 @@ Drafts and self-references are dropped automatically.
 picks its teams at random in the browser on every visit, so `featured` only decides the
 server-rendered default set that a visitor without JavaScript sees (`RandomTeamsTeaser.astro`).
 It has no effect on the full teams list at `/about/teams/`, which sorts by program and number.
+
+#### Map location
+
+```yaml
+location: { lat: 41.05, lng: -85.30 }
+```
+
+Optional. Places a pin for this team on the service-area map in the About page's "Where We
+Serve" section (`src/components/marketing/ServiceAreaMap.astro`), linking to the team's page.
+A team with no `location` simply gets no pin — this never fails the build, so there's no rush
+to geocode a brand-new team before its page can go live.
+
+**Don't guess the coordinates.** Geocode the team's `organization` against
+[OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/), e.g.:
+
+```
+https://nominatim.openstreetmap.org/search?format=json&q=South+Side+High+School,+Fort+Wayne,+IN
+```
+
+Use the `lat`/`lon` from the first real result (a `school`/`building` type, not an unrelated
+place that happens to share a name). If several teams share one building — three teams at the
+same high school, say — give them the identical `lat`/`lng` pair; the map groups markers by
+location automatically and lists every team sharing a pin in its popup, rather than stacking
+identical pins on top of each other.
+
+The REFINERY's own facility marker isn't part of this collection — it's derived from
+`FACILITY_LOCATION` in `src/utils/facility.ts`, next to the address it was geocoded from.
 
 ### Program — `src/content/programs/*.mdx`
 
@@ -428,6 +482,13 @@ Mechanics, if you need them: `src/utils/first.ts` holds the term table,
 `<FirstText text={...} />` for strings that arrive as props. Plain-text contexts that can't
 hold markup (`<title>`, meta descriptions, `alt`) go through `firstPlain()` in
 `src/layouts/BaseHead.astro`, which yields `FIRST®` without italics.
+
+**Two exceptions don't run through `<FirstText>`, deliberately:** a `robots[].name` (a
+robot's own name, chosen by the team — occasionally a pun on FRC/FTC, e.g. "John FRC") and a
+team's `links[].label` (naming another site by its own name — "FTC Events", "FTCScout").
+Both are proper nouns or another party's own branding, not REFINERY-authored prose, so the
+never-abbreviate rule doesn't apply to them the way it does to a description, bio, or credit
+line we wrote ourselves.
 
 ## Internal links inside Markdown/MDX body content
 

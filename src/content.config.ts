@@ -66,21 +66,37 @@ const teams = defineCollection({
       // nonprofits, libraries, and other community groups.
       organization: z.string(),
       community: z.string(),
+      // Where this team's pin lands on the service-area map (About page). Geocoded from
+      // `organization` + `community` against OpenStreetMap Nominatim — not derived
+      // automatically at build time, so it's absent rather than wrong for a team that hasn't
+      // been geocoded yet, and ServiceAreaMap.astro simply skips a team with no location.
+      location: z.object({ lat: z.number(), lng: z.number() }).optional(),
       logo: image().optional(),
       description: z.string(),
       highlight: z.string().optional(),
       links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
 
       // The exact label this team's donation "fund" carries in the org's shared Zeffy
-      // donation form's dropdown — e.g. "FRC Team 1501 - T.H.R.U.S.T." — verbatim from
-      // Zeffy's own form_getFormFunds API, not derived from `name`/`number`. Zeffy's embed
-      // has no supported way to pre-select a fund from a URL or postMessage (confirmed
-      // against their production JS, which reads only `?amount=` from the query string), so
-      // a team's detail page instead shows a Donate button plus this exact string as a hint
-      // for which dropdown option to pick. Three East Noble teams (8103/8431/8432) share one
-      // combined fund and so share this same value. Absent for a team with no fund set up
-      // yet (e.g. a brand-new team) — the Donate button simply doesn't render for those.
+      // donation form's dropdown — e.g. "1501 - T.H.R.U.S.T." — verbatim from Zeffy's own
+      // form_getFormFunds API, not derived from `name`/`number`. Zeffy's fund names dropped
+      // their "FRC Team"/"FTC Team" prefix after FIRST's request that partner sites never
+      // display those abbreviations (see src/utils/first.ts) — the site's own DonateButton
+      // and FirstText still expand FRC/FTC defensively if a value ever carries one again.
+      // Zeffy's embed has no supported way to pre-select a fund from a URL or postMessage
+      // (confirmed against their production JS, which reads only `?amount=` from the query
+      // string), so a team's detail page instead shows a Donate button plus this exact
+      // string as a hint for which dropdown option to pick. Three East Noble teams
+      // (8103/8431/8432) share one combined fund and so share this same value. Absent for a
+      // team with no fund set up yet (e.g. a brand-new team) — the Donate button simply
+      // doesn't render for those.
       zeffyFundName: z.string().optional(),
+
+      // Hides the Donate card even when `zeffyFundName` is set, without deleting that
+      // value — e.g. a team's fund is temporarily paused, or its window this season has
+      // closed. Distinct from omitting `zeffyFundName`: that means "no fund exists yet";
+      // this means "a fund exists but donations are off for now." The Get Involved card
+      // expands to fill the row either way — see the grid in src/pages/teams/[slug].astro.
+      hideDonation: z.boolean().default(false),
       socials: z
         .object({
           instagram: z.string().url().optional(),
@@ -119,16 +135,21 @@ const teams = defineCollection({
           image: image(),
           alt: z.string(),
           credit: z.object({ text: z.string(), url: z.string().url().optional() }),
-          // The band crops to a fixed 2:1 (see TeamMasthead.astro), which centers on the
-          // source photo by default. A photo shot at roughly 2:1 with its subject already
-          // centered needs nothing here. A typical team photo runs far taller than that (a
-          // group's subjects span nearly its full height, well over double a 2:1 band's
-          // visible slice) and needs a focal point, or the crop centers on chests and cuts
-          // off both the faces above and whatever they're standing around below — and even
-          // with a focal point, 2:1 usually isn't tall enough to keep both; pick which one
-          // matters more. Any valid CSS `object-position` value (e.g. "center 20%", "center
-          // bottom"); passed through unvalidated, so preview it before committing.
+          // The band shows the photo at its own aspect ratio down to a floor of 5:3 (see
+          // TeamMasthead.astro), centering on the source photo by default. A photo shot at
+          // 5:3 or wider, with its subject already centered, needs nothing here. A photo
+          // taller than that (a group shot is the common case: subjects run nearly its full
+          // height) gets clamped to the floor and cropped, and centering isn't always right
+          // for it — this overrides where that crop centers. Any valid CSS `object-position`
+          // value (e.g. "center 20%", "center bottom"); passed through unvalidated, so
+          // preview it before committing.
           focalPoint: z.string().optional(),
+          // For the rare banner that already carries the team's logo baked into the image
+          // itself (a pit banner graphic, say, rather than event photography) — set so
+          // TeamMasthead skips its own logo plaque instead of showing the mark twice.
+          // `logo` above stays populated regardless: it still feeds the page's schema.org
+          // metadata, which has nothing to do with what the masthead renders on top of it.
+          logoInBanner: z.boolean().optional(),
         })
         .optional(),
 
@@ -205,15 +226,19 @@ const teams = defineCollection({
       relatedTeams: z.array(reference('teams')).default([]),
 
       // One entry per season the team has a robot worth naming. `year` rather than a
-      // free-text season so the list sorts; `game` carries the season name verbatim when
-      // published. Note FIRST game names are marks in their own right but are NOT in
-      // FIRST_TOKENS, so they render exactly as authored rather than picking up a ®.
+      // free-text season so the list sorts.
       robots: z
         .array(
           z.object({
             name: z.string(),
             year: z.number().int().gte(1992),
-            game: z.string().optional(),
+            // The season's official game name/mark lives once in src/utils/games.ts —
+            // keyed by the team's own `program` plus this `year` — rather than repeated
+            // (and risking drift) across every team that played it. This just opts a
+            // specific robot into showing whatever that shared directory has on file for
+            // its year; a team whose robot predates the directory being populated for that
+            // season, or one that deliberately shouldn't show it, simply leaves this false.
+            showGame: z.boolean().default(false),
             description: z.string().max(280).optional(),
             image: image().optional(),
             imageAlt: z.string().optional(),
@@ -329,6 +354,10 @@ const partners = defineCollection({
     z.object({
       name: z.string(),
       logo: image(),
+      // Every partner logo renders at the same shared height by default; this overrides it
+      // for the rare logo (e.g. one with almost no built-in padding) that reads noticeably
+      // larger or smaller than the rest at that height.
+      logoHeight: z.number().int().positive().optional(),
       url: z.string().url().optional(),
       description: z.string().optional(),
       draft: z.boolean().default(false),

@@ -15,6 +15,7 @@ import { socialLinks } from '../../utils/socials';
 import { awardCitation, sortAwards } from '../../utils/awards';
 import { resolveBanner } from '../../utils/banners';
 import { hasRenderableBody } from '../../utils/mdx-body';
+import { byNewest } from '../../utils/dates';
 import CTAButton from '../../components/marketing/CTAButton.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
 import AwardBanners from '../../components/teams/AwardBanners.astro';
@@ -28,19 +29,26 @@ export async function getStaticPaths() {
   // Both surfaces that render a TeamCard already filter on the same predicate, so every
   // card that links to a team page links to one that was actually built.
   const teams = await getCollection('teams', ({ data }) => !data.draft);
+  // Also hoisted, for the same reason as `teams`: every generated page needs the same
+  // full news list to find its own team's stories, so fetch it once here rather than
+  // inside each page render.
+  const news = await getCollection('news', ({ data }) => !data.draft);
   return teams.map((team) => ({
     params: { slug: teamSlug(team) },
     // The full roster rides along for prev/next; computing it here beats a second
     // getCollection call inside every page render.
-    props: { team, teams },
+    props: { team, teams, news },
   }));
 }
 
-const { team, teams } = Astro.props;
+const { team, teams, news } = Astro.props;
 const {
   number, name, program, organization, community, logo, description, metaDescription,
   highlight, links, socials, banner, rookieYear, awards, robots, seasons, zeffyFundName,
+  hideDonation,
 } = team.data;
+
+const showDonation = Boolean(zeffyFundName) && !hideDonation;
 
 const programName = PROGRAM_NAMES[program];
 
@@ -67,12 +75,10 @@ const historyYears = groupTeamHistory(sortedAwards, robots, seasons);
 const related = relatedTeamsFor(team, teams);
 
 // Newest first. teamRefs holds bare team numbers — see the note on the field in
-// src/content.config.ts. The draft predicate matches src/pages/news/index.astro so this
-// section and the /news/?team= filter it links to can never disagree about what exists.
-const allNews = await getCollection('news', ({ data }) => !data.draft);
-const teamNews = allNews
-  .filter((post) => post.data.teamRefs.includes(number))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+// src/content.config.ts. The draft predicate matches src/pages/news/index.astro (applied in
+// getStaticPaths above, on the same `news` fetch) so this section and the /news/?team= filter
+// it links to can never disagree about what exists.
+const teamNews = news.filter((post) => post.data.teamRefs.includes(number)).sort(byNewest);
 
 // Every outbound URL this page actually renders, and nothing else — sameAs is a claim that
 // these profiles identify this team, so a URL the page doesn't show has no business here.
@@ -110,10 +116,11 @@ const jsonLd = sportsTeam({
   sameAs,
 });
 
-// Short form for the last crumb and the browser tab — "FRC 1501 — T.H.R.U.S.T." fits
-// BaseHead's 60-character budget once the brand suffix is appended, where the full program
-// name would not. BaseHead applies firstPlain() itself, so this is passed raw.
-const shortLabel = `${program} ${number}`;
+// Short form for the last crumb and the browser tab — bare number rather than
+// "FRC 1501"/"FTC 1501", since FIRST has asked partner sites not to display the program
+// abbreviations and the full program name would blow BaseHead's 60-character title budget.
+// `programName` above already carries the full name for everywhere else on this page.
+const shortLabel = `${number}`;
 
 // One definition, so the three labels can't drift apart in size or colour.
 const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
@@ -185,7 +192,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
             description and the JSON-LD `description` — which keeps schema.ts's rule that a
             value trace to something the page publishes, since the page publishes it as its
             own meta description exactly as organization() already does on the homepage. */}
-        {highlight && <p class="mt-4 font-mono text-sm text-brand-accent">{highlight}</p>}
+        {highlight && <p class="mt-4 font-mono text-sm text-brand-accent"><FirstText text={highlight} /></p>}
 
         {
           // One row: the team's own website leads (ahead of TBA/FTCScout and the social
@@ -241,11 +248,11 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
                         hangs blue and FTC hangs orange, so neither color belongs in a shared
                         heading. */}
                     <h3 class="font-heading text-sm font-bold uppercase tracking-wide text-slate-500">Banners</h3>
-                    <AwardBanners banners={bannerAwards} />
+                    <AwardBanners banners={bannerAwards} program={program} />
                   </div>
                 )}
                 {sortedAwards.length > 0 && <AwardSummary awards={sortedAwards} />}
-                <TeamHistoryYears years={historyYears} bannerOf={bannerOf} />
+                <TeamHistoryYears years={historyYears} program={program} bannerOf={bannerOf} />
               </div>
             )
           }
@@ -303,8 +310,8 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
           for clarity) plus each card's own flex column + mt-auto button wrapper is what
           keeps both cards the same height and lands their buttons on one baseline, whichever
           card's copy happens to run longer. */}
-      <div class:list={['grid grid-cols-1 items-stretch gap-6', zeffyFundName && 'sm:grid-cols-2']}>
-        {zeffyFundName && <DonateButton teamName={name} fundName={zeffyFundName} />}
+      <div class:list={['grid grid-cols-1 items-stretch gap-6', showDonation && 'sm:grid-cols-2']}>
+        {zeffyFundName && !hideDonation && <DonateButton teamName={name} fundName={zeffyFundName} />}
         <div class="card card-pad-lg flex h-full flex-col" data-reveal>
           <h2 class="font-heading text-lg font-bold text-slate-900">
             Get involved with <FirstText text={`${program} ${number}`} />

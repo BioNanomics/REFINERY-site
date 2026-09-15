@@ -431,6 +431,46 @@
     overflow-y: auto;
   }
 
+  /* ── Season-photo lightbox (TeamHistoryYears.astro) ───────────────────
+     Opened with showModal(), unlike .dialog-panel above — this has no third-party overlay
+     (no captcha widget) that showModal()'s top-layer stacking could conflict with, so its
+     native backdrop/focus-trap/Esc-to-close come free instead of being hand-rolled. Padding
+     and background are stripped so the photo (plus the close button floating over its own
+     corner) is the entire visible panel, not a card containing it. */
+  .photo-lightbox {
+    max-width: min(92vw, 1400px);
+    max-height: 92vh;
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-card);
+    background: transparent;
+  }
+  .photo-lightbox::backdrop {
+    background-color: color-mix(in srgb, var(--color-brand) 60%, transparent);
+    backdrop-filter: blur(2px);
+  }
+  .photo-lightbox img {
+    display: block;
+    max-width: 92vw;
+    max-height: 92vh;
+    border-radius: var(--radius-card);
+    object-fit: contain;
+  }
+  .photo-lightbox-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--color-brand) 70%, transparent);
+    padding: 0.375rem;
+    color: #fff;
+    transition: background-color var(--transition-duration-fast) var(--ease-out-soft);
+  }
+  .photo-lightbox-close:hover {
+    background-color: var(--color-brand);
+  }
+
   /* Text/number/email/tel + textarea fields across both dialog forms. */
   .form-input {
     width: 100%;

@@ -2,16 +2,18 @@
 import FirstText from '../brand/FirstText.astro';
 import type { CollectionEntry } from 'astro:content';
 import { withBase } from '../../utils/base';
+import { formatUtcDate } from '../../utils/dates';
 
 interface Props {
   event: CollectionEntry<'events'>;
 }
 
 const { event } = Astro.props;
-const { title, summary, dateStart, location, audience, featured } = event.data;
-// timeZone: 'UTC' — frontmatter dates are bare `YYYY-MM-DD`, which parse as UTC midnight.
-// Without this, formatting in a behind-UTC locale renders the previous day.
-const formattedDate = dateStart.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const { title, summary, dateStart, dateEnd, location, audience, featured } = event.data;
+const formattedDate = formatUtcDate(dateStart);
+// Only shown when it's actually a different day — a single-day event's dateEnd (when set at
+// all) is either absent or equal to dateStart, and "Jun 10 – Jun 10" would just be noise.
+const formattedEndDate = dateEnd && dateEnd.getTime() !== dateStart.getTime() ? formatUtcDate(dateEnd) : undefined;
 const href = featured ? withBase(`programs-events/${event.id}/`) : undefined;
 const Tag = href ? 'a' : 'div';
 ---
@@ -22,7 +24,7 @@ const Tag = href ? 'a' : 'div';
   data-reveal
 >
   <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">
-    {formattedDate}
+    {formattedDate}{formattedEndDate && <> &ndash; {formattedEndDate}</>}
   </time>
   <h3 class="mt-1 font-heading text-base font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
   <p class="mt-1 text-xs text-slate-500">{location}</p>

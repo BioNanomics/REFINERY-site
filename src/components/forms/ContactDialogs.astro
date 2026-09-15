@@ -54,7 +54,7 @@ import { contactForm } from '../../config/contact-forms';
   // an inert element pass through to whatever's behind it; that's what made the challenge
   // look like it was routing clicks into the form's text fields instead of itself.
   function setBackgroundInert(makeInert: boolean) {
-    document.querySelectorAll<HTMLElement>('body > header, body > main, body > footer').forEach((el) => {
+    document.querySelectorAll<HTMLElement>('body > header, body > main, body > footer, body > .skip-link').forEach((el) => {
       if (makeInert) el.setAttribute('inert', '');
       else el.removeAttribute('inert');
     });
