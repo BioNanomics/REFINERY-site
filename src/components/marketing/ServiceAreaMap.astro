@@ -22,13 +22,17 @@ const markersJson = JSON.stringify(markers);
 ---
 
 <div class="service-area-map-wrap" data-reveal>
+  {/* No role="img" here: the map holds real interactive markers (each one opens a popup
+     with a link to a team page), not a flat picture. role="img" would tell assistive tech
+     to treat everything inside as one non-interactive graphic and never expose those links.
+     Each marker gets its own aria-label below (see setUpMap), and the county list rendered
+     as real text next to this component (about.astro) already covers the "what does this
+     map show" context for anyone who can't or doesn't interact with it. */}
   <div
     id="service-area-map"
     class="service-area-map"
     data-counties={countiesJson}
     data-markers={markersJson}
-    role="img"
-    aria-label="Map of the 12 Northeast Indiana counties The REFINERY serves, with pins for member teams and The REFINERY's facility"
   >
   </div>
 </div>
@@ -172,11 +176,18 @@ const markersJson = JSON.stringify(markers);
     color: var(--refinery-color-primary, #134b70);
   }
 
-  /* The county polygons are hover/click-interactive only for their tooltip label — there's no
-     keyboard action tied to focusing one, so the browser's default post-click focus ring just
-     reads as a stray orange box. */
+  /* `:focus` (not `:focus-visible`) is what needs suppressing: clicking a county polygon can
+     focus it in some browsers even though it's mouse/hover-only (no keyboard action tied to
+     it), and the browser's default focus ring then reads as a stray orange box. Markers carry
+     this same `.leaflet-interactive` class and ARE real keyboard stops (Leaflet gives each one
+     `tabindex="0"` + Enter-to-open-popup) — restoring the ring for `:focus-visible` keeps it
+     visible for that Tab-driven case while `:focus` still suppresses the click-only one. */
   .service-area-map .leaflet-interactive:focus {
     outline: none;
+  }
+  .service-area-map .leaflet-interactive:focus-visible {
+    outline: 2px solid var(--refinery-color-accent, #2b7252);
+    outline-offset: 2px;
   }
 </style>
 
@@ -372,7 +383,33 @@ const markersJson = JSON.stringify(markers);
         .join('');
       const popupHtml = group.length > 1 ? `<div class="map-popup-list">${links}</div>` : links;
 
-      L.marker([group[0].lat, group[0].lng], { icon: pinIcon(iconType) }).addTo(map).bindPopup(popupHtml);
+      // Leaflet's own `alt` marker option only reaches the DOM for <img>-based icons — these
+      // are <div>-based (pinIcon uses L.divIcon), so it's silently ignored. Setting aria-label
+      // directly on the rendered element is what actually names the button for a screen
+      // reader; without it, `keyboard: true` (Leaflet's default) still makes it a real tab
+      // stop, but as an anonymous, unlabeled "button".
+      const label =
+        group.length > 1
+          ? `View teams at this location: ${group.map((marker) => marker.name).join(', ')}`
+          : `View ${group[0].name}`;
+      const marker = L.marker([group[0].lat, group[0].lng], { icon: pinIcon(iconType) }).addTo(map).bindPopup(popupHtml);
+      const el = marker.getElement();
+      if (el) {
+        el.setAttribute('aria-label', label);
+        // Leaflet's own keyboard-activation for a bound popup (Marker.js's `keypress:
+        // this._onKeyPress`) relies on the DOM 'keypress' event, which Chrome no longer fires
+        // for Enter on a plain, non-text-editing element — verified live: a focused marker
+        // fires 'keydown'/'keyup' but never 'keypress'. Without this, the marker is a real,
+        // named, visibly-focusable tab stop that keyboard-only users still can't activate —
+        // handling both Enter and Space here (matching the ARIA APG "button" pattern; Space
+        // also needs preventDefault so it doesn't scroll the page) is what actually makes it
+        // operable rather than just labeled.
+        el.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          marker.openPopup();
+        });
+      }
     }
 
     // Re-enable scroll-to-zoom once the map has focus/hover, so a page scroll past the map

@@ -105,6 +105,11 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
           ))}
         </div>
       )}
+      {/* Announced politely rather than silently re-rendering the grid, so the result of a
+         filter click is available to a screen reader too — same pattern as the team search's
+         data-team-search-count in about/teams.astro. Empty while no filter narrows the grid:
+         there is nothing to report about the full, unfiltered list. */}
+      <p class="mt-4 font-mono text-xs text-slate-500" role="status" aria-live="polite" data-news-filter-count />
       <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
         {posts.map((post, i) => (
           <div data-category={post.data.category.join(' ')} data-teams={post.data.teamRefs.join(' ')}>
@@ -126,6 +131,7 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
     const categoryRow = grid.querySelector<HTMLElement>('.news-category-filters');
     const teamRow = grid.querySelector<HTMLElement>('.news-team-filters');
     const items = grid.querySelectorAll<HTMLElement>('[data-category]');
+    const count = grid.querySelector<HTMLElement>('[data-news-filter-count]');
 
     // The two tiers are independent filters, AND-ed together. The team row is
     // subordinate to Teams in the layout but not in the logic — a ?team= deep
@@ -167,6 +173,7 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
         teamRow.classList.toggle('flex', showTeamRow);
       }
 
+      let shown = 0;
       items.forEach((item) => {
         // data-category holds every category the story belongs to, space-separated;
         // data-teams holds its teamRefs the same way.
@@ -174,8 +181,15 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
         const teams = item.dataset.teams?.split(' ').filter(Boolean) ?? [];
         const categoryMatches = activeCategory === 'all' || categories.includes(activeCategory);
         const teamMatches = activeTeam === 'all' || teams.includes(activeTeam);
-        item.classList.toggle('hidden', !(categoryMatches && teamMatches));
+        const match = categoryMatches && teamMatches;
+        item.classList.toggle('hidden', !match);
+        if (match) shown += 1;
       });
+
+      if (count) {
+        const filtered = activeCategory !== 'all' || activeTeam !== 'all';
+        count.textContent = filtered ? `${shown} of ${items.length} stories` : '';
+      }
     };
 
     // replaceState, not pushState: a chip click adjusts the current view rather

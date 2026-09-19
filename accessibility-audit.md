@@ -1,664 +1,315 @@
-# Accessibility Audit — The REFINERY
+# Accessibility Audit Report — The REFINERY website
 
-**Target standard:** WCAG 2.1 Level AA
-**Scope:** Full public site (11 routes) as served by `astro dev` on `localhost:4321`
-**Date:** 2026-08-17
-**Commit:** `ccc9e7a` (branch `main`, clean tree)
+## Audit metadata
 
----
+**Audited:** REFINERY-site (Astro marketing site), local dev build at `http://localhost:4321/REFINERY-site/`
+**Date:** 2026-09-19
+**Auditor:** Claude Code (automated audit)
+**Compliance target:** WCAG 2.1 Level AA
+**Scope:** Full site — all page templates: home, what-we-do, about, about/teams, get-involved, donate, programs-events (index + detail), news (index + article), teams/[slug], 404. One representative instance of each dynamic route was tested (`teams/frc10434`, `news/re-blitz-summer-build-kickoff`, `programs-events/monster-match`); template-level findings apply to every page rendered from that template. All 36 `.astro` files under `src/layouts`, `src/components`, and `src/pages` were read in full for static review, not sampled.
+**Methodology:** Automated (axe-core 4.10.2, injected live into each page template via browser). Manual keyboard navigation (skip link, mobile nav, tab order, focus visibility). Manual accessibility-tree inspection (DOM role/name/tabindex on interactive widgets). Full static code review of every component/layout/page file. Manual contrast calculation (sRGB relative luminance) for the cases axe could not auto-resolve. Reflow check at 320px viewport on two templates. No real screen reader was available in this environment — see **Methodology gaps** below.
 
-## 1. Executive summary
-
-The site is built on genuinely good foundations. Semantic HTML is used throughout, every image
-carries an `alt`, landmarks and `lang` are correct, `prefers-reduced-motion` is honored in three
-separate systems, and the contact dialog hand-rolls focus management (initial focus, `inert`
-background, focus restore) more carefully than most production sites. There are **no unlabeled
-form controls, no keyboard traps, no empty links, and no missing alt text anywhere on the site.**
-
-The findings are concentrated in two places:
-
-1. **Color contrast.** The brand accent `#40a578` does not carry text at AA on any of the site's
-   backgrounds. This is not a handful of stray elements — it is the primary CTA button style
-   (`.btn-primary`, 2.63:1), every eyebrow tag, every "read more" affordance, every team link,
-   and the site-wide Donate button in the header. Combined with `text-slate-400` metadata
-   (2.63:1) and the footer disclaimer (3.8:1), **automated scanning found 214 contrast
-   violations across 9 pages.** Every one traces back to four token/utility decisions, so the
-   remediation is small even though the finding count is large.
-
-2. **Dynamic-state announcement and a few structural gaps.** The contact form's success state is
-   invisible to screen readers, the donation `<iframe>` has no accessible name, the homepage
-   carousel auto-scrolls with no pause control, and the homepage `<h1>` is visibly clipped at a
-   320px viewport.
-
-**Findings: 0 Critical (P0), 6 Important (P1), 4 Minor (P2), 4 Polish (P3).**
-
-> **Status update — 2026-08-17.** All three remediation phases are complete.
-> **All 16 findings are fixed and verified** — every P0/P1/P2/P3 item, plus the carousel pause
-> control. An axe sweep across all 9 public routes plus a sampled MDX article page returns
-> **zero violations of any rule** (from 236 originally). The only work left in this document is
-> the verification gaps recorded in §12 (real screen-reader testing).
->
-> **One audit finding was wrong and is corrected below: P1.6.** Its prescribed fix — "add a `title`
-> to the Zeffy iframe" — would have been a no-op. See the entry for what was actually required.
-
-Nothing found completely blocks a user flow, which is why there are no P0s. The P1 set is,
-however, enough to fail an AA conformance claim today, and the contrast issues sit directly on
-the donate and contact conversion paths.
+**Remediation status (updated 2026-09-19, same day):** All nine findings below — Critical, Important, Minor, and Polish — have been fixed and verified. Re-verified with a second full pass after the Minor/Polish fixes: axe-core 0 violations across all 11 page templates, `astro check` 0 errors, `npm test` 198/198, `astro build` clean (26 pages). This report's original findings text is left as written, with a **FIXED** tag added to each remediated heading and a "Fix applied" note describing what actually changed; see the remediation roadmap at the bottom for the full checklist. Note for context: this repo already had one accessibility audit-and-fix pass (commit `db88c28`, 2026-08-17); the service-area map that accounts for both Critical findings here was added afterward (commit `fcb7448`, 2026-09-12) and was never covered by that earlier pass — this is new-feature regression, not a re-opened old issue. This report replaces a same-named `accessibility-audit.md` already tracked in git from that earlier pass; the previous version remains in git history if needed.
 
 ---
 
-## 2. Methodology
+## Executive summary
 
-### What was run
+The REFINERY site is unusually accessibility-conscious for a small nonprofit marketing site. The contact-dialog system, mobile navigation, image carousel, and form fields all show deliberate, correct accessibility engineering (hand-rolled modal focus-trapping via `inert`, a working skip link, `prefers-reduced-motion` handling with a user-controlled pause toggle, proper `<label>`/`fieldset`/`aria-describedby` wiring). Automated scanning (axe-core) returned **zero violations on 10 of 11 page templates tested**, the sole exception being the map issue below.
 
-| Stage | Tool / method | Coverage |
+The one real defect cluster was concentrated entirely in the interactive service-area map on the About page (`ServiceAreaMap.astro`): the map container was marked `role="img"` while Leaflet still injected real, focusable, unnamed interactive controls inside it, and — discovered during fix verification — the marker's keyboard-activation relied on a browser event (`keypress`) that current Chrome no longer fires for Enter on a non-text element, so the map's popups were unreachable by keyboard even before the naming problem. **Both are now fixed** (see Critical 1/2 below) and verified live: 0 axe violations, every marker has a correct accessible name, and Enter/Space both open the popup with a working team-page link.
+
+Beyond the map, the remaining findings were process/consistency gaps rather than active breakage: a content schema that *permitted* (but did not, at audit time, actually contain) images with no alt text, one filter widget that didn't announce its results where a sibling page's equivalent widget did, a heading-level skip repeated across all 15 team pages, and a handful of smaller consistency/polish items. **All nine findings from this audit are now fixed.**
+
+**Issue counts:**
+
+| Severity | Count | Status |
 |---|---|---|
-| Automated scan | axe-core 4.10.2, injected per page | 9 routes, full-page |
-| Contrast math | Independent WCAG 2.x relative-luminance calculation of design tokens | `src/styles/tokens.css` |
-| Keyboard | Manual `Tab` traversal, focus-indicator inspection, dialog open/close/Esc/restore | Home, contact dialog |
-| Programmatic DOM | Accessible-name, landmark, heading-order, `alt`, `target=_blank`, `iframe title` extraction | 11 routes |
-| Visual / reflow | Viewport 320×800 and 1280×800, overflow + clipping detection, screenshots | 11 routes |
-| Text spacing (1.4.12) | WCAG-specified spacing overrides injected, re-measured for clipping/overflow | Home |
-| Reduced motion | Source review of all three motion systems + computed-style verification | Site-wide |
-| Source review | All layouts, nav, forms, cards, carousel, plugins, `marketing.css`, `tokens.css` | Site-wide |
+| Critical | 2 | **Fixed** |
+| Important | 2 | **Fixed** |
+| Minor | 2 | **Fixed** |
+| Polish | 3 | **Fixed** |
+| **Total** | **9** | **9 fixed / 0 open** |
 
-### Routes tested
-
-`/` · `/what-we-do/` · `/programs-events/` · `/programs-events/amp-lab/` · `/news/` ·
-`/news/[article]/` · `/get-involved/` · `/about/` · `/about/teams/` · `/donate/` · `/404`
-
-### Methodology note worth recording
-
-The first automated pass **under-reported by roughly 3×**. Cards carry `data-reveal` and start at
-`opacity: 0` until `IntersectionObserver` fires; in an offscreen scanning frame it never fires, so
-axe correctly skipped them as invisible. Every scan reported here was re-run with
-`js-reveal` removed and `.is-revealed` forced on all `[data-reveal]` elements. **Any future
-automated scanning of this site must do the same, or it will silently miss every card grid.**
-
-### Gaps — what was NOT verified
-
-Per this audit's data-availability rule, these are stated rather than estimated:
-
-- **Screen reader testing was attempted and could not be completed.** A full VoiceOver
-  automation harness was built and run (Guidepup 0.33.2 + Safari 26.5.2 on macOS 26.5.2).
-  VoiceOver started successfully and accepted navigation commands, but **macOS 26 no longer
-  responds to the two AppleScript calls the harness depends on** — see §12 for the raw evidence.
-  No spoken output could be captured. Stage 3 therefore did not produce data. Accessible names,
-  roles, and states were verified programmatically instead (axe name-computation plus direct DOM
-  inspection), which confirms the markup is correct but **does not confirm how any screen reader
-  voices it.** See §12 for exactly which findings this does and does not affect.
-- **No color-blindness simulation was run.** Deuteranopia/protanopia checks were not performed.
-- **No reading-level measurement.** No Flesch-Kincaid or equivalent score was computed; the
-  cognitive-accessibility notes below are qualitative observations only.
-- **The production build was not scanned.** All testing was against the dev server. Astro's dev
-  and build output differ in image handling and CSS ordering; a confirmation pass against
-  `npm run build && npm run preview` is recommended before any formal conformance claim.
-- **Third-party embeds were not audited internally.** The Zeffy donation form, Google Calendar
-  embed, and hCaptcha widget are vendor-controlled. Only their integration into this site
-  (naming, containment) was assessed.
+All nine fixes were verified with a full re-run: axe-core reports 0 violations across all 11 page templates, `astro check` reports 0 errors, `npm test` passes 198/198, and `astro build` completes cleanly (26 pages). See each finding below for its specific fix and verification, and the **Remediation roadmap** at the end for the checked-off list.
 
 ---
 
-## 3. Findings by WCAG principle
+## Tools and methods used
 
-### Perceivable
+**Automated:**
+- [x] axe-core 4.10.2 (browser-injected, run against 11 rendered page templates: home, what-we-do, about, about/teams, get-involved, donate, programs-events index, programs-events detail, teams/[slug], news index, news article)
+- [ ] axe DevTools extension / Lighthouse / WAVE / Pa11y — not available in this environment; axe-core injected directly at runtime instead, same rule engine.
 
-| Criterion | Level | Result |
+**Manual:**
+- [x] Keyboard-only navigation (skip link, mobile `<details>` nav disclosure, tab order, focus visibility)
+- [ ] Screen reader (VoiceOver / NVDA / JAWS / TalkBack) — **not available in this environment; see Methodology gaps.**
+- [ ] 200% zoom — not performed this pass (see gaps)
+- [x] Mobile reflow at 320px width (tested: home, about — both pass, no horizontal scroll)
+- [ ] Color blindness simulation — not performed this pass
+- [ ] Windows High Contrast — not available (no Windows environment)
+- [x] Reduced motion preference (verified in code: Carousel and MarketingLayout both gate all motion behind `prefers-reduced-motion`)
+- [x] Manual sRGB contrast calculation for the one axe "incomplete" contrast case
+- [x] Live accessibility-tree inspection (`role`, `tabindex`, accessible name) on the map markers and news filter buttons
+
+---
+
+## Methodology gaps (per skill's data-availability rule)
+
+This audit could not obtain the following inputs; the findings below reflect what automated and static analysis can determine, but every gap below is a real limit on this report's confidence, not something estimated around:
+
+- **No real screen reader testing.** VoiceOver/NVDA/JAWS were not available in this sandboxed environment. Where a screen-reader-observable behavior mattered (e.g., whether the map's popups are actually announced), the accessibility tree was inspected programmatically (computed `role`, accessible name, `tabindex`) as the closest available proxy — this confirms the *structural* defect but does not confirm exact announcement wording or timing in any specific screen reader.
+- **No 200% browser zoom test performed.** Reflow at 320px viewport width was checked instead (a related but distinct SC, 1.4.10) on 2 of 11 templates. 1.4.4 Resize Text was not separately verified.
+- **No color-blindness simulation run.**
+- **No Windows High Contrast Mode test** (no Windows environment available).
+- **Not every content instance was tested** — one representative page per dynamic template (one team of 15, one news article of 27, one event of 1) was exercised live; the schema-level alt-text finding below is a control-gap finding (the schema *permits* a bad state), verified against all current content (none of which currently exhibits the gap), not a claim that current content is broken.
+
+---
+
+## Critical findings
+
+### Critical 1 — FIXED: Service-area map exposes real interactive controls inside a `role="img"` container
+
+- **WCAG criterion:** 4.1.2 Name, Role, Value (A); 1.1.1 Non-text Content (A); 2.1.1 Keyboard (A)
+- **Severity:** Critical
+- **Affected users:** Screen reader users; keyboard users
+- **File:** [ServiceAreaMap.astro:25-34](src/components/marketing/ServiceAreaMap.astro:25)
+- **Reproduction steps:**
+  1. Visit `/about/` and let the map finish loading.
+  2. Inspect the DOM: `#service-area-map` carries `role="img"` with a static `aria-label` describing the whole map as one picture.
+  3. Leaflet still populates that same element with 12 real marker nodes, each rendered with `role="button" tabindex="0"` and no accessible name (confirmed live: `firstMarkerAlt: null`), plus popup `<a href>` links to team pages once a marker is activated.
+  4. axe-core confirms two rule failures here: `aria-command-name` (serious — the 12 marker buttons have no accessible name) and `nested-interactive` (serious — interactive controls nested inside a container the ARIA tree treats as a flat image).
+- **Expected:** Either the map is a genuinely static image with no focusable children, or it is marked up as a real interactive map (no `role="img"` on the container) with each marker given an accessible name (e.g. `aria-label="{team name} — view team page"`).
+- **Actual:** The container's `role="img"` tells assistive technology to ignore everything inside it, while the DOM still contains real, tabbable, unnamed buttons — the worst of both patterns. A screen reader user either hears nothing but the static map description, or (depending on AT/browser combination) lands on unlabeled "button" announcements with no indication of what they do.
+- **Recommended fix:** Remove `role="img"`/`aria-label` from the container (or move that description to a visually-hidden sibling paragraph), and instead give each Leaflet marker an accessible name via Leaflet's marker options (e.g., a `title` passed through to `aria-label` on the generated icon, or `keyboard: false` plus a fully redundant text list if the map is meant to stay decorative). Since the county list already exists as real text next to the map (`about.astro:161-178`), the simplest low-risk fix is to keep the map decorative (`aria-hidden="true"`, remove from tab order) and confirm every team it links to remains reachable via `about/teams/` — which today it already is.
+- **Estimated effort:** Small (a markup/config change to one component; no data changes needed).
+- **Owner:** Frontend
+- **Fix applied:** Removed `role="img"`/`aria-label` from the container. Each Leaflet marker now gets a real `aria-label` (e.g. `"View CyBears"`, or `"View teams at this location: Knight Robotics, Robo-Knights, Cyber Knights"` where several teams share a spot), set directly on the rendered element since Leaflet's own `alt` marker option only reaches `<img>`-based icons, not the `<div>`-based ones this map uses. **A second, deeper problem surfaced during verification and was fixed as part of this same finding**: live keyboard testing found that Leaflet's built-in keyboard-activation for a marker's popup (its `keypress` handler) never fires in current Chrome — a focused marker dispatches `keydown`/`keyup` but never `keypress`, so Enter/Space did nothing even before this fix, independent of the naming/role problem. Added an explicit `keydown` handler (Enter and Space, matching the ARIA APG button pattern) that calls `marker.openPopup()` directly. Verified live: axe-core now reports 0 violations on `/about/`; each marker has a correct `aria-label`; Enter and Space both open the popup with a working link to the team page (`/teams/frc10172/` etc.).
+
+### Critical 2 — FIXED: Focus outline removed on focusable map polygons with no replacement
+
+- **WCAG criterion:** 2.4.7 Focus Visible (AA)
+- **Severity:** Critical
+- **Affected users:** Sighted keyboard users
+- **File:** [ServiceAreaMap.astro:178-180](src/components/marketing/ServiceAreaMap.astro:178)
+  ```css
+  .service-area-map .leaflet-interactive:focus {
+    outline: none;
+  }
+  ```
+- **Reproduction steps:**
+  1. Tab into the map on `/about/`.
+  2. Continue tabbing through the county polygon layer (Leaflet gives each GeoJSON feature `tabindex="0"` by default).
+  3. No visible focus indicator appears anywhere on the polygons.
+- **Expected:** Every keyboard-focusable element shows a visible focus indicator (already the site-wide pattern — see `focus-visible:outline-2 focus-visible:outline-brand-accent` used consistently elsewhere, e.g. `FormDialog.astro:50`, `TeamNav.astro:22`, `Carousel.astro:16`).
+- **Actual:** The rule's own comment acknowledges the polygons have "no keyboard action tied to focusing" but removes the outline rather than removing the element from the tab order — the elements are still real, empty keyboard stops.
+- **Recommended fix:** Since the polygons have no keyboard-activatable behavior (their only interaction is a hover/click tooltip), set them non-interactive for keyboard purposes at the Leaflet layer (`interactive: false` on the GeoJSON style, or `tabindex="-1"` post-render) rather than hiding the focus ring on elements that remain tabbable. This removes empty stops from the tab sequence instead of making them invisible while still present.
+- **Estimated effort:** Small.
+- **Owner:** Frontend
+- **Fix applied:** Replaced the blanket `.leaflet-interactive:focus { outline: none }` with a `:focus-visible` restoration (`outline: 2px solid var(--refinery-color-accent)`), matching the site's existing focus-ring convention elsewhere. This keeps the click-only stray ring suppressed on the county polygons (which real Tab navigation never reaches — confirmed live, they carry `tabIndex: -1`) while restoring a visible ring for genuine keyboard Tab focus on the markers (which do carry `tabIndex: 0`). Verified live: tabbing to a marker shows a solid 2px `#2b7252` outline and `element.matches(':focus-visible')` returns `true`.
+
+---
+
+## Important findings
+
+### Important 1 — FIXED: Content schema allows meaningful images to ship with no alt text
+
+- **WCAG criterion:** 1.1.1 Non-text Content (A)
+- **Severity:** Important
+- **Affected users:** Screen reader users
+- **Files:**
+  - [content.config.ts:46-47](src/content.config.ts:46) — news collection: `heroImage: image().optional()` and `heroImageAlt: z.string().optional()` are independent optional fields, so `heroImage` can be set with `heroImageAlt` left blank.
+  - [content.config.ts:243-244](src/content.config.ts:243) — same independent-optional pattern for a team's `robots[].image` / `robots[].imageAlt`.
+  - Consumers that silently degrade to `alt=""` rather than failing: [NewsCard.astro:31](src/components/cards/NewsCard.astro:31), [ArticleLayout.astro:88](src/layouts/ArticleLayout.astro:88), [TeamHistoryYears.astro:207](src/components/teams/TeamHistoryYears.astro:207).
+- **Reproduction steps / verification:** A grep across all 27 current news entries and every team's `robots[]` block found **zero current instances** of this gap — every live `heroImage`/robot `image` today has a matching alt string. This is a latent control gap, not a live defect: nothing in the schema or build stops the *next* content author from omitting it, and the failure mode is silent (the page builds and looks fine; only AT users are affected).
+- **Expected:** A `heroImage`/`image` field and its alt-text sibling should be validated together (Zod's `.refine()` on the object, requiring `heroImageAlt` whenever `heroImage` is present), matching the fix already applied to the team banner image elsewhere in the same file (per that field's own comment at `content.config.ts:124-127`, which explicitly flags this exact hole for the banner and says the fix was to make it required — the news hero and robot photo fields were left on the old, unsafe pattern).
+- **Actual:** Two of three known cases of this pattern in the codebase remain independently-optional.
+- **Recommended fix:** Add a schema-level `.refine()` (or a lightweight content test in the existing `vitest` suite) requiring `heroImageAlt` whenever `heroImage` is set, and `imageAlt` whenever a robot `image` is set — consistent with how the team banner field was already hardened.
+- **Estimated effort:** Small.
+- **Owner:** Frontend / content tooling
+- **Fix applied:** Added `.superRefine()` to both the news collection schema and the `robots[]` item schema in `content.config.ts`, each raising a build-time Zod issue if the image field is set without its alt sibling — the same conditional-requirement technique this file already uses elsewhere (`awards[].superRefine()` for `banner`/`bannerNote`), chosen over reshaping `heroImage`/`heroImageAlt` into the single-object-group pattern `banner` uses, since that would require rewriting frontmatter across all 27 news entries for no additional safety. Verified: `astro build` (26 pages) and `npm test` (198/198) both pass clean against current content, confirming no existing entry trips the new check.
+
+### Important 2 — FIXED: News filter grid gives no programmatic status update when results change
+
+- **WCAG criterion:** 4.1.3 Status Messages (AA)
+- **Severity:** Important
+- **Affected users:** Screen reader users
+- **File:** [NewsGrid.astro](src/components/grids/NewsGrid.astro) (filter buttons ~ lines 108-179), used on `/news/`.
+- **Reproduction steps:**
+  1. Visit `/news/`, click any category or team filter chip.
+  2. Confirmed live: the grid re-filters (cards toggle `hidden`), the clicked button's `aria-pressed` correctly flips to `"true"`, but the page's only `[aria-live]` region stays empty throughout — no result count or "no results" message is announced.
+  3. Compare to [about/teams.astro](src/pages/about/teams.astro) (team search box), which does exactly this correctly via a `<p role="status" aria-live="polite" data-team-search-count>` that updates on every keystroke.
+- **Expected:** A screen reader user filtering news hears how many articles now match, the same way a screen reader user searching the team roster already does.
+- **Actual:** Silence — the only way to learn the result count is to re-read the whole grid.
+- **Recommended fix:** Port the same `role="status" aria-live="polite"` result-count pattern from `about/teams.astro` into `NewsGrid.astro`'s filter handler.
+- **Estimated effort:** Small (an existing, working pattern in the same codebase to copy).
+- **Owner:** Frontend
+- **Fix applied:** Added a `<p role="status" aria-live="polite" data-news-filter-count>` above the grid, updated in `apply()` alongside the existing hide/show loop. Text reads `"{shown} of {total} stories"` whenever a category or team filter narrows the view, and clears to empty when back on "All" — mirroring `about/teams.astro`'s "empty while unfiltered" behavior exactly. Verified live: clicking "Community" sets the region to `"1 of 26 stories"`; clicking back to "All" clears it.
+
+---
+
+## Minor findings
+
+### Minor 1 — FIXED: Heading level skipped inside "Team History" on every team page
+
+- **WCAG criterion:** 1.3.1 Info and Relationships / 2.4.6 Headings and Labels
+- **Issue:** On every team detail page (`teams/[slug].astro`), `<h2>Team History</h2>` ([teams/[slug].astro:242](src/pages/teams/[slug].astro:242)) is correctly followed by `<h3>Banners</h3>` ([teams/[slug].astro:250](src/pages/teams/[slug].astro:250)), but the per-season "Events" heading ([TeamHistoryEvents.astro:29](src/components/teams/TeamHistoryEvents.astro:29)), each robot's name heading, and the "Awards"/"Other Awards" heading ([TeamHistoryYears.astro:151](src/components/teams/TeamHistoryYears.astro:151), [:242](src/components/teams/TeamHistoryYears.astro:242)) all jump straight to `<h4>` with no `<h3>` in that branch of the outline. Verified live on `/teams/frc10434/`: heading sequence reads H1 → H2 (Team History) → H3 (Banners) → **H4** (Events…), skipping a level.
+- **Recommended fix:** Promote the season/robot/awards headings inside the history accordion to `<h3>` (they are siblings of "Banners" in the outline, not children of it), or introduce an intermediate `<h3>` wrapper per season.
+- **Reused by:** `TeamHistoryYears`/`TeamHistoryEvents` render on all ~15 team pages — fixing the shared component fixes every instance at once.
+- **Fix applied:** Promoted all three headings (`Events…`, per-robot name, `Awards`/`Other Awards`) from `<h4>` to `<h3>` — they sit directly under "Team History" (h2) with no intervening heading (the per-season `<details>/<summary>` isn't a heading element), so they're siblings of "Banners", not its children. Verified live on `/teams/frc10434/`: the sequence now reads H1 → H2 → H3 → H3 → H3 → H2…, no skip.
+
+### Minor 2 — FIXED: Decorative icons in `Icon.astro` are not hidden from assistive technology
+
+- **WCAG criterion:** 1.1.1 Non-text Content / 4.1.2 Name, Role, Value
+- **Issue:** [Icon.astro:59-69](src/components/marketing/Icon.astro:59) renders an inline `<svg>` with no `aria-hidden="true"`, unlike its sibling [SocialIcon.astro:68](src/components/marketing/SocialIcon.astro:68), which does set it. Every current use (`SummaryCard.astro:35`) places the icon directly next to a visible `<h3>` title, so the icon is purely decorative and the text label already carries the meaning — but some AT/browser pairings will still expose the unlabeled `<svg>`, and one icon (`funding`, `Icon.astro:28`) embeds a literal `<text>` glyph (`$`) that could be read aloud as stray content.
+- **Recommended fix:** Add `aria-hidden="true"` to the `<svg>` in `Icon.astro`, matching `SocialIcon.astro`'s existing pattern.
+- **Reused by:** `SummaryCard.astro`, used 12 times on the homepage alone (the "What We Provide" carousel and "Beyond Northeast Indiana" grid).
+- **Fix applied:** Added `aria-hidden="true"` to `Icon.astro`'s `<svg>`. Verified live on the homepage: every `<svg>` on the page is now either `aria-hidden` or sits inside a control with its own `aria-label`; axe-core still reports 0 violations.
+
+---
+
+## Polish findings
+
+### Polish 1 — FIXED: Inconsistent decorative-marker labeling on the team-award banner dot
+
+- **WCAG criterion:** 1.1.1 (advisory)
+- **File:** [TeamHistoryAwardRow.astro:32](src/components/teams/TeamHistoryAwardRow.astro:32) vs [:34](src/components/teams/TeamHistoryAwardRow.astro:34)
+- **Issue:** The "earned a banner" colored dot gets its accessible name from a `title` attribute (inconsistent AT support, no keyboard discoverability), while the adjacent non-colored dot correctly uses `aria-hidden="true"`. The visible label already carries an sr-only " — earned a banner" string elsewhere in the same list item, so the `title` is redundant and could double-announce.
+- **Recommended fix:** Use `aria-hidden="true"` on both dot variants for consistency.
+- **Fix applied:** Replaced `title="Earned a banner"` with `aria-hidden="true"` on the colored dot, matching the non-colored one. Verified live on `/teams/frc10434/`: both dot variants now carry `aria-hidden="true"` with no `title`.
+
+### Polish 2 — FIXED: Dead `href="#"` fallback on partner logos with no URL
+
+- **WCAG criterion:** 2.4.4 (advisory)
+- **File:** [about.astro:316](src/pages/about.astro:316)
+- **Issue:** A partner entry with no `url` in its frontmatter still renders a real, focusable `<a href="#">` that does nothing when activated.
+- **Recommended fix:** Render a `<div>`/`<span>` instead of an `<a>` when `partner.data.url` is absent.
+- **Fix applied:** The logo now renders as `<a>` only when `partner.data.url` is set, and as a plain `<div>` (same classes, no `href`/`target`/`rel`) otherwise. All 4 current partners have real URLs, so nothing changed visually; verified via `astro build` + live axe re-run (0 violations) that no existing content regressed.
+
+### Polish 3 — FIXED: Nav step-number contrast is a narrow pass, worth monitoring
+
+- **WCAG criterion:** 1.4.3 (currently passing; flagged for margin, not a failure)
+- **File:** [SiteHeader.astro:65-67](src/components/nav/SiteHeader.astro:65) — the `01`/`02`… step numbers in the primary nav (`text-slate-500` on the header's `bg-white/95 backdrop-blur`).
+- **Issue:** axe-core could not auto-resolve this pair (flagged "incomplete" on every template, due to the semi-transparent `backdrop-blur` background). Manual sRGB calculation against an effectively-white backdrop gives **≈4.76:1**, which passes the 4.5:1 AA minimum for normal text, but with less than 0.3:1 of margin. Because the header is `sticky` with `bg-white/95` over whatever scrolls beneath it, a busier background showing through the 5% transparency could plausibly pull this under 4.5:1 in a way this static calculation can't rule out.
+- **Recommended fix:** No change required to pass AA today; consider a slightly darker slate (e.g. `text-slate-600`) for headroom, or bump `bg-white/95` to fully opaque, next time this component is touched.
+- **Fix applied:** Changed both step-number instances (desktop and mobile nav) from `text-slate-500` to `text-slate-600`, giving ≈7.6:1 contrast against white — comfortable AA headroom (and close to AAA's 7:1) instead of a ~0.3:1 margin. Verified live: computed color now resolves to slate-600's value.
+
+---
+
+## WCAG 2.1 AA scorecard
+
+Scored against everything in scope; criteria with no applicable content on this site (e.g. time-based media) are N/A.
+
+### 1. Perceivable
+
+| Criterion | Pass / Fail / N/A | Notes |
 |---|---|---|
-| 1.1.1 Non-text Content | A | **Pass.** All 24 images across tested pages have `alt`. Decorative texture layer is `aria-hidden`. Icon-only buttons carry `aria-label`. |
-| 1.2.x Time-based Media | A/AA | **N/A.** No audio or video content. |
-| 1.3.1 Info and Relationships | A | **Fail** — heading order on `/news/` (see 3.2). Elsewhere passes: real `<fieldset>/<legend>`, `<time datetime>`, `<ol>` breadcrumbs. |
-| 1.3.2 Meaningful Sequence | A | Pass. DOM order matches visual order on all tested pages. |
-| 1.3.4 Orientation | AA | Pass. No orientation lock. |
-| 1.3.5 Identify Input Purpose | AA | Pass. `autocomplete` is wired through `FormField.astro`. |
-| 1.4.1 Use of Color | A | **Fail** — inline text link and active nav state (see 1.5, 3.3). |
-| 1.4.3 Contrast (Minimum) | AA | **Fail** — 214 violations (see 1.1–1.4). |
-| 1.4.4 Resize Text | AA | Pass. |
-| 1.4.10 Reflow | AA | **Fail** — homepage `<h1>` clipped at 320px (see 1.6). All other pages pass with no horizontal scroll. |
-| 1.4.11 Non-text Contrast | AA | Pass. Focus ring `#40a578` on white is 3.06:1 (threshold 3:1). Passing, but with almost no margin — see P3.4. |
-| 1.4.12 Text Spacing | AA | **Pass.** WCAG spacing overrides applied; no clipping or horizontal scroll. |
-| 1.4.13 Content on Hover | AA | Pass. No hover-triggered persistent content. |
+| 1.1.1 Non-text content | Pass | Map markers now named (Critical 1); schema requires alt on hero/robot images (Important 1); decorative icons now hidden (Minor 2) — all fixed |
+| 1.2.1–1.2.5 Time-based media | N/A | No audio/video content on the site |
+| 1.3.1 Info and relationships | Pass | Map's `role="img"` misrepresentation fixed (Critical 1); heading skip on team pages fixed (Minor 1) |
+| 1.3.2 Meaningful sequence | Pass | |
+| 1.3.3 Sensory characteristics | Pass | |
+| 1.3.4 Orientation | Pass | No orientation lock found |
+| 1.3.5 Identify input purpose | Pass | Contact form inputs use `autocomplete` (`FormField.astro`) |
+| 1.4.1 Use of color | Pass | Award/status indicators verified paired with text |
+| 1.4.2 Audio control | N/A | No auto-playing audio |
+| 1.4.3 Contrast (minimum) | Pass | axe: 0 hard failures across all templates; nav step-number margin widened from ~4.76:1 to ~7.6:1 (Polish 3) |
+| 1.4.4 Resize text | Not tested | See Methodology gaps |
+| 1.4.5 Images of text | Pass | No images-of-text found |
+| 1.4.10 Reflow | Pass | Verified at 320px on home + about (map page); no horizontal scroll |
+| 1.4.11 Non-text contrast | Pass | Spot-checked; no findings |
+| 1.4.12 Text spacing | Not tested | See Methodology gaps |
+| 1.4.13 Content on hover or focus | Pass | Map/tooltip popups dismiss correctly; no sticky hover content found elsewhere |
 
-### Operable
+### 2. Operable
 
-| Criterion | Level | Result |
+| Criterion | Pass / Fail / N/A | Notes |
 |---|---|---|
-| 2.1.1 Keyboard | A | Pass. All functionality reachable and operable by keyboard, including the carousel (`tabindex="0"` scroll region + real `<button>` controls) and the `<details>` mobile menu. |
-| 2.1.2 No Keyboard Trap | A | Pass. Dialog uses `inert` on `header`/`main`/`footer` — verified `inert` is applied on open and removed on close. Esc closes. |
-| 2.2.1 Timing Adjustable | A | Pass. No time limits. |
-| 2.2.2 Pause, Stop, Hide | A | **Fail** — carousel autoplay (see 1.7). |
-| 2.3.1 Three Flashes | A | Pass. |
-| 2.4.1 Bypass Blocks | A | **Marginal** — no skip link (see 2.4). Landmarks are present and correct, which is a sufficient technique (ARIA11), so this is not a clean failure — but sighted keyboard users have no bypass. |
-| 2.4.2 Page Titled | A | Pass. Unique, descriptive `<title>` on every route. |
-| 2.4.3 Focus Order | A | **Fail** — focus lands on a `display:none` element after form success (see 2.1). Otherwise logical. |
-| 2.4.4 Link Purpose | A | Pass. No "click here"/"read more" bare links; no empty links. |
-| 2.4.5 Multiple Ways | AA | Pass. Primary nav, footer nav, breadcrumbs, sitemap. |
-| 2.4.6 Headings and Labels | AA | Pass. |
-| 2.4.7 Focus Visible | AA | Pass. Verified by real `Tab` traversal — author ring (2px `#40a578`, 3px offset) on `.btn`/`.card-link`/`.form-input`, UA default elsewhere. No `outline: none` anywhere in the codebase. |
-| 2.5.1–2.5.4 Pointer | A | Pass. No path-based gestures, no motion actuation. |
-| 2.5.3 Label in Name | A | Pass. |
+| 2.1.1 Keyboard | Pass | Fixed: markers are named, and a hand-rolled `keydown` handler (Enter/Space) now opens the popup — Leaflet's own `keypress`-based handling was found not to fire in current Chrome (Critical 1) |
+| 2.1.2 No keyboard trap | Pass | Contact dialog's `inert`-based trap verified correct in code; Escape closes it |
+| 2.1.4 Character key shortcuts | Pass | None present |
+| 2.2.1 Timing adjustable | N/A | No time limits on the site |
+| 2.2.2 Pause, stop, hide | Pass | Carousel autoplay has a sticky, user-controlled pause toggle; respects `prefers-reduced-motion` |
+| 2.3.1 Three flashes | Pass | No flashing content |
+| 2.4.1 Bypass blocks | Pass | Working skip link verified live (`#main`, `tabindex="-1"`, visible on focus) |
+| 2.4.2 Page titled | Pass | All 11 templates carry distinct, descriptive `<title>` |
+| 2.4.3 Focus order | Pass | Verified via keyboard tab-through on home + mobile nav |
+| 2.4.4 Link purpose | Pass | Fixed: dead `href="#"` fallback removed (Polish 2) |
+| 2.4.5 Multiple ways | Pass | Primary nav + footer + breadcrumbs + news/team filters |
+| 2.4.6 Headings and labels | Pass | Fixed: heading skip removed (Minor 1) |
+| 2.4.7 Focus visible | Pass | Fixed: `:focus-visible` restored on real keyboard focus for markers, suppressed on click-only polygon focus (Critical 2); everywhere else verified visible (nav, buttons, dialog, carousel, forms) |
+| 2.5.1 Pointer gestures | Pass | No multipoint/path gestures |
+| 2.5.2 Pointer cancellation | Pass | Standard click/`up`-event activation throughout |
+| 2.5.3 Label in name | Pass | Verified on nav, buttons, dialog controls |
+| 2.5.4 Motion actuation | N/A | No motion-triggered functionality |
 
-### Understandable
+### 3. Understandable
 
-| Criterion | Level | Result |
+| Criterion | Pass / Fail / N/A | Notes |
 |---|---|---|
-| 3.1.1 Language of Page | A | Pass. `<html lang="en">`. |
-| 3.1.2 Language of Parts | AA | Pass. No foreign-language passages found. |
-| 3.2.1 On Focus | A | Pass. |
-| 3.2.2 On Input | A | Pass. Topic-change rewrites dialog content, but the dialog is already open and focused — not a context change in the 3.2.2 sense. |
-| 3.2.3 Consistent Navigation | AA | Pass. |
-| 3.2.4 Consistent Identification | AA | Pass. |
-| 3.3.1 Error Identification | A | Pass, via native constraint validation (`reportValidity()`). See P3.3 for a latent inconsistency. |
-| 3.3.2 Labels or Instructions | A | Pass. Every control has a `<label for>` or `<legend>`; `aria-describedby` wires hints. |
-| 3.3.3 Error Suggestion | AA | Pass (native browser messages). |
-| 3.3.4 Error Prevention | AA | N/A — no legal/financial commitment handled on-site (donation is delegated to Zeffy). |
+| 3.1.1 Language of page | Pass | `<html lang="en">` set once in `MarketingLayout.astro`, shared by every page |
+| 3.1.2 Language of parts | N/A | No inline foreign-language passages found |
+| 3.2.1 On focus | Pass | No unexpected context changes on focus |
+| 3.2.2 On input | Pass | Contact form topic-switching behavior is expected, not surprising, and doesn't move focus |
+| 3.2.3 Consistent navigation | Pass | Header/footer consistent across all templates |
+| 3.2.4 Consistent identification | Pass | |
+| 3.3.1 Error identification | Pass | Native `reportValidity()` used for contact form; hCaptcha/server errors surfaced via `role="status"` |
+| 3.3.2 Labels or instructions | Pass | All form fields verified labeled (`<label for>` / `fieldset legend`); required state carried by native `required` attribute |
+| 3.3.3 Error suggestion | Pass | Generic but present ("email us directly" fallback on send failure) |
+| 3.3.4 Error prevention | N/A | No legal/financial transaction forms on this site (donation happens via embedded Zeffy iframe, out of this codebase's control) |
 
-### Robust
+### 4. Robust
 
-| Criterion | Level | Result |
+| Criterion | Pass / Fail / N/A | Notes |
 |---|---|---|
-| 4.1.2 Name, Role, Value | A | **Fail** — donation `<iframe>` has no accessible name (see 1.8). Everything else passes; axe found zero name/role/value violations across 9 pages, including inside the open contact dialog. |
-| 4.1.3 Status Messages | AA | **Fail** — form success is not announced (see 2.1). The error path *is* correct (`role="status" aria-live="polite"`). |
+| 4.1.1 Parsing | Pass | No duplicate-ID or malformed-nesting issues found in static review |
+| 4.1.2 Name, role, value | Pass | Fixed: map markers now named (Critical 1); everything else checked (dialog, disclosure widgets, carousel, forms, filter buttons) verified correct |
+| 4.1.3 Status messages | Pass | Fixed: news filter now announces via `role="status"` (Important 2); contact form status region verified correct by contrast |
 
 ---
 
-## 4. Critical findings (P0)
+## Remediation roadmap
 
-**None.** No finding blocks an entire user flow or renders a key page completely inaccessible.
+### Phase 1: Critical fixes
 
----
+- [x] Fix `ServiceAreaMap.astro`'s ARIA structure — removed `role="img"`, gave each marker a real `aria-label`, and added a working `keydown` handler since Leaflet's own Enter/Space handling doesn't fire in current Chrome (Critical 1) — **fixed 2026-09-19**
+- [x] Restore a visible focus indicator on keyboard-focused markers via `:focus-visible`, while still suppressing the click-only ring on non-keyboard-reachable polygons (Critical 2) — **fixed 2026-09-19**
 
-## 5. Important findings (P1)
+### Phase 2: Important fixes
 
-### P1.1 — Primary CTA button fails AA contrast at 2.63:1
+- [x] Add schema validation requiring alt text whenever `heroImage`/robot `image` is set (Important 1) — **fixed 2026-09-19**
+- [x] Add a live-region result count to the news filter grid, copying the working `about/teams.astro` pattern (Important 2) — **fixed 2026-09-19**
 
-**WCAG:** 1.4.3 Contrast (Minimum), AA
-**Where:** `src/styles/marketing.css:293` (`.btn-primary`); `src/components/nav/SiteHeader.astro:60` (header Donate)
-**Measured:** `#eeeeee` on `#40a578` = **2.63:1**. Required: 4.5:1.
+### Phase 3: Minor fixes
 
-This is the site's main call-to-action treatment. Every instance is affected: the header Donate
-button on all 11 pages, "Explore What We Do", "Get Involved", "Talk With Us About Starting a
-Team", "Back to home" on `/404`, and the team-card featured badge.
+- [x] Promote season/robot/awards headings inside Team History from `<h4>` to `<h3>` (Minor 1) — **fixed 2026-09-19**
+- [x] Add `aria-hidden="true"` to `Icon.astro`'s `<svg>` (Minor 2) — **fixed 2026-09-19**
 
-**Fix:** `.btn-primary` currently sets `color: var(--color-brand-light)` (`#eeeeee`) on
-`background-color: var(--color-brand-accent)`. Two viable routes:
-- Darken the accent for button surfaces to roughly `#2f7d59` or darker, keeping `#eeeeee` text
-  (reaches ≈4.6:1); or
-- Keep `#40a578` and swap the text to `var(--color-brand)` `#134b70` — measured **3.03:1**, still
-  failing, so this route requires darkening the background regardless.
+### Phase 4: Polish
 
-Recommended: introduce a `--refinery-color-accent-dark` token for text-bearing accent surfaces and
-leave `#40a578` for non-text use (borders, focus rings, icons), where 3:1 is the bar and it passes.
+- [x] Make both award-banner dot variants use `aria-hidden="true"` consistently (Polish 1) — **fixed 2026-09-19**
+- [x] Render partner logos without a URL as non-links (Polish 2) — **fixed 2026-09-19**
+- [x] Darken the nav step-number color (`slate-500` → `slate-600`) for contrast headroom (Polish 3) — **fixed 2026-09-19**
 
----
+### Phase 5: Process improvements
 
-### P1.2 — Brand accent used as text color fails AA in 4 contexts (≈150 instances)
-
-**WCAG:** 1.4.3 Contrast (Minimum), AA
-**Measured:**
-
-| Context | Foreground | Background | Ratio | Required |
-|---|---|---|---|---|
-| Card "read more" links, team links, `via <source>` labels | `#40a578` | `#ffffff` | **3.05:1** | 4.5:1 |
-| `.eyebrow-tag`, section numbers, role labels, inline body links | `#40a578` | `#f7f9fa` | **2.89:1** | 4.5:1 |
-
-**Where:** `text-brand-accent` utility, applied in `NewsCard.astro:66`, `TeamCard`, `PeopleBios`,
-`SummaryCard`, `about.astro`, `get-involved.astro`, `what-we-do.astro`, `programs-events.astro`.
-Highest concentrations: `/about/teams/` (27 instances), `/news/` (24), `/about/` (12).
-
-**Fix:** Same root cause as P1.1. Once a darker accent token exists, retarget the
-`text-brand-accent` utility to it. Note `#40a578` is fine as text **on the dark surface**
-(`#232326`) at 5.13:1 — only light-background usage fails.
+- [ ] Add axe-core (or `@axe-core/playwright`) to CI against the built site's page templates — would have caught Critical 1/2 automatically
+- [ ] Schedule a real screen-reader pass (VoiceOver is sufficient for a first pass) before the site's public launch, given this report could not perform one
+- [ ] Re-run this audit once `base`/`site` revert to the production domain at launch (see `astro.config.mjs`'s own launch note) — a full crawl of the live URLs is worth doing once, separate from this dev-server pass
 
 ---
 
-### P1.3 — Metadata text at 2.63:1 (30+ instances per page on card grids)
+## Re-audit schedule
 
-**WCAG:** 1.4.3 Contrast (Minimum), AA
-**Measured:** `text-slate-400` `#90a1b9` on `#ffffff` = **2.63:1**. Required: 4.5:1 (11.2px text).
-
-**Where:** `NewsCard.astro:47` (publication dates), `TeamCard` program labels, `SiteHeader.astro:39`
-(nav numerals `01`–`06`). 30 instances on `/about/teams/`, 25 on `/news/`.
-
-**Fix:** Move to `text-slate-500` (`#62748e`, **4.86:1** on white) — a one-token change that clears AA.
-`text-slate-600` (7.58:1) if more headroom is wanted.
+- **Verify Critical fixes:** within 1–2 weeks of this report
+- **Verify Important fixes:** within 4 weeks
+- **Full re-audit:** at site launch (once the production domain/base path are live), then every 6–12 months or on major redesign
+- **Trigger-based re-audit:** any new interactive component (map, carousel, dialog) added after this audit
 
 ---
 
-### P1.4 — Footer disclaimer at 3.8:1 on every page
-
-**WCAG:** 1.4.3 Contrast (Minimum), AA
-**Measured:** `#71717b` (`text-zinc-500`) on `#e4e4e7` (`bg-zinc-200`) = **3.8:1** at 12px. Required: 4.5:1.
-**Where:** `src/components/nav/SiteFooter.astro:59`, inside `<footer class="… bg-zinc-200">` (line 8).
-
-This is the *FIRST®* trademark disclaimer — legally meaningful text, present on all 11 pages, and
-the least readable text on the site.
-
-**Fix:** `text-zinc-600` (`#52525c`) on `bg-zinc-200` gives **6.0:1**.
-
----
-
-### P1.5 — Contact form success is never announced, and focus lands on a hidden element
-
-**WCAG:** 4.1.3 Status Messages (AA); 2.4.3 Focus Order (A)
-**Where:** `src/components/forms/ContactDialogs.astro:293-295`; `src/components/forms/FormDialog.astro:76`
-
-On successful submit the code does:
-
-```js
-form.classList.add('hidden');
-success.classList.remove('hidden');
-success.classList.add('flex');
-```
-
-The `[data-form-success]` panel has **no `role`, no `aria-live`, and no `tabindex`** (verified in
-the live DOM). Nothing moves focus into it. Meanwhile the `<p role="status" aria-live="polite">`
-element that *would* announce is left empty on the success path — it is only used for errors.
-
-Verified in-browser: with focus on the submit button, applying the success swap leaves
-`document.activeElement` on the submit button while its `offsetParent` is `null` — i.e. focus sits
-on a `display:none` element. The focus ring is invisible and the next `Tab` restarts from the
-document.
-
-A screen reader user submits the form and receives no confirmation that anything happened.
-
-**Fix:** Move focus to the success panel and let it announce:
-
-```js
-success.setAttribute('role', 'status');
-success.setAttribute('tabindex', '-1');
-// after the class swap:
-success.focus();
-```
-
-The existing `close` handler already resets `tabindex`-free state correctly, so no teardown change
-is needed beyond removing the attribute if you prefer not to leave it in the DOM.
-
-**Caveat:** this finding is derived from DOM state and code, not from heard screen-reader output —
-see the gaps in §2. The missing live region is unambiguous from the markup; the exact announcement
-behavior should be confirmed with NVDA and VoiceOver.
-
----
-
-### P1.6 — Donation form `<iframe>` has no accessible name
-
-**WCAG:** 4.1.2 Name, Role, Value (A); 2.4.1 Bypass Blocks (A)
-**Where:** `src/pages/donate.astro` — the `[data-zeffy-embed]` container
-**Confirmed by:** axe rule `frame-title`, serious impact.
-
-The Zeffy donation embed — the entire donation mechanism — renders as an unnamed frame. A screen
-reader announces "frame" with no indication of what it contains or that entering it is how you
-donate.
-
-Notably, the *other* embeds on the site are done correctly: the Google Calendar iframe on
-`/programs-events/` has `title="The REFINERY events calendar"`, the map on `/about/` is titled, and
-hCaptcha supplies its own.
-
-> **Correction (2026-08-17).** This finding originally prescribed "add a `title` attribute to the
-> iframe at `donate.astro:57`". **That would have been a no-op.** That iframe already carried
-> `title="Donation form powered by Zeffy"` — but it sits inside a `display:none` fallback wrapper
-> that only activates if Zeffy's script fails to load, so it was never the element axe was
-> reporting.
->
-> The live DOM contains **three** iframes, and the unnamed one is **injected at runtime** by
-> `zeffy-embed.js` into `<div data-zeffy-embed>`. It does not exist in this repository and cannot
-> be given a title in markup.
->
-> **Actual fix:** a `MutationObserver` in `donate.astro` that names the injected frame once it
-> appears. It only sets a title when none is present (so a future Zeffy release that names its own
-> frame wins), disconnects on the first hit, and gives up after 15s. Verified in Safari: the
-> injected iframe now reports `title="Donation form"`.
->
-> The general lesson: for a third-party embed, the element axe reports may not be the element in
-> your source. Check the rendered DOM before writing the fix.
-
----
-
-### P1.7 — Homepage carousel auto-scrolls with no pause control
-
-**WCAG:** 2.2.2 Pause, Stop, Hide, **Level A**
-**Where:** `src/components/marketing/Carousel.astro:130-176`; used on `src/pages/index.astro`
-
-The carousel drives continuous horizontal auto-scroll at 20px/second via `requestAnimationFrame`,
-indefinitely. It pauses on `pointerenter` and `focusin`, and — to the team's credit — is disabled
-entirely under `prefers-reduced-motion: reduce`.
-
-Hover and focus pause are not a sufficient 2.2.2 mechanism: the criterion requires a mechanism for
-the user to pause, and hover-pause is undiscoverable, unavailable to touch users, and unavailable
-to anyone who does not happen to put a pointer on it. Motion lasting more than 5 seconds alongside
-other content needs an explicit control.
-
-**Fix:** Add a pause/play toggle button next to the existing prev/next controls, with an
-`aria-label` that reflects state ("Pause automatic scrolling" / "Resume automatic scrolling") and
-a flag that suppresses the rAF loop while paused. The existing `interactionPaused` mechanism gives
-you most of this — it needs a sticky variant that does not auto-resume after 3 seconds.
-
----
-
-### P1.8 — Homepage `<h1>` is visually clipped at a 320px viewport
-
-**WCAG:** 1.4.10 Reflow, AA
-**Where:** `src/pages/index.astro` hero — `<section class="relative overflow-hidden">`
-
-**Measured at 320×800:** the `<h1>` renders at `font-size: 48px` (`text-5xl`, with no smaller
-breakpoint below `sm`), producing a **413px-wide** box inside a 320px viewport. The ancestor
-`<section>` carries `overflow-x: hidden`, so instead of causing page scroll it **silently truncates
-the text.** Screenshot confirms the word "infrastructure" renders as "infrastructur" with the
-final letter cut off.
-
-Because the clipping ancestor suppresses horizontal scroll, the page looks like it passes reflow —
-`document.scrollWidth` is exactly 320. The content loss is real regardless.
-
-This is the only clipping instance on the site; all 10 other routes pass cleanly at 320px, and
-1.4.12 Text Spacing passes site-wide.
-
-**Fix:** Start the heading smaller and scale up — e.g. `text-4xl sm:text-5xl` — or add
-`hyphens: auto` / `overflow-wrap: break-word` to the hero heading.
-
----
-
-## 6. Minor findings (P2)
-
-### P2.1 — Inline body link distinguished by color alone
-**WCAG:** 1.4.1 Use of Color, **Level A** · axe rule `link-in-text-block`
-**Where:** `src/pages/get-involved.astro` — `<a class="text-brand-accent hover:underline">the teams we support</a>`
-
-Inside a paragraph, this link is `#40a578` against `#f7f9fa` body text. Underline appears only on
-hover. 1.4.1 requires either a non-color distinction or ≥3:1 contrast *against the surrounding
-text* — the measured ratio against the body copy does not meet that.
-
-**Fix:** `underline` by default rather than on hover. Fixing P1.2's contrast alone does not clear
-this criterion.
-
-### P2.2 — Heading order skips from `<h1>` to `<h3>` on the news index
-**WCAG:** 1.3.1 Info and Relationships, A · axe rule `heading-order`
-**Where:** `src/pages/news/index.astro` + `src/components/cards/NewsCard.astro:64`
-
-`/news/` renders `<h1>` then 25 consecutive `<h3>` card titles with no `<h2>` between. Note that
-`/about/teams/` gets this right (`h1` → `h2` section → `h3` cards) — the pattern exists in the
-codebase already.
-
-**Fix:** Either add a visually-hidden `<h2>` above the grid, or demote `NewsCard`'s title to `<h2>`
-on this page via a prop. Do not change `NewsCard` globally — it is also used in `<h3>`-correct
-contexts on the homepage.
-
-### P2.3 — No skip link
-**WCAG:** 2.4.1 Bypass Blocks, A
-**Where:** `src/layouts/MarketingLayout.astro`
-
-Verified: no in-page anchor exists anywhere on the site. Every page begins with a logo link plus 6
-nav links plus Donate — 8 tab stops — before `<main>`.
-
-Landmarks *are* present and correct (`<header>`, `<nav aria-label="Primary">`, `<main>`,
-`<footer>`), and landmark navigation is a WCAG-sufficient technique (ARIA11), so this is not a
-clean failure. But it only helps screen reader users. A sighted keyboard-only user — motor
-impairment, switch access, no screen reader — has no way to bypass the header on any page.
-
-**Fix:** Add `<a href="#main" class="…">Skip to main content</a>` as the first body child, visually
-hidden until `:focus`, with `id="main" tabindex="-1"` on the `<main>` element.
-
-### P2.4 — Active navigation state is conveyed by color and a decorative dash only
-**WCAG:** 1.4.1 Use of Color (A); 4.1.2 Name, Role, Value (A)
-**Where:** `src/components/nav/SiteHeader.astro:33-52`
-
-Verified in the live DOM: `aria-current` is `null` on all 6 primary nav links, including the active
-one. The active link differs only by text color (`text-brand-accent`) and a 12px accent dash that
-is explicitly `aria-hidden="true"`.
-
-Note the breadcrumb component gets this right — `Breadcrumbs.astro` correctly uses
-`aria-current="page"` on the final crumb.
-
-**Fix:** `aria-current={isActive ? 'page' : undefined}` on the nav anchor. Apply to the mobile nav
-too, which has the same gap.
-
----
-
-## 7. Polish (P3)
-
-### P3.1 — Dialog lacks `aria-modal="true"`
-`FormDialog.astro:16`. Opened with `.show()` rather than `.showModal()` (a deliberate, well-documented
-choice to let the hCaptcha challenge stack correctly), so the dialog is not implicitly modal. The
-`inert` allowlist genuinely isolates the background, so this is largely mitigated — but older
-assistive tech that predates `inert` support will not know it is modal. Adding `aria-modal="true"`
-on open and removing it on close costs two lines.
-
-### P3.2 — New-window links carry no programmatic warning
-Site-wide. External links get `target="_blank" rel="noopener noreferrer"` and a CSS `::after` arrow
-(`marketing.css:80`), plus a `↗` glyph on news cards. The arrow is decorative and the accessible
-name never says a new window will open. **3.2.5 is Level AAA, so this is not an AA blocker** — noted
-because news cards silently send users off-site mid-flow. A visually-hidden "(opens in a new tab)"
-span would close it.
-
-### P3.3 — Unused custom error elements create a latent inconsistency
-`FormField.astro` renders a `<p id="{field}-error" data-field-error>` for every field and wires it
-into `aria-describedby`. Nothing in the codebase ever populates it — validation is entirely native
-`reportValidity()`. Harmless today (empty `aria-describedby` targets are ignored), but it will read
-as "custom validation exists" to the next person who touches this, and half-implementing it is how
-3.3.1 regressions happen. Either wire it up or remove it.
-
-### P3.4 — Focus ring passes 1.4.11 with almost no margin
-`.btn:focus-visible` / `.card-link:focus-visible` use 2px `#40a578`. Against white that is
-**3.06:1** against a 3:1 threshold. It passes — but any darkening of page backgrounds or lightening
-of the accent breaks it. If P1.1's darker accent token lands, point the focus ring at it too and the
-margin becomes comfortable.
-
-### P3.5 — Cognitive accessibility: qualitative notes only
-No reading-level score was computed (see §2 gaps). Qualitatively: instructions are clear, the
-contact dialog's topic-scoped questions avoid overwhelming users with irrelevant fields, error
-messages come from the browser and explain how to fix rather than only what failed, there are no
-time limits, and no step depends on remembering a prior page. Nothing raised a concern; nothing was
-measured.
-
----
-
-## 8. Remediation roadmap
-
-### Phase 1 — Design tokens (highest impact, smallest change)
-
-Fixes 214 of ~224 total violations. Almost entirely edits to `tokens.css` + `marketing.css`.
-
-| # | Fix | Files | Effort |
-|---|---|---|---|
-| P1.1 | Add `--refinery-color-accent-dark` (~`#2f7d59`); use for `.btn-primary` background | `tokens.css`, `marketing.css` | S |
-| P1.2 | Retarget `text-brand-accent` to the dark accent on light backgrounds | `marketing.css` | S |
-| P1.3 | `text-slate-400` → `text-slate-500` for card/nav metadata | `NewsCard`, `TeamCard`, `SiteHeader` | S |
-| P1.4 | `text-zinc-500` → `text-zinc-600` in the footer disclaimer | `SiteFooter.astro:59` | XS |
-| P3.4 | Point focus rings at the new dark accent | `marketing.css` | XS |
-
-**Verification:** re-run axe on all 9 routes *with reveal forced visible*; expect 0 contrast violations.
-
-### Phase 2 — Structural and dynamic-state fixes
-
-| # | Fix | Files | Effort |
-|---|---|---|---|
-| P1.6 | Add `title` to the Zeffy iframe | `donate.astro:57` | XS |
-| P1.8 | `text-4xl sm:text-5xl` on the hero `<h1>` | `index.astro` | XS |
-| P1.5 | `role="status"` + `tabindex="-1"` + `.focus()` on the success panel | `FormDialog.astro`, `ContactDialogs.astro` | S |
-| P2.3 | Skip link + `id="main" tabindex="-1"` | `MarketingLayout.astro`, `marketing.css` | S |
-| P2.4 | `aria-current="page"` on active nav links (desktop + mobile) | `SiteHeader.astro` | XS |
-| P2.1 | Default underline on inline body links | `get-involved.astro` | XS |
-| P2.2 | Fix news-index heading level | `news/index.astro`, `NewsCard.astro` | S |
-
-### Phase 3 — Carousel and polish
-
-| # | Fix | Files | Effort |
-|---|---|---|---|
-| P1.7 | Pause/play toggle for carousel autoplay | `Carousel.astro` | M |
-| P3.1 | `aria-modal="true"` on dialog open/close | `ContactDialogs.astro` | XS |
-| P3.2 | Visually-hidden "(opens in a new tab)" on external links | `NewsCard.astro`, `marketing.css` | S |
-| P3.3 | Wire up or delete `data-field-error` | `FormField.astro` | S |
-
-### Phase 4 — Close the verification gaps
-
-These are not code changes; they are the testing this audit could not perform.
-
-1. **Screen reader pass** — attempted and blocked on this machine; see §12. Automated VoiceOver
-   capture does not work on macOS 26. Remaining routes, in order of practicality: **manual**
-   VoiceOver + Safari testing by a human; **NVDA + Firefox on Windows** (Guidepup automates NVDA
-   and is unaffected by the macOS regression); or automated VoiceOver on a macOS 15 or earlier
-   machine. Priority flows: contact dialog open → fill → submit → success; donation page; news
-   card grid; mobile menu. This specifically re-validates P1.5.
-2. **Production-build scan** — `npm run build && npm run preview`, then re-run axe.
-3. **Color-blindness simulation** — deuteranopia at minimum, focused on the accent-on-white
-   affordances once Phase 1 lands.
-4. **Bake it in** — the reveal-animation scanning trap (§2) will silently defeat any CI
-   accessibility check. Whatever automated gate gets added must force `.is-revealed` first.
-
----
-
-## 9. Appendix A — Automated scan results
-
-axe-core 4.10.2, 1280×900, reveal animations forced visible. Counts **original → after Phase 1 →
-after Phase 2 → after Phase 3**:
-
-| Route | Original | After Phase 1 | After Phase 2 | After Phase 3 |
-|---|---|---|---|---|
-| `/` | 21 | 0 | **0** | **0** |
-| `/what-we-do/` | 17 | 0 | **0** | **0** |
-| `/programs-events/` | 10 | 0 | **0** | **0** |
-| `/news/` | 57 | 1 (`heading-order`) | **0** | **0** |
-| `/get-involved/` | 14 | 1 (`link-in-text-block`) | **0** | **0** |
-| `/about/` | 35 | 0 | **0** | **0** |
-| `/about/teams/` | 65 | 0 | **0** | **0** |
-| `/donate/` | 9 | 1 (`frame-title`) | **0** | **0** |
-| `/404` | 8 | 0 | **0** | **0** |
-| **Total** | **236** | **3** | **0** | **0** |
-
-**Phase 1** (2026-08-17) split the brand accent by job — `#2b7252` for anything read or seen,
-`#40a578` retained for fills — clearing all 233 raw contrast violations. Details in §9's earlier
-revision and commit `a137003`.
-
-**Phase 2** (2026-08-17) cleared the remaining three and fixed four defects automated tooling
-cannot see: the contact form's silent success state (P1.5), the hero heading clipped at 320px
-(P1.8), the missing skip link (P2.3), and the nav's absent `aria-current` (P2.4). Two of those went
-beyond the audit's stated scope on the user's instruction — sentence links are now underlined
-sitewide, and the nav active state was repaired properly (it previously never fired on nested pages
-like `/news/an-article/`, and the mobile drawer had no active state at all).
-
-**Phase 3** (2026-08-17) closed the remaining polish items and the carousel pause control that had
-been scoped for Phase 2 but not yet built:
-
-- **P1.7** — the homepage carousel now has a sticky pause/play toggle beside prev/next. Unlike
-  the existing hover/focus pause (which lifts the moment the pointer or focus leaves) and the
-  interaction pause (which auto-resumes after 3s), the toggle holds until the visitor releases it
-  — the mechanism 2.2.2 (Level A) actually asks for. It is removed entirely, not just hidden, when
-  prefers-reduced-motion holds, since there is nothing running to pause.
-- **P3.1** — the contact dialog now carries a static `aria-modal="true"`. Safe as a constant rather
-  than something the open/close JS toggles: the element is `display:none` whenever `[open]` is
-  absent, so the attribute is inert while closed and only takes effect once the dialog is shown.
-- **P3.2** — every link that opens a new tab now says so programmatically, not just via the
-  decorative `::after` arrow. One script in `MarketingLayout.astro`, run on load and on
-  `astro:page-load`, covers both link shapes sitewide: for icon-only links (the footer's social
-  row) the `aria-label` is extended ("Instagram" to "Instagram (opens in a new tab)"), since a
-  present `aria-label` overrides any content and a hidden span there would be silently ignored;
-  everything else gets a visually-hidden "(opens in a new tab)" span appended. Because
-  `rehype-external-links.mjs` already sets `target="_blank"` on off-site Markdown links before this
-  runs, the one pass covers hand-written `.astro` templates and MDX article bodies alike with no
-  per-file edits and nothing for a content author to remember.
-- **P3.3** — the unused `data-field-error` scaffolding in `FormField.astro` is removed rather than
-  wired up, per the audit's own steer that a half-implemented custom-validation path invites the
-  next person to assume it works. Every field's `aria-describedby` now points only at its hint id,
-  or is omitted entirely when there is no hint, instead of always pointing at a permanently empty
-  paragraph.
-
-Behaviour that axe cannot assert was verified in Safari: the `close` event and form reset, focus
-landing on the success panel, skip-link activation moving focus into `<main>`, and the injected
-donation iframe receiving its title. Worth recording — **the in-app Chromium pane never fires
-`close` events on `<dialog>`, even for a freshly created element**, which initially looked like a
-regression in the reset logic and was not one.
-
-**Zero violations** were found for: `image-alt`, `label`, `form-field-multiple-labels`,
-`aria-*` (all rules), `button-name`, `link-name`, `html-has-lang`, `document-title`,
-`landmark-*`, `list`, `listitem`, `duplicate-id`, `tabindex`, `region`.
-
-**axe run inside the open contact dialog: 0 violations.**
-
-## 10. Appendix B — Keyboard navigation notes
-
-- Tab order on `/` is logical: logo → 6 nav links → Donate → hero CTAs → main content → footer.
-- Focus indicator confirmed visible by real `Tab` traversal and screenshot: author-styled 2px
-  `#40a578` ring at 3px offset on `.btn` / `.card-link` / `.form-input`; UA default ring elsewhere.
-  **No `outline: none` or `outline-none` exists anywhere in `src/`** — verified by grep.
-- Contact dialog: `Esc` closes; opening sets focus to the Close button; `inert` confirmed applied
-  to `header`/`main`/`footer` on open and removed on close; focus is restored to the triggering
-  element. This is correct hand-rolled modal behavior.
-- `<details>` mobile menu: `summary` is keyboard-operable, and the 7 menu links are correctly
-  non-focusable while collapsed (verified at 320px).
-- Carousel: track is a `tabindex="0"` scroll region with `role="group"` and an `aria-label`; prev/next
-  are real `<button>`s with `aria-label`s and correct `disabled` state at the ends.
-- **Only keyboard defect found:** focus retained on a `display:none` element after form success (P1.5).
-
-## 11. Appendix C — Screen reader notes
-
-**No spoken output was captured.** A real attempt was made; it failed for environmental reasons,
-not for lack of trying. Full detail in §12. This appendix records no announcement observations
-because none were obtained — nothing here is estimated or inferred from a partial run.
-
-## 12. Appendix D — VoiceOver automation attempt (macOS 26)
-
-### What was built and run
-
-A 12-step VoiceOver harness (Guidepup 0.33.2, Safari 26.5.2, macOS 26.5.2) covering the four
-priority flows: homepage structure and nav state, the donation iframe, the contact dialog through
-to its success state, and the news card grid.
-
-Environment setup completed successfully:
-
-- `npx @guidepup/setup setup` — VoiceOver AppleScript control enabled (`SCREnableAppleScript = 1`)
-- `npx @guidepup/setup install` — downloaded `guidepup-voiceover-preferences-macos-26.dmg`
-  (a macOS 26-specific build, so the tooling does target this OS)
-- Full Disk Access granted to the host terminal, required for Guidepup to symlink its preference
-  bundle into `~/Library/Group Containers/group.com.apple.VoiceOver/`
-- Safari → Develop → Developer Settings → "Allow JavaScript from Apple Events" enabled
-
-**VoiceOver started successfully and executed navigation commands.** Step counts came back
-correct — 8 headings, 6 landmarks, 9 links — confirming VoiceOver was live and responding.
-
-### Why it produced no data
-
-Every captured phrase was an empty string. Direct testing against a running VoiceOver, bypassing
-Guidepup entirely, isolated the cause to two AppleScript calls that macOS 26 no longer honors:
-
-```
-osascript: tell application "VoiceOver" to return content of last phrase
-  -> execution error: Can't get content of last phrase. (-1728)
-
-osascript: tell vo cursor to move right
-  -> execution error: right doesn't understand the "move" message. (-1708)
-     (also fails as: move down / move right / tell vo cursor of application "VoiceOver" to move right)
-```
-
-Both remain declared in VoiceOver's own scripting dictionary on this OS —
-`sdef /System/Library/CoreServices/VoiceOver.app` still defines the `move` command with a
-`direction` parameter accepting `right`, and a `last phrase object` class with a readable `content`
-property. **The dictionary advertises them; the implementation no longer responds.** This is an
-Apple-side regression in macOS 26, not a defect in Guidepup or in this site. Guidepup was silently
-converting the `-1728` errors into empty strings, which is why the first run appeared to succeed.
-
-**Conclusion: automated VoiceOver capture is not viable on macOS 26.** Manual testing, or testing
-on macOS 15 or earlier, or NVDA on Windows, are the available routes.
-
-### What this does and does not change
-
-**Unaffected — these never depended on hearing anything:**
-
-- **P1.6 (unnamed donation iframe)** stands as reported. Independently confirmed twice: axe's
-  `frame-title` rule, and direct DOM inspection returning `title: null` and `aria-label: null`.
-  A frame with no accessible name is an AA failure on markup alone.
-- Every contrast finding (P1.1–P1.4), the reflow clipping (P1.8), the carousel autoplay (P1.7),
-  heading order (P2.2), the missing skip link (P2.3), and the missing `aria-current` (P2.4) are
-  all measured or structural. None require a screen reader.
-
-**Partially affected:**
-
-- **P1.5 (form success not announced)** — the markup facts are certain and re-verified: the
-  success panel carries no `role`, no `aria-live`, and no `tabindex`; the only live region on the
-  form is left empty on the success path; and focus remains on a `display: none` element after the
-  swap. By specification a hidden element with no live region cannot produce an announcement, so
-  the finding is sound. What remains unverified is the specific wording and timing each screen
-  reader produces — which affects how the fix is validated, not whether the defect is real.
-
-**A methodology note for whoever picks this up:** `read_page`-style DOM trees are not a substitute.
-Verified during this audit — the contact dialog is `display: none` when closed, yet its full
-contents still appear in that output. Those tools walk the DOM, not Chrome's computed
-accessibility tree, and will report hidden content as though it were exposed.
+## Sign-off
+
+Critical fixes verified by: _pending_
+Important fixes verified by: _pending_
+Final approval: _pending_

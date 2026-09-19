@@ -26,7 +26,11 @@ const { eventsWithAwards, record, districtRank, districtPoints, districtRankSour
 ---
 
 <div>
-  <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+  {/* h3, not h4: this sits directly under "Team History" (h2) in the outline, as a sibling
+      of "Banners" (h3) — the per-season <details>/<summary> above it is not a heading, so
+      there's no h3 to nest this under. An h4 here skipped a level for every screen-reader
+      user navigating by heading. */}
+  <h3 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
     {/* "Events" alone, not "Events attended" — the record line right after it already
         frames this as competition, not attendance. */}
     Events{record && <> &middot; {formatRecord(record)}</>}
@@ -40,7 +44,7 @@ const { eventsWithAwards, record, districtRank, districtPoints, districtRankSour
         </a>
       </>
     )}
-  </h4>
+  </h3>
   {/* Awards nest right under the event that produced them — see TeamHistoryYears.astro's
       eventsWithAwards note for why this doesn't just repeat the event name a second time in
       a separate Awards list. */}
