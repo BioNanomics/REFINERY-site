@@ -7,8 +7,8 @@
  * property costs a little rich-result eligibility, an invented one is a false statement.
  *
  * Deliberately omitted, because no source exists anywhere in the repo:
- *   legalName, taxID/EIN, foundingDate, geo coordinates, telephone, openingHours,
- *   and any Facebook/X/TikTok profile.
+ *   legalName, taxID/EIN, foundingDate, telephone, openingHours, and any Facebook/X/TikTok
+ *   profile.
  *
  * `telephone` is the one remaining gap worth closing — supply a public number and this can
  * grow a ContactPoint.
@@ -28,7 +28,7 @@
  * mission statement is carried in full by public/llms.txt.
  */
 
-import { FACILITY_ADDRESS } from './facility';
+import { FACILITY_ADDRESS, FACILITY_LOCATION } from './facility';
 
 const SITE = 'https://refineryrobotics.org';
 
@@ -304,9 +304,12 @@ interface FacilityOptions {
  * the same stub-referencing-ORG_ID idiom as article()'s publisher, and it means the homepage's
  * full Organization node and this one describe the same entity rather than competing.
  *
+ * `geo` is FACILITY_LOCATION, sourced in src/utils/facility.ts against FACILITY_ADDRESS via
+ * OpenStreetMap Nominatim — the same coordinates the service-area map already plots this
+ * building at, so the JSON-LD and the visible map can't disagree.
+ *
  * Deliberately omitted:
  *   openingHours   — there are none. public/llms.txt: visits are by appointment.
- *   geo            — no coordinates published anywhere on the site.
  *   telephone      — still no public number; see the note at the top of this file.
  *   publicAccess   — appointment-only is a scheduling arrangement, not a public/private flag.
  *   amenityFeature — the "In the shop" list is equipment, not schema.org amenities.
@@ -328,6 +331,11 @@ export function facility({ url, hasMap }: FacilityOptions) {
       address: {
         '@type': 'PostalAddress',
         ...FACILITY_ADDRESS,
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: FACILITY_LOCATION.lat,
+        longitude: FACILITY_LOCATION.lng,
       },
       ...(hasMap ? { hasMap } : {}),
     },
