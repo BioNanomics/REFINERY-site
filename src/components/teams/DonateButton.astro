@@ -47,3 +47,16 @@ const ZEFFY_FORM_URL =
 {/* defer, so a third-party DNS lookup + handshake + download can't block parsing — same
     convention as the /donate page's own Zeffy embed script. */}
 <script is:inline defer src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
+
+{/* Zeffy's own script (above) opens the modal iframe on click but never calls
+    preventDefault — confirmed by reading its source. Left as a real <a href> (so the link
+    still works with JS disabled or slow to load), the browser's default navigation fires
+    at the same time and wins, sending the donor straight to zeffy.com instead of the
+    modal. This stops that navigation once JS has taken over. */}
+<script is:inline>
+  document.querySelectorAll('[zeffy-form-link]').forEach(function (el) {
+    el.addEventListener('click', function (event) {
+      event.preventDefault();
+    });
+  });
+</script>
