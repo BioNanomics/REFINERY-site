@@ -81,7 +81,16 @@ deployed artifact and claims the custom domain from it, so don't enable Pages be
 
 Because step 1 arms launch, keep it out of any branch carrying unrelated work. Merging such a
 branch would go live early, before the redirect and headers below are in place. Commit `CNAME`
-on its own, when you are ready to work through steps 2–8 in one sitting.
+on its own, when you are ready to work through steps 2–8 in one sitting. Bundle `CNAME` together
+with the `site`/`base`, `SITE_INDEXABLE`, and `robots.txt` changes above into that one commit —
+they're four independent switches that must all move together, and an unreviewed partial flip
+(e.g. crawling allowed while `SITE_INDEXABLE` is still `false`) is easy to miss because the site
+still renders fine either way. **Before starting**, on `main`: merge any outstanding PRs, run
+`npm test && npm run build` to confirm it's green, and run `npm audit` — don't launch on top of
+an unpatched vulnerability or a red build. Also check `git branch -a` for old branches that
+predate recent work (e.g. an abandoned launch-prep branch) — do not merge one just because its
+name suggests it's the "launch" branch; verify with `git log <branch>..main --oneline` that it
+isn't stale before touching it.
 
 Step 4 is the one step worth doing **before** step 1 rather than after. `www` and the apex both
 resolve today, so the moment the site serves content both hostnames serve identical pages with
@@ -102,6 +111,8 @@ to.
    - SSL/TLS → Edge Certificates → enable **Always Use HTTPS**. Plain `http://` currently
      answers directly with no redirect. HSTS in step 5 only protects repeat visitors; this is
      what covers first contact.
+   - Verify both: `curl -I http://www.refineryrobotics.org` should 301 to the apex, and
+     `curl -I http://refineryrobotics.org` should 301 to `https://`.
 5. In Cloudflare, add security response headers via Transform Rules → Modify Response Header.
    GitHub Pages can't set these, so Cloudflare is the only place they can come from. Do this
    **after** step 3 — HSTS before a working certificate locks visitors out:
@@ -112,9 +123,16 @@ to.
    - `X-Content-Type-Options: nosniff`
    - `Referrer-Policy: strict-origin-when-cross-origin`
    - `Permissions-Policy: geolocation=(), camera=(), microphone=()`
+   - Verify: `curl -sI https://refineryrobotics.org | grep -i strict-transport-security` (and
+     the other three headers) actually shows up — a page can render perfectly in a browser
+     with these silently missing.
 6. Verify `/robots.txt`, `/llms.txt`, and `/sitemap-index.xml` serve 200 at the domain root,
    and that a few canonical URLs resolve 200. Cloudflare appends its own content-signals block
-   to `robots.txt`, so confirm the `Sitemap:` line survives the merge.
+   to `robots.txt`, so confirm the `Sitemap:` line survives the merge. Also confirm
+   `SITE_INDEXABLE` and `robots.txt` agree — view-source a page for `noindex` and diff it
+   against what `robots.txt` allows; they're independent switches and a mismatch in either
+   direction (indexable but disallowed, or allowed but noindexed) is easy to miss because the
+   page still looks live.
 7. Verify `refineryrobotics.org` as a **domain property** in Search Console, and submit the
    sitemap.
 8. Run the [Rich Results Test](https://search.google.com/test/rich-results) against every page
@@ -127,3 +145,15 @@ to.
    - `/programs-events/monster-match/`: Event, BreadcrumbList
 
 `site` in `astro.config.mjs` and `public/CNAME` must always agree.
+
+If something's visibly wrong after step 1 merges (broken build, bad redirect, wrong content
+live under the real domain): this isn't a domain migration with existing indexed traffic to
+protect, so the safe move is to fix forward on `main` and let the next deploy overwrite it,
+rather than trying to un-arm the domain. Reverting `public/CNAME` and `site`/`base` back to
+review mode is possible but leaves `refineryrobotics.org` pointed at Cloudflare with nothing
+behind it, which is worse than a broken-but-live site. Only go back to full review mode (see
+above) if launch needs to pause for more than a few minutes.
+
+After launch, nothing in this repo watches the live site — no uptime check, no recurring
+Search Console review. Decide who owns that (even just glancing at Search Console's coverage
+report weekly for the first month) before traffic exists to monitor.
