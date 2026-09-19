@@ -1,0 +1,27 @@
+name: SEO health monitor
+
+# Scheduled apart from deploy.yml's own daily rebuild (00:30 EST / 01:30 EDT) so a genuine
+# regression is caught by a dedicated run rather than buried in that workflow's other output.
+# Runs against whatever astro.config.mjs's `site`/`base` currently declare, so this keeps
+# working unmodified through the review-mode -> launch transition — see scripts/check-seo-health.mjs.
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          PUBLIC_CARTO_API_KEY: ${{ secrets.PUBLIC_CARTO_API_KEY }}
+      - run: npm run check:seo
