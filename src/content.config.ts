@@ -85,6 +85,9 @@ const teams = defineCollection({
       // been geocoded yet, and ServiceAreaMap.astro simply skips a team with no location.
       location: z.object({ lat: z.number(), lng: z.number() }).optional(),
       logo: image().optional(),
+      // Describes the logo's actual imagery for screen readers — falls back to "{name} logo"
+      // wherever it's unset, so it's optional rather than required alongside `logo`.
+      logoAlt: z.string().optional(),
       description: z.string(),
       highlight: z.string().optional(),
       links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
@@ -379,6 +382,9 @@ const partners = defineCollection({
     z.object({
       name: z.string(),
       logo: image(),
+      // Describes the logo's actual imagery for screen readers — falls back to the partner's
+      // bare name wherever it's unset, so it's optional rather than required alongside `logo`.
+      logoAlt: z.string().optional(),
       // Every partner logo renders at the same shared height by default; this overrides it
       // for the rare logo (e.g. one with almost no built-in padding) that reads noticeably
       // larger or smaller than the rest at that height.
