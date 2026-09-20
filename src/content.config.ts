@@ -52,6 +52,19 @@ const news = defineCollection({
       sourceUrl: z.string().url().optional(),
       sourceName: z.string().optional(),
       draft: z.boolean().default(false),
+    })
+    // heroImage/heroImageAlt are two independently-optional fields, not the single optional
+    // GROUP pattern `banner` uses above — this is the hole that comment warns about, closed
+    // without reshaping frontmatter: a hero photo with no alt text fails the build instead of
+    // silently rendering alt="" (see NewsCard.astro/ArticleLayout.astro's `?? ''` fallback).
+    .superRefine((data, ctx) => {
+      if (data.heroImage && !data.heroImageAlt) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['heroImageAlt'],
+          message: 'heroImageAlt is required whenever heroImage is set.',
+        });
+      }
     }),
 });
 
@@ -242,6 +255,18 @@ const teams = defineCollection({
             description: z.string().max(280).optional(),
             image: image().optional(),
             imageAlt: z.string().optional(),
+          })
+          // Same hole as news.heroImage/heroImageAlt above, closed the same way: a robot
+          // photo with no alt text fails the build instead of TeamHistoryYears.astro
+          // silently rendering alt="" for both the thumbnail and the lightbox image.
+          .superRefine((robot, ctx) => {
+            if (robot.image && !robot.imageAlt) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['imageAlt'],
+                message: 'imageAlt is required whenever image is set.',
+              });
+            }
           }),
         )
         .default([]),

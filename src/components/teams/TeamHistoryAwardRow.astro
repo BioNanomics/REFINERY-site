@@ -29,7 +29,10 @@ const dotMarker: Record<BannerColor, string> = {
 <li class="flex items-start gap-2">
   {
     color ? (
-      <span class:list={['mt-1.5 h-2 w-2 shrink-0 rounded-full', dotMarker[color]]} title="Earned a banner" />
+      /* aria-hidden, not title: the sr-only " — earned a banner" text right below already
+         covers this for assistive tech, and title's screen-reader support is inconsistent
+         besides — matching the non-colored dot's own pattern just below. */
+      <span class:list={['mt-1.5 h-2 w-2 shrink-0 rounded-full', dotMarker[color]]} aria-hidden="true" />
     ) : (
       <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full border border-slate-300" aria-hidden="true" />
     )

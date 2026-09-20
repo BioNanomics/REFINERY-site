@@ -62,7 +62,12 @@ function navCurrent(href: string): 'page' | 'true' | undefined {
                 isActive ? 'text-brand-accent' : 'text-slate-600 hover:text-brand',
               ]}
             >
-              <span class="font-mono text-[0.65rem] text-slate-500 group-hover:text-brand-accent">
+              {/* slate-600, not slate-500: axe couldn't auto-resolve contrast here against the
+                  header's semi-transparent bg-white/95 backdrop-blur, and slate-500 only
+                  cleared the 4.5:1 AA minimum by ~0.3:1 — slate-600 gives real headroom
+                  (~7.6:1) instead of a narrow pass that a busier background showing through
+                  the 5% transparency could plausibly erode. */}
+              <span class="font-mono text-[0.65rem] text-slate-600 group-hover:text-brand-accent">
                 {String(index + 1).padStart(2, '0')}
               </span>
               <span class="flex items-center gap-1 whitespace-nowrap text-sm font-semibold">
@@ -105,7 +110,7 @@ function navCurrent(href: string): 'page' | 'true' | undefined {
                   current ? 'text-brand-accent' : 'text-slate-600 hover:text-brand-accent',
                 ]}
               >
-                <span class="font-mono text-[0.65rem] text-slate-500">{String(index + 1).padStart(2, '0')}</span>
+                <span class="font-mono text-[0.65rem] text-slate-600">{String(index + 1).padStart(2, '0')}</span>
                 {link.label}
               </a>
             );

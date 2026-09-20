@@ -311,32 +311,37 @@ const aboutSchema = [
             class="partner-row mx-auto mt-8 grid w-fit grid-cols-1 place-items-center gap-8 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-nowrap xl:justify-center"
             data-reveal-group
           >
-            {partners.map((partner, i) => (
-              <a
-                href={partner.data.url ?? '#'}
-                target={partner.data.url ? '_blank' : undefined}
-                data-no-external-arrow
-                rel={partner.data.url ? 'noopener noreferrer' : undefined}
-                class:list={[
-                  'transition duration-base ease-out-soft hover:-translate-y-0.5',
-                  // An odd logo out spans both grid columns so it centers under the pair
-                  // above it instead of sitting alone in the left column beside an empty cell.
-                  i === partners.length - 1 && partners.length % 2 !== 0 && 'col-span-2 xl:col-span-1',
-                ]}
-                title={firstPlain(partner.data.name)}
-                data-reveal
-              >
-                {/* logoHeight (content.config.ts) overrides the shared 102px height for a
-                    logo — like Amp Lab's, which has almost no built-in padding — that would
-                    otherwise read noticeably larger or smaller than the rest at that height. */}
-                <Image
-                  src={partner.data.logo}
-                  alt={firstPlain(partner.data.name)}
-                  class="w-auto max-w-[290px] object-contain"
-                  style={`height: ${partner.data.logoHeight ?? 102}px`}
-                />
-              </a>
-            ))}
+            {partners.map((partner, i) => {
+              // A partner with no url gets a non-interactive wrapper, not a link to nowhere —
+              // a real <a href="#"> was a focusable, "activatable" element that did nothing.
+              const Tag = partner.data.url ? 'a' : 'div';
+              return (
+                <Tag
+                  href={partner.data.url}
+                  target={partner.data.url ? '_blank' : undefined}
+                  data-no-external-arrow
+                  rel={partner.data.url ? 'noopener noreferrer' : undefined}
+                  class:list={[
+                    'transition duration-base ease-out-soft hover:-translate-y-0.5',
+                    // An odd logo out spans both grid columns so it centers under the pair
+                    // above it instead of sitting alone in the left column beside an empty cell.
+                    i === partners.length - 1 && partners.length % 2 !== 0 && 'col-span-2 xl:col-span-1',
+                  ]}
+                  title={firstPlain(partner.data.name)}
+                  data-reveal
+                >
+                  {/* logoHeight (content.config.ts) overrides the shared 102px height for a
+                      logo — like Amp Lab's, which has almost no built-in padding — that would
+                      otherwise read noticeably larger or smaller than the rest at that height. */}
+                  <Image
+                    src={partner.data.logo}
+                    alt={firstPlain(partner.data.name)}
+                    class="w-auto max-w-[290px] object-contain"
+                    style={`height: ${partner.data.logoHeight ?? 102}px`}
+                  />
+                </Tag>
+              );
+            })}
           </div>
         ) : (
           <p class="mt-8 text-sm text-slate-500">Partner list coming soon.</p>

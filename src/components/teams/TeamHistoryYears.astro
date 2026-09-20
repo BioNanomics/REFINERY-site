@@ -147,8 +147,10 @@ const fullSizeBySrc = new Map(
                   ({ robot, game }) =>
                     (entry.robots.length > 1 || game || robot.description) && (
                       <div>
+                        {/* h3, not h4: sits directly under "Team History" (h2) as a sibling
+                            of "Banners" (h3) — see the matching note in TeamHistoryEvents.astro. */}
                         {entry.robots.length > 1 && (
-                          <h4 class="font-heading text-sm font-bold text-slate-900">{robot.name}</h4>
+                          <h3 class="font-heading text-sm font-bold text-slate-900">{robot.name}</h3>
                         )}
                         {game && (
                           <p class="mt-0.5 font-mono text-xs text-slate-500">
@@ -239,12 +241,13 @@ const fullSizeBySrc = new Map(
 
           {unmatchedAwards.length > 0 && (
             <div>
-              <h4 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
+              {/* h3, not h4: same reasoning as the two notes above. */}
+              <h3 class="font-mono text-xs font-semibold uppercase tracking-wide text-slate-500">
                 {/* Plain "Awards" when there's no Events list above it to distinguish
                     from (a team with no season data yet); "Other awards" when there is,
                     since these are the ones that didn't match a listed event. */}
                 {entry.events.length > 0 ? 'Other Awards' : 'Awards'}
-              </h4>
+              </h3>
               <ul class="mt-2 space-y-2 text-sm">
                 {unmatchedAwards.map((award) => (
                   <TeamHistoryAwardRow award={award} color={bannerOf(award)} />
