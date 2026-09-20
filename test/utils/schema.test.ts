@@ -166,6 +166,15 @@ describe('facility', () => {
     expect(node.location).not.toHaveProperty('hasMap');
   });
 
+  it('always includes geo coordinates for the facility', () => {
+    const node = facility({ url: 'https://refineryrobotics.org/about/' });
+    expect(node.location.geo).toEqual({
+      '@type': 'GeoCoordinates',
+      latitude: 41.0708005,
+      longitude: -85.1496599,
+    });
+  });
+
   it('includes hasMap when given', () => {
     const node = facility({
       url: 'https://refineryrobotics.org/about/',
