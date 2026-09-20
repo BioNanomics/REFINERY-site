@@ -271,9 +271,12 @@ export function article({
     description,
     url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    // Bare YYYY-MM-DD frontmatter dates parse as UTC midnight, so only the date part is
-    // meaningful — publishing a fabricated time would be a precision the source lacks.
-    datePublished: datePublished.toISOString().slice(0, 10),
+    // Full ISO 8601 with a timezone, not just the date part. Google's Rich Results Test
+    // flags a bare YYYY-MM-DD as an invalid datetime (missing timezone) even though
+    // schema.org's own spec allows a plain Date here — so the trailing 00:00:00.000Z isn't
+    // fabricating a time the source lacks, it's the UTC midnight a bare frontmatter date
+    // already parses to, just no longer discarded.
+    datePublished: datePublished.toISOString(),
     author: { '@type': authorType === 'person' ? 'Person' : 'Organization', name: author },
     publisher: {
       '@type': 'Organization',

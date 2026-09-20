@@ -158,6 +158,13 @@ describe('article', () => {
   it('never emits dateModified', () => {
     expect(article(base)).not.toHaveProperty('dateModified');
   });
+
+  it('emits datePublished as a full ISO 8601 datetime with a timezone, not a bare date', () => {
+    // Google's Rich Results Test rejects a bare YYYY-MM-DD as an invalid datetime — this
+    // guards against re-truncating it, which shipped once already (see git blame).
+    expect(article(base).datePublished).toBe('2026-07-01T00:00:00.000Z');
+    expect(article(base).datePublished).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+  });
 });
 
 describe('facility', () => {
