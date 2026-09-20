@@ -28,13 +28,13 @@ export type FormDelivery = {
 };
 
 /**
- * TESTING Web3Forms locally right now — not committed. See "OTHER PRESETS" below for the
- * Google Apps Script config this is temporarily standing in for; that setup (and its docs
- * in docs/contact-form-apps-script.md + docs/contact-form.gs) is on pause, not abandoned.
- *
- * Web3Forms — https://web3forms.com — free, unlimited forms, no dashboard account. Get a
- * key by visiting the site and verifying the destination inbox (info@refineryrobotics.org);
- * they email you an access key. Paste it in below.
+ * Web3Forms — https://web3forms.com — free, unlimited forms, no dashboard account. The
+ * access key below was issued to info@refineryrobotics.org, which had to be verified with
+ * Web3Forms before submissions would relay there; re-verify that inbox is still confirmed
+ * if delivery ever silently stops. hCaptcha (see ContactDialogs.astro and FormDialog.astro)
+ * renders regardless, but only actually blocks unsolved submissions once "hCaptcha" is set
+ * as this form's preferred captcha in the Web3Forms dashboard — check that's on, since the
+ * widget looks identical either way.
  */
 export const formDelivery: FormDelivery = {
   endpoint: 'https://api.web3forms.com/submit',
@@ -48,18 +48,6 @@ export const formDelivery: FormDelivery = {
  * OTHER PRESETS
  * ---------------------------------------------------------------------------
  *
- * Google Apps Script — no third party; sends via Gmail from whichever Google account
- * deployed the script. Full setup: docs/contact-form-apps-script.md and
- * docs/contact-form.gs (already hardened — secret check, rate limiting, validation).
- *
- *   export const formDelivery: FormDelivery = {
- *     endpoint: 'https://script.google.com/macros/s/YOUR-DEPLOYMENT-ID/exec',
- *     hiddenFields: { secret: 'ye6FKxFUahIj4BjMx1v3XWOxXa37SbGS' },
- *     subjectKey: 'subject',
- *     encoding: 'formdata',
- *   };
- *
- * ---------------------------------------------------------------------------
  * Formspree — https://formspree.io
  * Stored submission history and stronger spam filtering; smaller free tier.
  * Each form gets its own endpoint, so if you want the two forms separated you
