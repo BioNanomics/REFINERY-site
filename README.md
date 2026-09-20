@@ -113,19 +113,24 @@ to.
      what covers first contact.
    - Verify both: `curl -I http://www.refineryrobotics.org` should 301 to the apex, and
      `curl -I http://refineryrobotics.org` should 301 to `https://`.
-5. In Cloudflare, add security response headers via Transform Rules → Modify Response Header.
-   GitHub Pages can't set these, so Cloudflare is the only place they can come from. Do this
-   **after** step 3 — HSTS before a working certificate locks visitors out:
-   - `Strict-Transport-Security: max-age=86400; includeSubDomains` to begin with. Raise it
-     toward `31536000` once you're confident HTTPS is stable: the value is cached by browsers,
-     so a long `max-age` set too early is hard to walk back. Leave `preload` off entirely;
-     getting off the preload list is much harder still.
+5. Add security response headers. GitHub Pages can't set these, so Cloudflare is the only
+   place they can come from — but which Cloudflare feature depends on the plan: Transform
+   Rules → Modify Response Header if the zone has it, otherwise a Cloudflare Worker (Free
+   plan; Workers & Pages → Create Worker) bound to a route on `refineryrobotics.org/*` (added
+   under the worker's Settings → Domains & Routes), since Free-plan zones don't get Transform
+   Rules. A Worker runs on every request either way, so functionally identical to a visitor.
+   Set:
    - `X-Content-Type-Options: nosniff`
    - `Referrer-Policy: strict-origin-when-cross-origin`
    - `Permissions-Policy: geolocation=(), camera=(), microphone=()`
-   - Verify: `curl -sI https://refineryrobotics.org | grep -i strict-transport-security` (and
-     the other three headers) actually shows up — a page can render perfectly in a browser
-     with these silently missing.
+   - `Strict-Transport-Security` — add this one **after** step 3, not with the others. HSTS
+     before a working certificate locks visitors out. Start at
+     `max-age=86400; includeSubDomains`; raise it toward `31536000` once you're confident
+     HTTPS is stable (the value is cached by browsers, so a long `max-age` set too early is
+     hard to walk back). Leave `preload` off entirely — getting off the preload list is much
+     harder still.
+   - Verify: `curl -sI https://refineryrobotics.org | grep -Ei "x-content-type-options|referrer-policy|permissions-policy|strict-transport-security"` — a page can render perfectly in a
+     browser with any of these silently missing.
 6. Verify `/robots.txt`, `/llms.txt`, and `/sitemap-index.xml` serve 200 at the domain root,
    and that a few canonical URLs resolve 200. Cloudflare appends its own content-signals block
    to `robots.txt`, so confirm the `Sitemap:` line survives the merge. Also confirm
@@ -145,6 +150,21 @@ to.
    - `/programs-events/monster-match/`: Event, BreadcrumbList
 
 `site` in `astro.config.mjs` and `public/CNAME` must always agree.
+
+**Contact form**, separately from the domain cutover above: `src/config/forms.ts` relays
+through Web3Forms, and its actual spam/delivery protections live entirely in Web3Forms' own
+dashboard — invisible to `npm test`, `astro check`, or `npm run build`, all of which only see
+the config object, not whether Web3Forms is honoring it. Check these once, ideally before
+launch:
+
+- `info@refineryrobotics.org` still shows as a **verified** destination inbox in the Web3Forms
+  dashboard. Verification is what makes the access key deliver at all; there's no local way to
+  tell it's slipped.
+- This form's **preferred captcha** is set to `hCaptcha` in the Web3Forms dashboard, not left
+  on `None`. The hCaptcha widget renders in the popup either way, so a wrong setting fails
+  silently — visitors see a captcha that isn't actually blocking anything.
+- Once the real domain is live, submit the form for real (not a local dev build) and confirm
+  the email actually arrives at `info@refineryrobotics.org` before assuming it works.
 
 If something's visibly wrong after step 1 merges (broken build, bad redirect, wrong content
 live under the real domain): this isn't a domain migration with existing indexed traffic to
