@@ -109,9 +109,9 @@ export function organization({ logo, image, description, founder }: OrgOptions) 
     // GitHub is deliberately absent: the footer's GitHub link is BioNanomics' org account,
     // not a REFINERY profile, so it would be a misleading sameAs for this entity.
     sameAs: [
-      'https://www.instagram.com/the_refinery_bybnx',
-      'https://youtube.com/@therefinery-in',
-      'https://www.linkedin.com/company/the-refinery-robotics',
+      'https://www.instagram.com/refineryrobotics',
+      'https://www.youtube.com/@refineryrobotics',
+      'https://www.linkedin.com/company/refineryrobotics',
     ],
   };
 }
