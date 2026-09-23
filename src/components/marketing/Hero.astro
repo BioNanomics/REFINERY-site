@@ -4,6 +4,7 @@ import type { ImageMetadata } from 'astro';
 import CTAButton from './CTAButton.astro';
 import FirstText from '../brand/FirstText.astro';
 import { withBase } from '../../utils/base';
+import { firstPlain } from '../../utils/first';
 
 interface Props {
   eyebrow?: string;
@@ -47,7 +48,7 @@ const {
     <div class="corner-brackets overflow-hidden rounded-card" data-reveal style="--bracket-inset: -10px">
       <Image
         src={image}
-        alt={imageAlt}
+        alt={firstPlain(imageAlt)}
         class="aspect-[4/3] w-full object-cover"
         widths={[400, 800, 1200]}
         sizes="(min-width: 1024px) 40vw, 100vw"

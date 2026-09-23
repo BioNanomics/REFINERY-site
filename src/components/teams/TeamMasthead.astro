@@ -183,7 +183,7 @@ const creditWords = banner ? firstPlain(banner.credit.text).trim().split(/\s+/).
         <div class="flex h-[var(--team-plaque-h)] max-w-full items-center justify-center rounded-media bg-white px-4 shadow-float sm:px-6">
           <Image
             src={logo}
-            alt={logoAlt ?? `${name} logo`}
+            alt={firstPlain(logoAlt ?? `${name} logo`)}
             widths={[200, 400]}
             sizes="(min-width: 640px) 260px, 30vw"
             loading="eager"

@@ -335,7 +335,7 @@ const aboutSchema = [
                       otherwise read noticeably larger or smaller than the rest at that height. */}
                   <Image
                     src={partner.data.logo}
-                    alt={partner.data.logoAlt ?? firstPlain(partner.data.name)}
+                    alt={firstPlain(partner.data.logoAlt ?? partner.data.name)}
                     class="w-auto max-w-[290px] object-contain"
                     style={`height: ${partner.data.logoHeight ?? 102}px`}
                   />
