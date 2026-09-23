@@ -61,13 +61,22 @@ async function checkBuildConsistency() {
     return;
   }
 
-  // 404.html is deliberately noindex regardless of the site-wide switch (src/pages/404.astro
-  // hardcodes index={false}), so it's excluded from the site-wide agreement check below.
-  const pages = htmlFiles.filter((file) => path.basename(file) !== '404.html');
+  // Two kinds of page are deliberately noindex regardless of the site-wide switch, so they're
+  // excluded from the agreement check below:
+  //   - 404.html — src/pages/404.astro hardcodes index={false}.
+  //   - Redirect stubs — Astro builds each `redirects` entry in astro.config.mjs as a tiny
+  //     meta-refresh page that always carries noindex (plus a canonical to the target), so the
+  //     stub itself never gets listed. Counting one as a hidden real page is a false failure.
+  const pages = [];
+  for (const file of htmlFiles) {
+    if (path.basename(file) === '404.html') continue;
+    const html = await readFile(file, 'utf8');
+    if (/<meta\s+http-equiv="refresh"/i.test(html)) continue;
+    pages.push(html);
+  }
 
   let noindexCount = 0;
-  for (const file of pages) {
-    const html = await readFile(file, 'utf8');
+  for (const html of pages) {
     if (/<meta\s+name="robots"\s+content="noindex"/.test(html)) noindexCount++;
   }
 
