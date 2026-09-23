@@ -38,7 +38,7 @@ interface Props {
 }
 
 const { team } = Astro.props;
-const { name, logo, banner } = team.data;
+const { name, logo, logoAlt, banner } = team.data;
 
 // Never let the band go taller than 5:3, but never force a wider photo down to it either —
 // `object-cover` only crops the axis where the box is smaller than the source, so a ratio
@@ -183,7 +183,7 @@ const creditWords = banner ? firstPlain(banner.credit.text).trim().split(/\s+/).
         <div class="flex h-[var(--team-plaque-h)] max-w-full items-center justify-center rounded-media bg-white px-4 shadow-float sm:px-6">
           <Image
             src={logo}
-            alt={`${name} logo`}
+            alt={firstPlain(logoAlt ?? `${name} logo`)}
             widths={[200, 400]}
             sizes="(min-width: 640px) 260px, 30vw"
             loading="eager"
