@@ -157,3 +157,29 @@ export function parseCommunity(
   if (!match) return undefined;
   return { addressLocality: match[1].trim(), addressRegion: match[2] };
 }
+
+// Words that appear in host names but don't identify the host on their own, so a team name
+// sharing one of them ("Knight Robotics" vs "… High School") doesn't count as naming it.
+const GENERIC_HOST_WORDS = new Set([
+  'high', 'school', 'jr/sr', 'jr.', 'sr.', 'county', 'at', 'the', 'refinery', '4-h', 'of', 'and',
+]);
+
+/**
+ * The page <title> for a team: the bare number and name, plus the host when the name doesn't
+ * already say it.
+ *
+ * People search for a team by its school ("homestead robotics"), not by its number or its
+ * team name, so a title of "4982 — Olympus Robotics" gives that search nothing to match.
+ * Hosts already evident from the name ("Carroll Charger Robotics") aren't repeated. The
+ * number stays bare, without FRC/FTC, per FIRST's request to partner sites.
+ */
+export function teamPageTitle(number: string, name: string, organization: string): string {
+  const base = `${number} — ${name}`;
+  const nameLower = name.toLowerCase();
+  const hostWords = organization
+    .split(/\s+/)
+    .map((word) => word.toLowerCase().replace(/[.,]$/, ''))
+    .filter((word) => word.length > 2 && !GENERIC_HOST_WORDS.has(word));
+  const named = hostWords.some((word) => nameLower.includes(word));
+  return named ? base : `${base} · ${organization}`;
+}

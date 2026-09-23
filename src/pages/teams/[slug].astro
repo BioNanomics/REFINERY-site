@@ -10,7 +10,7 @@ import { getImage } from 'astro:assets';
 import { firstPlain } from '../../utils/first';
 import { sportsTeam } from '../../utils/schema';
 import { withBase } from '../../utils/base';
-import { PROGRAM_NAMES, parseCommunity, relatedTeamsFor, teamSlug } from '../../utils/teams';
+import { PROGRAM_NAMES, parseCommunity, relatedTeamsFor, teamPageTitle, teamSlug } from '../../utils/teams';
 import { socialLinks } from '../../utils/socials';
 import { awardCitation, sortAwards } from '../../utils/awards';
 import { resolveBanner } from '../../utils/banners';
@@ -116,7 +116,7 @@ const jsonLd = sportsTeam({
   sameAs,
 });
 
-// Short form for the last crumb and the browser tab — bare number rather than
+// Short form for the last crumb (and the start of the <title>, via teamPageTitle) — bare number rather than
 // "FRC 1501"/"FTC 1501", since FIRST has asked partner sites not to display the program
 // abbreviations and the full program name would blow BaseHead's 60-character title budget.
 // `programName` above already carries the full name for everywhere else on this page.
@@ -127,7 +127,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
 ---
 
 <MarketingLayout
-  title={`${shortLabel} — ${name}`}
+  title={teamPageTitle(number, name, organization)}
   description={metaDescription ?? description}
   image={bannerUrl}
   imageAlt={banner?.alt}

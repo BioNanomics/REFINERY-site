@@ -15,7 +15,7 @@ import logoFullColor from '../assets/logo-full-color.svg';
 import heroImage from '../assets/refinery-shop-1.jpeg';
 
 const metaDescription =
-  "The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with funding, parts, tools, facilities, training, and community.";
+  'The REFINERY supports youth robotics in Fort Wayne and Northeast Indiana, helping FIRST teams start, grow, and succeed with funding, tools, space, and training.';
 
 // Read from the collection rather than written out here, so the founder's name lives in exactly
 // one place and this node shares an @id with the Person node /about/ builds from the same entry.
@@ -113,17 +113,20 @@ const beyondNortheastIndiana = [
 ---
 
 {/* Not "Home": the title is the single most valuable slot on the site, and this is the page
-    most likely to rank for the service plus the region. Renders as 58 characters with the
-    brand suffix, inside the ~60 search results show. */}
+    most likely to rank for the service plus the region. Worded in the searcher's terms
+    ("youth robotics", "Fort Wayne") rather than the community's ("FIRST teams"), which the
+    description and body still carry — see keyword-research.md. At 48 characters the brand
+    suffix would overflow the ~60 budget, so BaseHead drops it; the WebSite node's name still
+    gives search results the brand as the site name. */}
 <MarketingLayout
-  title="FIRST Robotics Support in Northeast Indiana"
+  title="Youth Robotics in Fort Wayne & Northeast Indiana"
   description={metaDescription}
   jsonLd={[orgSchema, website()]}
 >
   <Hero
     eyebrow="The REFINERY"
     title="Shared infrastructure for stronger robotics teams"
-    description="The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed by providing funding, parts, tools, facilities, training, and a regional community."
+    description="The REFINERY helps youth FIRST robotics teams in Fort Wayne and across Northeast Indiana start, grow, and succeed by providing funding, parts, tools, facilities, training, and a regional community."
     ctaLabel="Explore What We Do"
     ctaHref={withBase('what-we-do/')}
     image={heroImage}

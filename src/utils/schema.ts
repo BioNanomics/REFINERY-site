@@ -29,6 +29,7 @@
  */
 
 import { FACILITY_ADDRESS, FACILITY_LOCATION } from './facility';
+import { serviceCounties } from '../data/service-area';
 
 const SITE = 'https://refineryrobotics.org';
 
@@ -71,6 +72,7 @@ interface OrgOptions {
  *   name, alternateName, sameAs  -> src/components/nav/SiteFooter.astro
  *   email                        -> src/components/nav/SiteFooter.astro
  *   address                      -> src/utils/facility.ts (shared with the visible copy on /about/)
+ *   areaServed                   -> src/data/service-area.ts (the /about/ "Where We Serve" list)
  *   parentOrganization           -> src/pages/donate.astro, README.md
  *   founder                      -> src/content/people/doug-and-kim-horner.mdx
  *   description                  -> the page's own meta description
@@ -92,10 +94,17 @@ export function organization({ logo, image, description, founder }: OrgOptions) 
       '@type': 'PostalAddress',
       ...FACILITY_ADDRESS,
     },
-    areaServed: {
-      '@type': 'AdministrativeArea',
-      name: 'Northeast Indiana',
-    },
+    // The region as a whole, then each county by name with its main towns. Counties are
+    // listed whether or not a team is there yet, since we serve all of them — schools in a
+    // county with no team are exactly who this is meant to reach.
+    areaServed: [
+      { '@type': 'AdministrativeArea', name: 'Northeast Indiana' },
+      ...serviceCounties.map((county) => ({
+        '@type': 'AdministrativeArea',
+        name: `${county.name} County, Indiana`,
+        containsPlace: county.towns.map((town) => ({ '@type': 'City', name: `${town}, Indiana` })),
+      })),
+    ],
     // Name and @id both come from the people collection entry, so this node and the full
     // Person node on /about/ are the same entity by identifier, not just by matching strings.
     ...(founder

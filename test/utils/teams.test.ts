@@ -8,6 +8,7 @@ import {
   teamNeighbors,
   relatedTeamsFor,
   teamPath,
+  teamPageTitle,
   teamSlug,
   type TeamLike,
 } from '../../src/utils/teams';
@@ -217,5 +218,31 @@ describe('parseCommunity', () => {
     // "Northeast Indiana" is an area, not a city — emitting it as addressLocality would be
     // a false claim, so it drops out and the JSON-LD omits location entirely.
     expect(parseCommunity('Northeast Indiana')).toBeUndefined();
+  });
+});
+
+describe('teamPageTitle', () => {
+  it('adds the host when the team name does not name it', () => {
+    expect(teamPageTitle('4982', 'Olympus Robotics', 'Homestead High School')).toBe(
+      '4982 — Olympus Robotics · Homestead High School',
+    );
+    expect(teamPageTitle('1501', 'T.H.R.U.S.T.', 'Huntington County 4-H')).toBe(
+      '1501 — T.H.R.U.S.T. · Huntington County 4-H',
+    );
+  });
+
+  it('leaves the title alone when the name already carries the host', () => {
+    expect(teamPageTitle('10332', 'Carroll Charger Robotics', 'Carroll High School')).toBe(
+      '10332 — Carroll Charger Robotics',
+    );
+    expect(
+      teamPageTitle('9431', 'Snider Panthers - "The Gold Standard"', 'R. Nelson Snider High School'),
+    ).toBe('9431 — Snider Panthers - "The Gold Standard"');
+  });
+
+  it('does not treat generic words like "High School" as naming the host', () => {
+    expect(teamPageTitle('1', 'High School Heroes', 'East Noble High School')).toBe(
+      '1 — High School Heroes · East Noble High School',
+    );
   });
 });

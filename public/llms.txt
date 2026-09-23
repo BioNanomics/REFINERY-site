@@ -1,7 +1,7 @@
 # The REFINERY
 
-> The REFINERY helps Northeast Indiana's FIRST robotics teams start, grow, and succeed with
-> funding, parts, tools, facilities, training, and community.
+> The REFINERY supports youth robotics in Fort Wayne and Northeast Indiana, helping FIRST
+> teams start, grow, and succeed with funding, tools, space, and training.
 
 ## Mission
 
@@ -38,6 +38,15 @@ many teams across the region.
 Across Northeast Indiana, The REFINERY has backed 15 robotics teams, put tools and mentors in
 front of roughly 200 students, helped launch 5 new teams from scratch, and moved $75,000 in
 funding to the teams that needed it.
+
+## Where we serve
+
+The REFINERY serves 12 counties in Northeast Indiana, including communities that don't have a
+team yet, and helps schools and community groups there start one: Adams (Decatur), Allen
+(Fort Wayne), DeKalb (Auburn), Grant (Marion, Fairmount), Huntington (Huntington), Kosciusko
+(Warsaw), LaGrange (LaGrange), Noble (Albion, Kendallville), Steuben (Angola), Wabash
+(Wabash), Wells (Bluffton), and Whitley (Columbia City). The About page lists every incorporated
+city and town in each county.
 
 ## Pages
 
