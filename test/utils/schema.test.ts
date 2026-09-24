@@ -52,6 +52,19 @@ describe('organization', () => {
     });
   });
 
+  it('serves the region plus every county, including ones without a team', () => {
+    const node = organization(base);
+    expect(node.areaServed[0]).toEqual({ '@type': 'AdministrativeArea', name: 'Northeast Indiana' });
+    expect(node.areaServed).toHaveLength(13);
+    expect(node.areaServed).toContainEqual({
+      '@type': 'AdministrativeArea',
+      name: 'Wells County, Indiana',
+      containsPlace: ['Bluffton', 'Markle', 'Ossian', 'Poneto', 'Uniondale', 'Vera Cruz', 'Zanesville'].map(
+        (town) => ({ '@type': 'City', name: `${town}, Indiana` }),
+      ),
+    });
+  });
+
   it('never claims a GitHub sameAs profile', () => {
     const node = organization(base);
     expect(node.sameAs.some((url: string) => url.includes('github'))).toBe(false);

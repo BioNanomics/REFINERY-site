@@ -15,6 +15,7 @@ import { FACILITY_LOCATION, formatFacilityAddress } from '../utils/facility';
 import { facility, person, personId } from '../utils/schema';
 import { linkedinProfiles } from '../utils/people';
 import { teamPath } from '../utils/teams';
+import { serviceCounties } from '../data/service-area';
 
 const allTeams = await getCollection('teams', ({ data }) => !data.draft);
 
@@ -160,24 +161,61 @@ const aboutSchema = [
           </p>
           <ul class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
             {
-              [
-                'Adams',
-                'Allen',
-                'DeKalb',
-                'Grant',
-                'Huntington',
-                'Kosciusko',
-                'LaGrange',
-                'Noble',
-                'Steuben',
-                'Wabash',
-                'Wells',
-                'Whitley',
-              ].map((county) => (
-                <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{county}</li>
+              serviceCounties.map((county) => (
+                <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{county.name}</li>
               ))
             }
           </ul>
+          {/* Coverage details and every incorporated town, behind a native disclosure so the section stays short.
+              Collapsed <details> content is still rendered, indexed page text — which is what
+              lets a search for a small town ("robotics Ossian") find this page, and what makes
+              these towns a published claim areaServed can repeat. Not hidden text: anyone can
+              open it, and it answers a question visitors actually have. */}
+          <details class="card group mt-6 overflow-hidden">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-heading text-base font-bold text-slate-900">
+              Is my area/organization covered?
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-base group-open:rotate-180"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </summary>
+            <div class="border-t border-slate-200 px-5 py-4">
+              {/* Coverage is defined by the county lines and the districts that cross them, not by
+                  this list — the towns are there so people can find themselves, and the copy says
+                  so, so an unlisted township or a district based next door doesn't read as excluded. */}
+              <p class="text-sm text-slate-600">
+                We support schools and organizations anywhere within these 12 counties, whether or
+                not your town appears below. That includes every school district that overlaps our
+                county boundaries, even if the district is based in a neighboring county.
+              </p>
+              <p class="mt-3 text-sm text-slate-600">Cities and towns in each county:</p>
+              <dl class="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+                {
+                  serviceCounties.map((county) => (
+                    <div>
+                      <dt class="font-medium text-slate-700">{county.name} County</dt>
+                      <dd class="text-slate-500">{county.towns.join(', ')}</dd>
+                    </div>
+                  ))
+                }
+              </dl>
+            </div>
+          </details>
+          <p class="mt-6 max-w-2xl text-slate-600">
+            No team at your school or in your town yet? We help schools and community groups
+            anywhere in these counties start one.{' '}
+            <a href={withBase('get-involved/#start-or-host-a-team')} class="font-medium text-brand-accent underline hover:no-underline">
+              Talk with us about starting a team
+            </a>.
+          </p>
         </div>
         <div data-reveal>
           <ServiceAreaMap markers={serviceAreaMarkers} />
