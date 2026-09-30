@@ -348,6 +348,10 @@ const events = defineCollection({
   schema: () =>
     z.object({
       title: z.string(),
+      // A short, punchy hook for promotional placements like the homepage banner, where the
+      // plain-spoken `summary` alone doesn't sell the event. Optional — the banner simply
+      // leads with the summary when it's unset.
+      tagline: z.string().optional(),
       summary: z.string(),
       dateStart: z.coerce.date(),
       dateEnd: z.coerce.date().optional(),
