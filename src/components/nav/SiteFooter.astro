@@ -4,6 +4,11 @@ import SocialIcon from '../marketing/SocialIcon.astro';
 import type { SocialKey } from '../../utils/socials';
 import logoFullColor from '../../assets/logo-full-color.svg';
 
+interface Props {
+  sourceUrl?: string;
+}
+
+const { sourceUrl } = Astro.props;
 const currentYear = new Date().getFullYear();
 
 /**
@@ -62,6 +67,13 @@ const socials: { key: SocialKey; label: string; url: string }[] = [
       <a href="https://bionanomics.com" target="_blank" rel="noopener noreferrer" class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
         BioNanomics
       </a>
+      {
+        sourceUrl && (
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
+            View this page on GitHub
+          </a>
+        )
+      }
       <p>&copy; {currentYear} The REFINERY. All rights reserved.</p>
     </div>
   </div>

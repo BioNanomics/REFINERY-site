@@ -22,6 +22,7 @@ interface Props {
   publishedTime?: Date;
   // Forwarded to MarketingLayout, which renders the trail and emits the matching JSON-LD.
   breadcrumbs?: Crumb[];
+  sourcePath?: string;
 }
 
 const {
@@ -36,6 +37,7 @@ const {
   type,
   publishedTime,
   breadcrumbs,
+  sourcePath,
 } = Astro.props;
 
 // The hero was never forwarded to BaseHead, so every article and event page fell back to the
@@ -61,6 +63,7 @@ const formattedDate = formatUtcDate(pubDate, { year: 'numeric', month: 'long', d
   imageHeight={heroOg ? Number(heroOg.attributes.height) : undefined}
   breadcrumbs={breadcrumbs}
   breadcrumbsNarrow
+  sourcePath={sourcePath}
 >
   {/* With a trail above, the section's full 4.5rem top padding would leave the breadcrumb
       stranded in whitespace; pt-6 matches the gap the trail already sets above itself. */}
