@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  sponsors: CollectionEntry<'events'>['data']['sponsors'];
+  seekingSponsors?: boolean;
+}
+
+const { sponsors, seekingSponsors = false } = Astro.props;
+
+// Tiers in the order each first appears in frontmatter, so authors control the ranking by
+// listing the top tier first. Untiered sponsors share one group with no heading.
+const groups = new Map<string | undefined, typeof sponsors>();
+for (const sponsor of sponsors) {
+  const list = groups.get(sponsor.tier) ?? [];
+  list.push(sponsor);
+  groups.set(sponsor.tier, list);
+}
+---
+
+{
+  (sponsors.length > 0 || seekingSponsors) && (
+    <section class="not-prose mt-12 border-t border-slate-200 pt-10" aria-labelledby="event-sponsors-heading">
+      <h2 id="event-sponsors-heading" class="font-heading text-2xl font-bold text-slate-900" data-reveal>
+        {sponsors.length > 0 ? 'Thank you to our sponsors' : 'Sponsors'}
+      </h2>
+      {sponsors.length > 0 ? (
+        [...groups].map(([tier, list]) => (
+          <div class="mt-8">
+            {tier && <p class="eyebrow-tag text-center text-brand-accent">{tier}</p>}
+            {/* Same interaction as the About page's partner row: logos with a url are links,
+                the rest are plain wrappers rather than links to nowhere. */}
+            <div class="partner-row mt-4 flex flex-wrap items-center justify-center gap-x-10 gap-y-8" data-reveal-group>
+              {list.map((sponsor) => {
+                const Tag = sponsor.url ? 'a' : 'div';
+                return (
+                  <Tag
+                    href={sponsor.url}
+                    target={sponsor.url ? '_blank' : undefined}
+                    rel={sponsor.url ? 'noopener noreferrer' : undefined}
+                    data-no-external-arrow
+                    class="transition duration-base ease-out-soft hover:-translate-y-0.5"
+                    title={sponsor.name}
+                    data-reveal
+                  >
+                    <Image
+                      src={sponsor.logo}
+                      alt={sponsor.logoAlt ?? sponsor.name}
+                      class="w-auto max-w-full object-contain"
+                      style={`height: ${sponsor.logoHeight ?? 80}px`}
+                    />
+                  </Tag>
+                );
+              })}
+            </div>
+          </div>
+        ))
+      ) : (
+        <p class="mt-4 text-slate-600" data-reveal>
+          Sponsors will be recognized here as they sign on.
+        </p>
+      )}
+    </section>
+  )
+}

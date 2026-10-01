@@ -13,6 +13,8 @@ interface Props {
   author?: string;
   heroImage?: ImageMetadata;
   heroImageAlt?: string;
+  // Visible photo credit under the hero. Events pass this; news doesn't yet.
+  heroCredit?: { text: string; url?: string };
   isDraft?: boolean;
   jsonLd?: object | object[];
   // og:type. Left to the caller because this layout serves both news posts and events.
@@ -31,6 +33,7 @@ const {
   author,
   heroImage,
   heroImageAlt,
+  heroCredit,
   isDraft,
   jsonLd,
   type,
@@ -83,14 +86,24 @@ const formattedDate = formatUtcDate(pubDate, { year: 'numeric', month: 'long', d
 
     {
       heroImage && (
-        <Image
-          src={heroImage}
-          alt={heroImageAlt ?? ''}
-          class="mb-10 w-full rounded-card object-cover shadow-card"
-          widths={[400, 800, 1200]}
-          sizes="(min-width: 768px) 768px, 100vw"
-          data-reveal
-        />
+        <figure class="mb-10" data-reveal>
+          <Image
+            src={heroImage}
+            alt={heroImageAlt ?? ''}
+            class="w-full rounded-card object-cover shadow-card"
+            widths={[400, 800, 1200]}
+            sizes="(min-width: 768px) 768px, 100vw"
+          />
+          {heroCredit && (
+            <figcaption class="mt-2 text-right font-mono text-xs text-slate-500">
+              {heroCredit.url ? (
+                <a href={heroCredit.url} class="underline hover:no-underline"><FirstText text={heroCredit.text} /></a>
+              ) : (
+                <FirstText text={heroCredit.text} />
+              )}
+            </figcaption>
+          )}
+        </figure>
       )
     }
 

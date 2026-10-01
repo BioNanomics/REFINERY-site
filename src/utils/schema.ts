@@ -125,6 +125,24 @@ export function organization({ logo, image, description, founder }: OrgOptions) 
   };
 }
 
+/**
+ * A frontmatter date (UTC midnight of the calendar day) plus an optional local "HH:MM",
+ * as a schema.org date: bare YYYY-MM-DD without a time, otherwise YYYY-MM-DDTHH:MM:00±HH:MM
+ * using `timeZone`'s offset on that day.
+ */
+function eventTimestamp(date: Date, time: string | undefined, timeZone: string): string {
+  const day = date.toISOString().slice(0, 10);
+  if (!time) return day;
+  // Noon UTC on the day lands on the right calendar date in every US zone, and no US
+  // daylight-saving switch happens between local noon and an event's hours on that day.
+  const probe = new Date(`${day}T12:00:00Z`);
+  const zoneName = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' })
+    .formatToParts(probe)
+    .find((part) => part.type === 'timeZoneName')?.value;
+  const offset = zoneName === 'GMT' ? '+00:00' : (zoneName ?? 'GMT+00:00').replace('GMT', '');
+  return `${day}T${time}:00${offset}`;
+}
+
 interface EventOptions {
   /** Already run through firstPlain(). */
   name: string;
@@ -134,6 +152,12 @@ interface EventOptions {
   url: string;
   startDate: Date;
   endDate?: Date;
+  /** Local wall-clock "HH:MM" at the venue, from the entry's `startTime`. */
+  startTime?: string;
+  /** Local wall-clock "HH:MM" at the venue, from the entry's `endTime`. */
+  endTime?: string;
+  /** IANA zone the times above are in. */
+  timeZone?: string;
   /** Venue display name, from the entry's `location`. */
   venueName: string;
   /** Structured venue address, from the entry's `venueAddress`. */
@@ -147,6 +171,8 @@ interface EventOptions {
   isFree?: boolean;
   /** Registration URL, used as the Offer url when the event is free. */
   registrationUrl?: string;
+  /** Absolute URL of the entry's `heroImage`, when it has one. */
+  image?: string;
 }
 
 /**
@@ -154,9 +180,11 @@ interface EventOptions {
  * missing `location.address` as an error for Event rich results, so a Place with just a name
  * would publish an incomplete claim and earn nothing.
  *
- * Dates are emitted date-only. Frontmatter carries bare YYYY-MM-DD, and no start time is
- * published for these events; a fabricated 00:00 would tell search engines the event begins
- * at midnight.
+ * Dates are emitted date-only unless the entry publishes a `startTime` (and optionally an
+ * `endTime`); a fabricated 00:00 would tell search engines the event begins at midnight.
+ * With times, each becomes a full ISO 8601 timestamp carrying the venue's UTC offset for that
+ * date, so daylight saving time is handled without hand-written offsets. An `endTime` with no
+ * `endDate` ends on the start date.
  *
  * Two properties are conventional inferences rather than repo facts, and are marked as such:
  *   eventAttendanceMode — offline, since the venue is a physical address.
@@ -171,8 +199,8 @@ interface EventOptions {
  * markup never claims something a reader can't see.
  *
  * Not emitted, for want of a source:
- *   image       — the events collection has no image field, unlike news. Falling back to the
- *                 site-wide OG card would attach a generic photo to a specific event.
+ *   image       — only when the entry has its own `heroImage`. Falling back to the site-wide
+ *                 OG card would attach a generic photo to a specific event.
  *   performer   — no data.
  *   validFrom   — no published registration-opening date.
  */
@@ -182,19 +210,25 @@ export function event({
   url,
   startDate,
   endDate,
+  startTime,
+  endTime,
+  timeZone = 'America/Indiana/Indianapolis',
   venueName,
   venueAddress,
   isFree,
   registrationUrl,
+  image,
 }: EventOptions) {
+  const end = endDate ?? (endTime ? startDate : undefined);
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name,
     description,
     url,
-    startDate: startDate.toISOString().slice(0, 10),
-    ...(endDate ? { endDate: endDate.toISOString().slice(0, 10) } : {}),
+    ...(image ? { image } : {}),
+    startDate: eventTimestamp(startDate, startTime, timeZone),
+    ...(end ? { endDate: eventTimestamp(end, startTime ? endTime : undefined, timeZone) } : {}),
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     eventStatus: 'https://schema.org/EventScheduled',
     location: {
