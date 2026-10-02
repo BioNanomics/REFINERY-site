@@ -1,6 +1,6 @@
 ---
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
-import SectionHeading from '../../components/marketing/SectionHeading.astro';
+import PageHeader from '../../components/marketing/PageHeader.astro';
 import TeamCard from '../../components/cards/TeamCard.astro';
 import First from '../../components/brand/First.astro';
 import { getCollection } from 'astro:content';
@@ -30,17 +30,16 @@ const searchText = (team: (typeof allTeams)[number]) =>
     { label: 'Meet the Teams' },
   ]}
 >
+  <PageHeader eyebrow="About" title="Meet the Teams" />
+
   <section class="section-tight section">
     <div class="section-inner">
-      <SectionHeading as="h1" eyebrow="About" title="Meet the Teams" align="center" />
       {
         allTeams.length === 0 && (
           <p class="mt-10 text-center text-sm text-slate-500">Team directory coming soon.</p>
         )
       }
-      {/* mx-auto + text-center so this sits under the centered heading rather than flush left,
-          matching the intro-paragraph pattern on /donate/. */}
-      <p class="mx-auto mt-4 max-w-2xl text-center text-slate-600" data-reveal>
+      <p class="max-w-2xl text-slate-600" data-reveal>
         Looking for a team for your student, or want to start one where there isn't one yet?{' '}
         <a href={withBase('get-involved/')} class="text-brand-accent underline hover:no-underline">Get involved</a>.
       </p>
@@ -66,7 +65,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
     frcTeams.length > 0 && (
       <section class="section">
         <div class="section-inner">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal><First context="heading" /> Robotics Competition</h2>
+          <h2 class="font-heading text-2xl font-bold text-slate-900" data-reveal><First context="heading" /> Robotics Competition</h2>
           <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {frcTeams.map((team) => (
               <div data-team-item data-haystack={searchText(team)}>
@@ -86,7 +85,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
     ftcTeams.length > 0 && (
       <section class="section-rule section-loose section">
         <div class="section-inner">
-          <h2 class="font-heading text-xl font-bold text-slate-900" data-reveal><First context="heading" /> Tech Challenge</h2>
+          <h2 class="font-heading text-2xl font-bold text-slate-900" data-reveal><First context="heading" /> Tech Challenge</h2>
           <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {ftcTeams.map((team) => (
               <div data-team-item data-haystack={searchText(team)}>

@@ -1,6 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
-import Hero from '../components/marketing/Hero.astro';
+import PageHeader from '../components/marketing/PageHeader.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import Icon from '../components/marketing/Icon.astro';
 import FirstText from '../components/brand/FirstText.astro';
@@ -134,20 +134,19 @@ const beyondNortheastIndiana = [
 >
   {nextFeaturedEvent && <EventBanner event={nextFeaturedEvent} />}
 
-  <Hero
+  <PageHeader
     eyebrow="The REFINERY"
     title="Shared infrastructure for stronger robotics teams"
     description="The REFINERY helps youth FIRST robotics teams in Fort Wayne and across Northeast Indiana start, grow, and succeed by providing funding, parts, tools, facilities, training, and a regional community."
-    ctaLabel="Explore What We Do"
-    ctaHref={withBase('what-we-do/')}
     image={heroImage}
     imageAlt="Three FIRST Robotics Competition robots sitting outside the edge of The REFINERY's practice field, with the field in the background and yellow fuel balls scattered across it"
   >
     <Fragment slot="actions">
+      <CTAButton href={withBase('what-we-do/')}>Explore What We Do</CTAButton>
       <CTAButton href={withBase('get-involved/')} variant="secondary">Get Involved</CTAButton>
       <CTAButton href={withBase('donate/')} variant="secondary">Donate</CTAButton>
     </Fragment>
-  </Hero>
+  </PageHeader>
 
   <!-- Video -->
   <section class="section-tight section pt-0">

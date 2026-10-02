@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import PageHeader from '../components/marketing/PageHeader.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
@@ -11,11 +12,7 @@ import { withBase } from '../utils/base';
   title="Funding, Parts, Tools & Training for Teams"
   description="How The REFINERY supports robotics teams: team launch, funding, parts, tools, facilities, training, community, and what we give back to FIRST."
 >
-  <section class="section-tight section">
-    <div class="section-inner">
-      <SectionHeading as="h1" eyebrow="What We Do" title="The full picture of how we support teams" align="center" />
-    </div>
-  </section>
+  <PageHeader eyebrow="What We Do" title="The full picture of how we support teams" />
 
   <section id="team-launch" class="section scroll-mt-6">
     <div class="section-inner section-inner-narrow">
@@ -55,7 +52,7 @@ import { withBase } from '../utils/base';
       <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
       <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Funding & Financial Infrastructure</h2>
       <p class="mt-4 text-slate-600" data-reveal>The REFINERY provides funding directly to teams, gives teams a platform to raise funds, maintains optional team subaccounts, allows teams to pursue external grants through The REFINERY, administers designated and restricted funds, and supports team purchasing.</p>
-      <h3 class="mt-6 font-heading text-lg font-bold text-slate-900" data-reveal>Three spending pathways</h3>
+      <h3 class="mt-6 font-heading text-2xl font-bold text-slate-900" data-reveal>Three spending pathways</h3>
       <ol class="mt-3 flex flex-col gap-2" data-reveal>
         {
           [
@@ -195,7 +192,7 @@ import { withBase } from '../utils/base';
 
       <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
         <div class="card card-pad">
-          <h3 class="font-heading text-base font-bold text-slate-900">Robot in 3 Days</h3>
+          <h3 class="font-heading text-xl font-bold text-slate-900">Robot in 3 Days</h3>
           <p class="mt-2 text-sm text-slate-600">
             The REFINERY designs and builds a robot immediately following the annual{' '}
             <First /> Robotics Competition game reveal, documenting the design process,
@@ -203,7 +200,7 @@ import { withBase } from '../utils/base';
           </p>
         </div>
         <div class="card card-pad">
-          <h3 class="font-heading text-base font-bold text-slate-900">KitBot in 3 Days</h3>
+          <h3 class="font-heading text-xl font-bold text-slate-900">KitBot in 3 Days</h3>
           <p class="mt-2 text-sm text-slate-600">
             A rapid, documented KitBot build focused on helping developing teams understand how
             to assemble, program, troubleshoot, and begin iterating on the official <First /> Robotics Competition KitBot.
@@ -211,7 +208,7 @@ import { withBase } from '../utils/base';
         </div>
         <div class="card card-pad">
           <div class="flex flex-wrap items-center gap-2">
-            <h3 class="font-heading text-base font-bold text-slate-900">TIMS</h3>
+            <h3 class="font-heading text-xl font-bold text-slate-900">TIMS</h3>
             <span class="status-tag">Currently beta testing</span>
           </div>
           <p class="mt-2 text-sm text-slate-600">
@@ -220,7 +217,7 @@ import { withBase } from '../utils/base';
           </p>
         </div>
         <div class="card card-pad">
-          <h3 class="font-heading text-base font-bold text-slate-900">Event Parts Support</h3>
+          <h3 class="font-heading text-xl font-bold text-slate-900">Event Parts Support</h3>
           <p class="mt-2 text-sm text-slate-600">
             Partnerships with <First /> Indiana Robotics and MentorBridge to provide live parts
             inventory at events, helping teams identify and access components when technical
@@ -230,7 +227,7 @@ import { withBase } from '../utils/base';
         {/* Spans both columns: an odd fifth card would otherwise sit alone on its own
             row, and this is the section's only open invitation rather than a project. */}
         <div class="card card-pad sm:col-span-2">
-          <h3 class="font-heading text-base font-bold text-slate-900">Shop & Practice Field Access</h3>
+          <h3 class="font-heading text-xl font-bold text-slate-900">Shop & Practice Field Access</h3>
           <p class="mt-2 text-sm text-slate-600">
             Our shop and full-size practice field are open to teams outside The REFINERY by
             appointment. Visiting teams can utilize our CNC router and other fabrication
@@ -246,7 +243,7 @@ import { withBase } from '../utils/base';
         </div>
       </div>
 
-      <h3 class="mt-10 font-heading text-lg font-bold text-slate-900" data-reveal>Sharing what we learn</h3>
+      <h3 class="mt-10 font-heading text-2xl font-bold text-slate-900" data-reveal>Sharing what we learn</h3>
       <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
         {
           [

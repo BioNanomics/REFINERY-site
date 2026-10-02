@@ -1,6 +1,6 @@
 ---
 import MarketingLayout from '../../layouts/MarketingLayout.astro';
-import SectionHeading from '../../components/marketing/SectionHeading.astro';
+import PageHeader from '../../components/marketing/PageHeader.astro';
 import NewsGrid from '../../components/grids/NewsGrid.astro';
 import { getCollection } from 'astro:content';
 import { byNewest } from '../../utils/dates';
@@ -13,18 +13,14 @@ const posts = allPosts.sort(byNewest);
   title="Robotics News from Northeast Indiana"
   description="Updates from The REFINERY, our teams, and the broader Northeast Indiana robotics community."
 >
-  {/* section-tight, matching every other listing page. section-loose put this h1 64px lower
-      than its siblings. No text-center on the section: the NewsGrid below is in here too, and
-      SectionHeading's align="center" already centers its own block. */}
+  <PageHeader
+    eyebrow="News"
+    title="Updates from The REFINERY and the region"
+    description="The REFINERY's news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
+  />
+
   <section class="section-tight section">
     <div class="section-inner">
-      <SectionHeading
-        as="h1"
-        eyebrow="News"
-        title="Updates from The REFINERY and the region"
-        description="The REFINERY's news, team stories, event recaps, partnership updates, and coverage from across the FIRST community."
-        align="center"
-      />
       {/* The grid's cards are h3s, so without this the page jumps h1 -> h3. Visually hidden
           rather than shown: the h1 and the filter controls already say what this list is, so a
           visible "All stories" would be redundant to sighted readers while still giving screen

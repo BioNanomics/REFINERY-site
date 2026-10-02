@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import PageHeader from '../components/marketing/PageHeader.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import { withBase } from '../utils/base';
@@ -11,15 +12,11 @@ import { countyListPhrase } from '../data/service-area';
   title="Volunteer, Partner, or Start a Robotics Team"
   description="Start or host a robotics team in Northeast Indiana, volunteer as a mentor, partner, give, or find a team for your student."
 >
-  <section class="section-tight section text-center">
-    <div class="section-inner section-inner-narrow">
-      {/* Names three of the five sections below, and deliberately carries "partner" — the
-          Partner section is aimed at organizations and businesses, and is one of this page's
-          load-bearing pillars, not a footnote. The previous title ("Help build the
-          infrastructure teams can't build alone") near-duplicated the homepage's closing CTA. */}
-      <SectionHeading as="h1" eyebrow="Get Involved" title="Volunteer, partner, or start a robotics team" align="center" />
-    </div>
-  </section>
+  {/* Names three of the five sections below, and deliberately carries "partner" — the
+      Partner section is aimed at organizations and businesses, and is one of this page's
+      load-bearing pillars, not a footnote. The previous title ("Help build the
+      infrastructure teams can't build alone") near-duplicated the homepage's closing CTA. */}
+  <PageHeader eyebrow="Get Involved" title="Volunteer, partner, or start a robotics team" />
 
   <section id="start-or-host-a-team" class="section scroll-mt-6">
     <div class="section-inner section-inner-narrow">

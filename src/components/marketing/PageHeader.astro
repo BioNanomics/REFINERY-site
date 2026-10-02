@@ -1,0 +1,93 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import FirstText from '../brand/FirstText.astro';
+import { firstPlain } from '../../utils/first';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  /** One or two sentences. Sits beside the title at lg without a photo, under it with one. */
+  description?: string;
+  /** Adds a photo that runs off the right edge of the viewport and fills the header's height. */
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /**
+   * Heading level. Every top-level page opens with an h1, so that's the default; pass "h2"
+   * only where something else on the page already owns the h1.
+   */
+  as?: 'h1' | 'h2';
+}
+
+const { eyebrow, title, description, image, imageAlt = '', as: Tag = 'h1' } = Astro.props;
+const hasImage = Boolean(image);
+
+// FirstText claims the first-use ® per token+context in render order (see src/utils/first.ts),
+// same caveat SectionHeading documents: a FIRST in a new header's copy moves the ® to it.
+---
+
+{
+  hasImage ? (
+    <section class="relative overflow-hidden pt-6 pb-10 lg:py-12">
+      {/* Text column aligns to the shared 72rem container; the photo runs off the right edge
+          of the viewport and fills the header's full height, with the card radius on its
+          inner corners only. Stacks photo-first below lg. */}
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <div
+          class="flex flex-col items-start justify-center gap-6 px-6 py-10 sm:py-12 lg:py-14 lg:pr-12 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]"
+          data-reveal-group
+        >
+          {eyebrow && <p class="eyebrow-tag text-brand-accent" data-reveal><FirstText text={eyebrow} context="heading" /></p>}
+          <Tag
+            class="font-heading text-6xl font-extrabold leading-[0.9] tracking-tight text-slate-900 text-balance sm:text-7xl lg:text-[clamp(4rem,5.6vw,6rem)]"
+            data-reveal
+          >
+            <FirstText text={title} context="heading" />
+          </Tag>
+          {description && <p class="max-w-md text-lg text-slate-600" data-reveal><FirstText text={description} /></p>}
+          <div class="flex flex-wrap items-center gap-3 empty:hidden" data-reveal>
+            <slot name="actions" />
+          </div>
+        </div>
+
+        <div class="order-first lg:order-none" data-reveal>
+          <Image
+            src={image!}
+            alt={firstPlain(imageAlt)}
+            class="aspect-[4/3] h-full w-full object-cover lg:aspect-auto lg:rounded-l-card"
+            widths={[640, 960, 1400]}
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    </section>
+  ) : (
+    <section class="section-tight section pb-0">
+      {/* No bottom padding: the next section brings its own top padding, so the gap under a
+          header is one section's worth, not two. */}
+      <div
+        class:list={[
+          'section-inner grid gap-6',
+          description && 'lg:grid-cols-[1.3fr_1fr] lg:items-end lg:gap-16',
+        ]}
+      >
+        <div data-reveal-group>
+          {eyebrow && <p class="eyebrow-tag text-brand-accent" data-reveal><FirstText text={eyebrow} context="heading" /></p>}
+          <Tag
+            class="mt-3 font-heading text-5xl font-extrabold leading-[0.92] tracking-tight text-slate-900 text-balance sm:text-6xl lg:text-[clamp(3.5rem,5vw,5rem)]"
+            data-reveal
+          >
+            <FirstText text={title} context="heading" />
+          </Tag>
+        </div>
+        {description && (
+          <p class="max-w-xl text-lg text-slate-600" data-reveal>
+            <FirstText text={description} />
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}

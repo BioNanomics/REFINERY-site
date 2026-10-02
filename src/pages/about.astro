@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
+import PageHeader from '../components/marketing/PageHeader.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import RandomTeamsTeaser from '../components/marketing/RandomTeamsTeaser.astro';
@@ -92,11 +93,7 @@ const aboutSchema = [
   description="How The REFINERY started, the teams and partners we work with, the people behind it, and the Fort Wayne facility and shop that teams across the region share."
   jsonLd={aboutSchema}
 >
-  <section class="section-tight section text-center">
-    <div class="section-inner">
-      <SectionHeading as="h1" eyebrow="About" title="Who we are and how we work" align="center" />
-    </div>
-  </section>
+  <PageHeader eyebrow="About" title="Who we are and how we work" />
 
   <section id="our-story" class="section scroll-mt-6">
     <div class="section-inner section-split">
@@ -172,7 +169,7 @@ const aboutSchema = [
               these towns a published claim areaServed can repeat. Not hidden text: anyone can
               open it, and it answers a question visitors actually have. */}
           <details class="card group mt-6 overflow-hidden">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-heading text-base font-bold text-slate-900">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-heading text-xl font-bold text-slate-900">
               Is my area/organization covered?
               <svg
                 viewBox="0 0 24 24"
@@ -276,7 +273,7 @@ const aboutSchema = [
         Request a visit &rarr;
       </a>
 
-      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>In the shop</h3>
+      <h3 class="mt-8 font-heading text-2xl font-bold text-slate-900" data-reveal>In the shop</h3>
       <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
         {
           [
@@ -292,7 +289,7 @@ const aboutSchema = [
         }
       </ul>
 
-      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>Parking</h3>
+      <h3 class="mt-8 font-heading text-2xl font-bold text-slate-900" data-reveal>Parking</h3>
       <p class="mt-2 text-slate-600" data-reveal>
         Parking is free on either side of Broadway, and there's a loading zone the size of two
         spaces directly outside our door. If you need somewhere else to put a trailer or a team's
