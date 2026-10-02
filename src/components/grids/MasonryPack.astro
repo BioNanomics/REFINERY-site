@@ -1,0 +1,18 @@
+---
+/**
+ * Packs the grid directly before it into masonry columns, before the page's first paint.
+ * Place it immediately after the grid element:
+ *
+ *   <div class="grid ..." data-masonry>…</div>
+ *   <MasonryPack />
+ *
+ * The logic lives in src/utils/masonry.js, inlined here as text (Vite's ?raw import) because
+ * it has to run as an inline classic script during parsing, not as a module after it — see
+ * that file for why. Wrapped in a function so two grids on one page can't collide.
+ */
+import masonrySource from '../../utils/masonry.js?raw';
+
+const script = `(function () {\n${masonrySource}\nrefineryMasonry(document.currentScript.previousElementSibling);\n})();`;
+---
+
+<script is:inline set:html={script} />

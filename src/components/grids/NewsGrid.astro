@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import NewsCard from '../cards/NewsCard.astro';
+import MasonryPack from './MasonryPack.astro';
 import { NEWS_CATEGORIES } from '../../utils/news-categories';
 import FirstText from '../brand/FirstText.astro';
 
@@ -117,6 +118,8 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
           </div>
         ))}
       </div>
+      {/* Must directly follow the grid: packs it before first paint. */}
+      <MasonryPack />
     </div>
   ) : (
     <p class="text-sm text-slate-500">No news published yet. Check back soon.</p>
@@ -124,13 +127,8 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
 }
 
 <script>
-  import { masonry } from '../../utils/masonry';
-
   const grid = document.querySelector('.news-grid');
   if (grid) {
-    const cards = grid.querySelector<HTMLElement>('[data-masonry]');
-    if (cards) masonry(cards);
-
     const categoryButtons = grid.querySelectorAll<HTMLButtonElement>('.news-filter-btn');
     const teamButtons = grid.querySelectorAll<HTMLButtonElement>('.news-team-filter-btn');
     const categoryRow = grid.querySelector<HTMLElement>('.news-category-filters');
