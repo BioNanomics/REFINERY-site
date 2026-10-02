@@ -1,10 +1,10 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import PageHeader from '../components/marketing/PageHeader.astro';
-import SectionHeading from '../components/marketing/SectionHeading.astro';
+import SplitSection from '../components/marketing/SplitSection.astro';
+import RuleList from '../components/marketing/RuleList.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import First from '../components/brand/First.astro';
-import FirstText from '../components/brand/FirstText.astro';
 import { withBase } from '../utils/base';
 ---
 
@@ -14,250 +14,186 @@ import { withBase } from '../utils/base';
 >
   <PageHeader eyebrow="What We Do" title="The full picture of how we support teams" />
 
-  <section id="team-launch" class="section scroll-mt-6">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Team Launch & Organizational Support</h2>
-      <p class="mt-4 text-slate-600" data-reveal>The REFINERY helps organizations:</p>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Launch new teams',
-            'Select appropriate FIRST programs',
-            'Establish leadership and mentor structures',
-            'Develop team procedures',
-            'Plan budgets and purchasing',
-            'Onboard students and mentors',
-            'Prepare for competition seasons',
-            'Build institutional continuity',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-      <p class="mt-4 text-slate-600" data-reveal>
-        Teams that started this way are now competing across the region. See{' '}
-        <a href={withBase('about/teams/')} class="text-brand-accent underline hover:no-underline">the teams we support</a>.
-      </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" variant="secondary" dialog="contact" topic="Starting a team">
-          Talk With Us About Starting a Team
-        </CTAButton>
-      </div>
+  <SplitSection id="team-launch" title="Team Launch & Organizational Support" rule={false}>
+    <p data-reveal>The REFINERY helps organizations:</p>
+    <RuleList
+      items={[
+        'Launch new teams',
+        'Select appropriate FIRST programs',
+        'Establish leadership and mentor structures',
+        'Develop team procedures',
+        'Plan budgets and purchasing',
+        'Onboard students and mentors',
+        'Prepare for competition seasons',
+        'Build institutional continuity',
+      ]}
+    />
+    <p data-reveal>
+      Teams that started this way are now competing across the region. See{' '}
+      <a href={withBase('about/teams/')} class="text-brand-accent underline hover:no-underline">the teams we support</a>.
+    </p>
+    <div data-reveal>
+      <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" variant="secondary" dialog="contact" topic="Starting a team">
+        Talk With Us About Starting a Team
+      </CTAButton>
     </div>
-  </section>
+  </SplitSection>
 
-  <section id="funding" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Funding & Financial Infrastructure</h2>
-      <p class="mt-4 text-slate-600" data-reveal>The REFINERY provides funding directly to teams, gives teams a platform to raise funds, maintains optional team subaccounts, allows teams to pursue external grants through The REFINERY, administers designated and restricted funds, and supports team purchasing.</p>
-      <h3 class="mt-6 font-heading text-2xl font-bold text-slate-900" data-reveal>Three spending pathways</h3>
-      <ol class="mt-3 flex flex-col gap-2" data-reveal>
-        {
-          [
-            "Transfer funds to the team's school or primary financial organization.",
-            "Purchase items from The REFINERY's inventory.",
-            'Have The REFINERY purchase outside products selected by the team.',
-          ].map((item, i) => (
-            <li class="flex gap-3 text-sm text-slate-600">
-              <span class="font-mono font-bold text-brand-accent">{i + 1}.</span>
-              {item}
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <SplitSection id="funding" title="Funding & Financial Infrastructure">
+    <p data-reveal>The REFINERY provides funding directly to teams, gives teams a platform to raise funds, maintains optional team subaccounts, allows teams to pursue external grants through The REFINERY, administers designated and restricted funds, and supports team purchasing.</p>
+    <h3 class="mt-4 font-heading text-2xl font-bold text-slate-900" data-reveal>Three spending pathways</h3>
+    <RuleList
+      columns={1}
+      items={[
+        "Transfer funds to the team's school or primary financial organization.",
+        "Purchase items from The REFINERY's inventory.",
+        'Have The REFINERY purchase outside products selected by the team.',
+      ]}
+    />
+  </SplitSection>
 
-  <section id="parts-inventory" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Parts & Inventory</h2>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Shared robot-parts inventory',
-            'Electrical components',
-            'Hardware and fasteners',
-            'Materials and consumables',
-            'Build-season emergency availability',
-            'Centralized purchasing efficiencies',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <SplitSection id="parts-inventory" title="Parts & Inventory">
+    <RuleList
+      items={[
+        'Shared robot-parts inventory',
+        'Electrical components',
+        'Hardware and fasteners',
+        'Materials and consumables',
+        'Build-season emergency availability',
+        'Centralized purchasing efficiencies',
+      ]}
+    />
+  </SplitSection>
 
-  <section id="tools-fabrication" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Tools & Fabrication</h2>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'CNC routing',
-            '3D printing',
-            'Mechanical fabrication',
-            'Electrical work',
-            'Printing and apparel production',
-            'Specialized tool access',
-            'Custom robot-part production',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <SplitSection id="tools-fabrication" title="Tools & Fabrication">
+    <RuleList
+      items={[
+        'CNC routing',
+        '3D printing',
+        'Mechanical fabrication',
+        'Electrical work',
+        'Printing and apparel production',
+        'Specialized tool access',
+        'Custom robot-part production',
+      ]}
+    />
+  </SplitSection>
 
-  <section id="facilities" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Facilities & Field Access</h2>
-      <p class="mt-4 text-slate-600" data-reveal>Our physical space supports:</p>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Robot construction',
-            'Team meetings',
-            'Collaboration',
-            'Technical training',
-            'Practice',
-            'Field access',
-            'Scrimmages',
-            'Parts distribution',
-            'Community events',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <SplitSection id="facilities" title="Facilities & Field Access">
+    <p data-reveal>Our physical space supports:</p>
+    <RuleList
+      items={[
+        'Robot construction',
+        'Team meetings',
+        'Collaboration',
+        'Technical training',
+        'Practice',
+        'Field access',
+        'Scrimmages',
+        'Parts distribution',
+        'Community events',
+      ]}
+    />
+  </SplitSection>
 
-  <section id="training" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Training & Technical Support</h2>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Programming, CAD, mechanical, and electrical systems',
-            'CNC design and 3D printing',
-            'Robot tuning and competition preparation',
-            'Mentor development and technical troubleshooting',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <SplitSection id="training" title="Training & Technical Support">
+    <RuleList
+      columns={1}
+      items={[
+        'Programming, CAD, mechanical, and electrical systems',
+        'CNC design and 3D printing',
+        'Robot tuning and competition preparation',
+        'Mentor development and technical troubleshooting',
+      ]}
+    />
+  </SplitSection>
 
-  <section id="community" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Community & Student Experience</h2>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Mentor Meetups',
-            'Cross-team collaboration',
-            'From Pits to Prom',
-            'Student social activities',
-            'Team culture and engagement efforts',
-            'Shared build projects',
-            'Outreach and demonstrations',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+  <SplitSection id="community" title="Community & Student Experience">
+    <RuleList
+      items={[
+        'Mentor Meetups',
+        'Cross-team collaboration',
+        'From Pits to Prom',
+        'Student social activities',
+        'Team culture and engagement efforts',
+        'Shared build projects',
+        'Outreach and demonstrations',
+      ]}
+    />
+  </SplitSection>
 
-  <section id="beyond-northeast-indiana" class="section-rule scroll-mt-6 section-loose section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Beyond Northeast Indiana: Contributions to the <First context="heading" /> Community</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        While The REFINERY is rooted in Northeast Indiana, many of the systems, projects, and
-        resources we develop are intended to support the broader <First /> community. We share what
-        we build, document what we learn, and partner with other organizations to solve
-        challenges teams face everywhere.
-      </p>
+  <SplitSection id="beyond-northeast-indiana" loose>
+    <Fragment slot="title">Beyond Northeast Indiana: Contributions to the <First context="heading" /> Community</Fragment>
+    <p data-reveal>
+      While The REFINERY is rooted in Northeast Indiana, many of the systems, projects, and
+      resources we develop are intended to support the broader <First /> community. We share what
+      we build, document what we learn, and partner with other organizations to solve
+      challenges teams face everywhere.
+    </p>
 
-      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
-        <div class="card card-pad">
-          <h3 class="font-heading text-xl font-bold text-slate-900">Robot in 3 Days</h3>
-          <p class="mt-2 text-sm text-slate-600">
-            The REFINERY designs and builds a robot immediately following the annual{' '}
-            <First /> Robotics Competition game reveal, documenting the design process,
-            prototypes, decisions, failures, and final robot for teams to learn from.
-          </p>
+    {/* Projects as a ledger rather than five boxes: each is a name, a status when it has one, and
+        a short account, and the hairlines separate them. */}
+    <ul class="mt-2" data-reveal-group>
+      <li class="border-t border-slate-300 py-5" data-reveal>
+        <h3 class="font-heading text-2xl font-bold text-slate-900">Robot in 3 Days</h3>
+        <p class="mt-1 text-base text-slate-600">
+          The REFINERY designs and builds a robot immediately following the annual{' '}
+          <First /> Robotics Competition game reveal, documenting the design process,
+          prototypes, decisions, failures, and final robot for teams to learn from.
+        </p>
+      </li>
+      <li class="border-t border-slate-300 py-5" data-reveal>
+        <h3 class="font-heading text-2xl font-bold text-slate-900">KitBot in 3 Days</h3>
+        <p class="mt-1 text-base text-slate-600">
+          A rapid, documented KitBot build focused on helping developing teams understand how
+          to assemble, program, troubleshoot, and begin iterating on the official <First /> Robotics Competition KitBot.
+        </p>
+      </li>
+      <li class="border-t border-slate-300 py-5" data-reveal>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h3 class="font-heading text-2xl font-bold text-slate-900">TIMS</h3>
+          <span class="status-tag">Currently beta testing</span>
         </div>
-        <div class="card card-pad">
-          <h3 class="font-heading text-xl font-bold text-slate-900">KitBot in 3 Days</h3>
-          <p class="mt-2 text-sm text-slate-600">
-            A rapid, documented KitBot build focused on helping developing teams understand how
-            to assemble, program, troubleshoot, and begin iterating on the official <First /> Robotics Competition KitBot.
-          </p>
-        </div>
-        <div class="card card-pad">
-          <div class="flex flex-wrap items-center gap-2">
-            <h3 class="font-heading text-xl font-bold text-slate-900">TIMS</h3>
-            <span class="status-tag">Currently beta testing</span>
-          </div>
-          <p class="mt-2 text-sm text-slate-600">
-            Inventory and tool-management software developed for The REFINERY, and built to be
-            available to any <First /> team that wants to use it.
-          </p>
-        </div>
-        <div class="card card-pad">
-          <h3 class="font-heading text-xl font-bold text-slate-900">Event Parts Support</h3>
-          <p class="mt-2 text-sm text-slate-600">
-            Partnerships with <First /> Indiana Robotics and MentorBridge to provide live parts
-            inventory at events, helping teams identify and access components when technical
-            issues occur.
-          </p>
-        </div>
-        {/* Spans both columns: an odd fifth card would otherwise sit alone on its own
-            row, and this is the section's only open invitation rather than a project. */}
-        <div class="card card-pad sm:col-span-2">
-          <h3 class="font-heading text-xl font-bold text-slate-900">Shop & Practice Field Access</h3>
-          <p class="mt-2 text-sm text-slate-600">
-            Our shop and full-size practice field are open to teams outside The REFINERY by
-            appointment. Visiting teams can utilize our CNC router and other fabrication
-            equipment and drive, tune, and practice on our field before competition.
-          </p>
-          <a
-            href="mailto:info@refineryrobotics.org?subject=Visiting%20The%20REFINERY"
-            data-contact-open="contact"
-            class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
-          >
-            Ask about visiting &rarr;
-          </a>
-        </div>
-      </div>
+        <p class="mt-1 text-base text-slate-600">
+          Inventory and tool-management software developed for The REFINERY, and built to be
+          available to any <First /> team that wants to use it.
+        </p>
+      </li>
+      <li class="border-t border-slate-300 py-5" data-reveal>
+        <h3 class="font-heading text-2xl font-bold text-slate-900">Event Parts Support</h3>
+        <p class="mt-1 text-base text-slate-600">
+          Partnerships with <First /> Indiana Robotics and MentorBridge to provide live parts
+          inventory at events, helping teams identify and access components when technical
+          issues occur.
+        </p>
+      </li>
+      <li class="border-y border-slate-300 py-5" data-reveal>
+        <h3 class="font-heading text-2xl font-bold text-slate-900">Shop & Practice Field Access</h3>
+        <p class="mt-1 text-base text-slate-600">
+          Our shop and full-size practice field are open to teams outside The REFINERY by
+          appointment. Visiting teams can utilize our CNC router and other fabrication
+          equipment and drive, tune, and practice on our field before competition.
+        </p>
+        <a
+          href="mailto:info@refineryrobotics.org?subject=Visiting%20The%20REFINERY"
+          data-contact-open="contact"
+          class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+        >
+          Ask about visiting &rarr;
+        </a>
+      </li>
+    </ul>
 
-      <h3 class="mt-10 font-heading text-2xl font-bold text-slate-900" data-reveal>Sharing what we learn</h3>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Open Alliance participation',
-            'Public documentation',
-            'Templates and team-development systems',
-            'Software and digital tools',
-            'Workshop materials',
-            'Other open or reusable projects',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600"><FirstText text={item} /></li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+    <h3 class="mt-6 font-heading text-2xl font-bold text-slate-900" data-reveal>Sharing what we learn</h3>
+    <RuleList
+      items={[
+        'Open Alliance participation',
+        'Public documentation',
+        'Templates and team-development systems',
+        'Software and digital tools',
+        'Workshop materials',
+        'Other open or reusable projects',
+      ]}
+    />
+  </SplitSection>
 </MarketingLayout>

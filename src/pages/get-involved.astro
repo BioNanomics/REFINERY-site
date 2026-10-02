@@ -1,7 +1,8 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import PageHeader from '../components/marketing/PageHeader.astro';
-import SectionHeading from '../components/marketing/SectionHeading.astro';
+import SplitSection from '../components/marketing/SplitSection.astro';
+import RuleList from '../components/marketing/RuleList.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import { withBase } from '../utils/base';
 import { countyListPhrase } from '../data/service-area';
@@ -18,121 +19,117 @@ import { countyListPhrase } from '../data/service-area';
       infrastructure teams can't build alone") near-duplicated the homepage's closing CTA. */}
   <PageHeader eyebrow="Get Involved" title="Volunteer, partner, or start a robotics team" />
 
-  <section id="start-or-host-a-team" class="section scroll-mt-6">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Start or Host a Team</h2>
-      <p class="mt-3 text-sm text-slate-500" data-reveal>For schools, nonprofits, libraries, youth organizations, parents, and community groups.</p>
-      <p class="mt-4 text-slate-600" data-reveal>
-        We'll walk you through what starting a team requires, what your organization provides, and
-        how The REFINERY supports the process from kickoff onward.
-      </p>
-      {/* Names every county so a school in one without a team yet sees itself here — that's
-          the audience this section most needs to reach. Same list as /about/'s map. */}
-      <p class="mt-4 text-slate-600" data-reveal>
-        We support new teams anywhere in {countyListPhrase} counties, including communities that
-        don't have a team yet.{' '}
-        <a href={withBase('about/#service-area')} class="text-brand-accent underline hover:no-underline">See where we serve</a>.
-      </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" dialog="contact" topic="Starting a team">
-          Talk With Us About Starting a Team
-        </CTAButton>
-      </div>
+  <SplitSection id="start-or-host-a-team" title="Start or Host a Team" rule={false}>
+    <p class="text-base text-slate-500" data-reveal>For schools, nonprofits, libraries, youth organizations, parents, and community groups.</p>
+    <p data-reveal>
+      We'll walk you through what starting a team requires, what your organization provides, and
+      how The REFINERY supports the process from kickoff onward.
+    </p>
+    {/* Names every county so a school in one without a team yet sees itself here — that's
+        the audience this section most needs to reach. Same list as /about/'s map. */}
+    <p data-reveal>
+      We support new teams anywhere in {countyListPhrase} counties, including communities that
+      don't have a team yet.{' '}
+      <a href={withBase('about/#service-area')} class="text-brand-accent underline hover:no-underline">See where we serve</a>.
+    </p>
+    <div data-reveal>
+      <CTAButton href="mailto:info@refineryrobotics.org?subject=Starting%20a%20Team" dialog="contact" topic="Starting a team">
+        Talk With Us About Starting a Team
+      </CTAButton>
     </div>
-  </section>
+  </SplitSection>
 
-  <section id="volunteer" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Volunteer</h2>
-      <p class="mt-4 text-slate-600" data-reveal>Whether you have an hour or a season, there's a place for you. One-time and long-term involvement are both welcome.</p>
-      <p class="mt-4 text-slate-600" data-reveal>
-        Technical advising, workshop instruction, open-shop support, events, inventory and
-        facility projects, software development, administrative support, transportation, student
-        engagement, and ongoing team mentoring.
-      </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton
-          href="mailto:info@refineryrobotics.org?subject=Volunteering%20with%20The%20REFINERY"
-          variant="secondary"
-          dialog="contact"
-          topic="Volunteering"
-        >
-          Volunteer With Us
-        </CTAButton>
-      </div>
+  <SplitSection id="volunteer" title="Volunteer">
+    <p data-reveal>Whether you have an hour or a season, there's a place for you. One-time and long-term involvement are both welcome.</p>
+    <RuleList
+      items={[
+        'Technical advising',
+        'Workshop instruction',
+        'Open-shop support',
+        'Events',
+        'Inventory and facility projects',
+        'Software development',
+        'Administrative support',
+        'Transportation',
+        'Student engagement',
+        'Ongoing team mentoring',
+      ]}
+    />
+    <div data-reveal>
+      <CTAButton
+        href="mailto:info@refineryrobotics.org?subject=Volunteering%20with%20The%20REFINERY"
+        variant="secondary"
+        dialog="contact"
+        topic="Volunteering"
+      >
+        Volunteer With Us
+      </CTAButton>
     </div>
-  </section>
+  </SplitSection>
 
-  <section id="partner" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Partner</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        Organizations and businesses partner with us in a lot of different ways: co-delivering
-        programs, providing technical expertise, supplying employee volunteers, donating
-        equipment or materials, supporting event infrastructure, developing shared software or
-        systems, hosting student career experiences, supporting team launches, and funding
-        regional infrastructure.
-      </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton
-          href="mailto:info@refineryrobotics.org?subject=Partnering%20with%20The%20REFINERY"
-          variant="secondary"
-          dialog="contact"
-          topic="Partnership"
-        >
-          Talk With Us About Partnering
-        </CTAButton>
-      </div>
+  <SplitSection id="partner" title="Partner">
+    <p data-reveal>Organizations and businesses partner with us in a lot of different ways:</p>
+    <RuleList
+      items={[
+        'Co-delivering programs',
+        'Providing technical expertise',
+        'Supplying employee volunteers',
+        'Donating equipment or materials',
+        'Supporting event infrastructure',
+        'Developing shared software or systems',
+        'Hosting student career experiences',
+        'Supporting team launches',
+        'Funding regional infrastructure',
+      ]}
+    />
+    <div data-reveal>
+      <CTAButton
+        href="mailto:info@refineryrobotics.org?subject=Partnering%20with%20The%20REFINERY"
+        variant="secondary"
+        dialog="contact"
+        topic="Partnership"
+      >
+        Talk With Us About Partnering
+      </CTAButton>
     </div>
-  </section>
+  </SplitSection>
 
-  <section id="donate-or-sponsor" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Donate or Sponsor</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        Giving starts new teams, supports team funding, expands shared inventory, purchases
-        tools and equipment, funds workshops, supports student experiences, sustains facility
-        operations, and develops shared software infrastructure.
-        Team-designated giving is available where appropriate.
-      </p>
-      <p class="mt-4 text-slate-600" data-reveal>
-        We also accept in-kind donations of raw materials, tools, and equipment, especially
-        aluminum and polycarbonate.
-      </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton href={withBase('donate/')}>See Ways to Give</CTAButton>
-      </div>
+  <SplitSection id="donate-or-sponsor" title="Donate or Sponsor">
+    <p data-reveal>
+      Giving starts new teams, supports team funding, expands shared inventory, purchases
+      tools and equipment, funds workshops, supports student experiences, sustains facility
+      operations, and develops shared software infrastructure.
+      Team-designated giving is available where appropriate.
+    </p>
+    <p data-reveal>
+      We also accept in-kind donations of raw materials, tools, and equipment, especially
+      aluminum and polycarbonate.
+    </p>
+    <div data-reveal>
+      <CTAButton href={withBase('donate/')}>See Ways to Give</CTAButton>
     </div>
-  </section>
+  </SplitSection>
 
-  <section id="find-a-team" class="section-rule section-loose scroll-mt-6 section">
-    <div class="section-inner section-inner-narrow">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
-      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Find a Team for Your Student</h2>
-      <p class="mt-4 text-slate-600" data-reveal>
-        Has your student been asking about robotics, or would they thrive somewhere they can build
-        something real? Tell us their grade and where you are, and we'll help connect them with a
-        team near you.
-      </p>
-      <p class="mt-4 text-slate-600" data-reveal>
-        You can also browse{' '}
-        <a href={withBase('about/teams/')} class="text-brand-accent underline hover:no-underline">the teams we support</a>{' '}
-        to see which ones are near you.
-      </p>
-      <div class="mt-6" data-reveal>
-        <CTAButton
-          href="mailto:info@refineryrobotics.org?subject=Joining%20a%20Team"
-          variant="secondary"
-          dialog="contact"
-          topic="Joining a team"
-        >
-          Find a Team
-        </CTAButton>
-      </div>
+  <SplitSection id="find-a-team" title="Find a Team for Your Student" loose>
+    <p data-reveal>
+      Has your student been asking about robotics, or would they thrive somewhere they can build
+      something real? Tell us their grade and where you are, and we'll help connect them with a
+      team near you.
+    </p>
+    <p data-reveal>
+      You can also browse{' '}
+      <a href={withBase('about/teams/')} class="text-brand-accent underline hover:no-underline">the teams we support</a>{' '}
+      to see which ones are near you.
+    </p>
+    <div data-reveal>
+      <CTAButton
+        href="mailto:info@refineryrobotics.org?subject=Joining%20a%20Team"
+        variant="secondary"
+        dialog="contact"
+        topic="Joining a team"
+      >
+        Find a Team
+      </CTAButton>
     </div>
-  </section>
+  </SplitSection>
 </MarketingLayout>
