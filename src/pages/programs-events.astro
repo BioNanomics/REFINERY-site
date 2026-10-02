@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import PageHeader from '../components/marketing/PageHeader.astro';
-import SectionHeading from '../components/marketing/SectionHeading.astro';
+import SplitSection from '../components/marketing/SplitSection.astro';
 import EventCard from '../components/cards/EventCard.astro';
 import ProgramCard from '../components/cards/ProgramCard.astro';
 import { getCollection } from 'astro:content';
@@ -34,54 +34,47 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
 
   {
     featuredEvents.length > 0 && (
-      <section class="section">
-        <div class="section-inner">
-          <SectionHeading eyebrow="Featured" title="Featured Events" align="left" />
-          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {featuredEvents.map((event) => <EventCard event={event} />)}
-          </div>
+      <SplitSection title="Featured Events" rule={false} wide>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
+          {featuredEvents.map((event) => <EventCard event={event} />)}
         </div>
-      </section>
+      </SplitSection>
     )
   }
 
   {/* Featured is conditional, so this is the first content section whenever there are no
       featured events — and the first content section on every page goes without a rule. */}
-  <section class:list={['section', featuredEvents.length > 0 && 'section-rule']}>
-    <div class="section-inner">
-      <SectionHeading eyebrow="Calendar" title="Upcoming Events" align="left" />
-      <div class="card mt-8 overflow-hidden" data-reveal>
-        <iframe
-          src={calendarEmbedUrl}
-          title="The REFINERY events calendar"
-          class="h-[600px] w-full"
-          style="border: 0"
-          loading="lazy"
-        />
-      </div>
+  <SplitSection title="Upcoming Events" rule={featuredEvents.length > 0} wide>
+    <div class="card overflow-hidden" data-reveal>
+      <iframe
+        src={calendarEmbedUrl}
+        title="The REFINERY events calendar"
+        class="h-[600px] w-full"
+        style="border: 0"
+        loading="lazy"
+      />
+    </div>
+    <div>
       <a
         href={calendarSubscribeUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+        class="inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
       >
         Add to your Google Calendar
       </a>
     </div>
-  </section>
+  </SplitSection>
 
-  <section class="section-rule section-loose section">
-    <div class="section-inner">
-      <SectionHeading eyebrow="Ongoing" title="Ongoing Programs" align="left" />
-      {
-        allPrograms.length > 0 ? (
-          <div class="mt-8 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {allPrograms.map((program) => <ProgramCard program={program} />)}
-          </div>
-        ) : (
-          <p class="mt-8 text-sm text-slate-500">No programs posted yet. Check back soon.</p>
-        )
-      }
-    </div>
-  </section>
+  <SplitSection title="Ongoing Programs" loose wide>
+    {
+      allPrograms.length > 0 ? (
+        <div class="grid grid-cols-1 items-start gap-6 sm:grid-cols-2" data-reveal-group>
+          {allPrograms.map((program) => <ProgramCard program={program} />)}
+        </div>
+      ) : (
+        <p class="text-sm text-slate-500">No programs posted yet. Check back soon.</p>
+      )
+    }
+  </SplitSection>
 </MarketingLayout>

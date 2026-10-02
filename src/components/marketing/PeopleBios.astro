@@ -28,16 +28,12 @@ function initials(name: string) {
 
 {
   people.length > 0 ? (
-    <div class="mt-8 flex flex-col gap-12" data-reveal-group>
-      {people.map((person, i) => {
+    <div class="flex flex-col gap-12" data-reveal-group>
+      {people.map((person) => {
         const hasContent = Boolean(person.data.bio || person.data.quote);
-        const reversed = i % 2 === 1;
         return (
           <div
-            class:list={[
-              'flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8',
-              { 'sm:flex-row-reverse': reversed },
-            ]}
+            class="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8"
             data-reveal
           >
             <div
@@ -72,10 +68,10 @@ function initials(name: string) {
             <div
               class:list={[
                 'min-w-0 flex-1',
-                { 'text-right': reversed, 'card card-featured card-pad-lg': person.data.featured && hasContent },
+                { 'card card-featured card-pad-lg': person.data.featured && hasContent },
               ]}
             >
-              <div class:list={['flex items-center gap-3', { 'flex-row-reverse': reversed }]}>
+              <div class="flex items-center gap-3">
                 <div>
                   <h3 class="font-heading text-2xl font-bold text-slate-900">{person.data.name}</h3>
                   <p class="mt-1 font-mono text-xs text-brand-accent">{person.data.role}</p>
@@ -95,10 +91,7 @@ function initials(name: string) {
               </div>
               {person.data.quote && (
                 <blockquote
-                  class:list={[
-                    'mt-4 border-l-2 border-brand-accent pl-4 font-heading text-lg italic text-slate-700',
-                    { 'border-l-0 border-r-2 pl-0 pr-4': reversed },
-                  ]}
+                  class="mt-4 border-l-2 border-brand-accent pl-4 font-heading text-xl italic text-slate-700"
                 >
                   “<FirstText text={person.data.quote} />”
                 </blockquote>
@@ -108,7 +101,7 @@ function initials(name: string) {
                   .split('\n')
                   .filter(Boolean)
                   .map((paragraph) => (
-                    <p class="mt-3 text-sm text-slate-600">
+                    <p class="mt-3 text-base text-slate-600">
                       <FirstText text={paragraph} />
                     </p>
                   ))}

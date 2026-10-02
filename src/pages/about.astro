@@ -1,7 +1,8 @@
 ---
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import PageHeader from '../components/marketing/PageHeader.astro';
-import SectionHeading from '../components/marketing/SectionHeading.astro';
+import SplitSection from '../components/marketing/SplitSection.astro';
+import RuleList from '../components/marketing/RuleList.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import RandomTeamsTeaser from '../components/marketing/RandomTeamsTeaser.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
@@ -95,258 +96,190 @@ const aboutSchema = [
 >
   <PageHeader eyebrow="About" title="Who we are and how we work" />
 
-  <section id="our-story" class="section scroll-mt-6">
-    <div class="section-inner section-split">
-      <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
-        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Our Story</h2>
-      </div>
-      <p class="text-slate-600" data-reveal>
-        Young robotics teams have long faced the same challenge: building
-        a competitive program takes far more than a robot, and few schools or communities can build
-        all of that infrastructure alone. The REFINERY grew out of a shared makerspace built to
-        close that gap, and has since evolved from just a physical facility into a regional
-        infrastructure organization supporting many teams across the region.
-      </p>
-    </div>
-  </section>
+  <SplitSection id="our-story" title="Our Story" rule={false}>
+    <p data-reveal>
+      Young robotics teams have long faced the same challenge: building
+      a competitive program takes far more than a robot, and few schools or communities can build
+      all of that infrastructure alone. The REFINERY grew out of a shared makerspace built to
+      close that gap, and has since evolved from just a physical facility into a regional
+      infrastructure organization supporting many teams across the region.
+    </p>
+  </SplitSection>
 
-  <section id="mission-vision" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-split">
-      <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
-        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Mission</h2>
-      </div>
-      <p class="text-slate-600" data-reveal>
-        The REFINERY exists so that no <First /> robotics team in Northeast Indiana has to build
-        its infrastructure alone. We provide the funding, parts, tools, facilities, training, and
-        community that let teams start, grow, and succeed.
-      </p>
-    </div>
-  </section>
+  <SplitSection id="mission-vision" title="Mission">
+    <p data-reveal>
+      The REFINERY exists so that no <First /> robotics team in Northeast Indiana has to build
+      its infrastructure alone. We provide the funding, parts, tools, facilities, training, and
+      community that let teams start, grow, and succeed.
+    </p>
+  </SplitSection>
 
-  <section id="model" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-split">
-      <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
-        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>How the Model Works</h2>
-      </div>
-      <p
-        class="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base"
-        data-reveal
-      >
-        <span>Funding</span><span class="text-brand-accent">+</span>
-        <span>Parts</span><span class="text-brand-accent">+</span>
-        <span>Tools</span><span class="text-brand-accent">+</span>
-        <span>Facilities</span><span class="text-brand-accent">+</span>
-        <span>Training</span><span class="text-brand-accent">+</span>
-        <span>Systems</span><span class="text-brand-accent">+</span>
-        <span>Community</span><span class="text-brand-accent">=</span>
-        <span class="text-brand-accent">Stronger, More Sustainable Teams</span>
-      </p>
-    </div>
-  </section>
+  <SplitSection id="model" title="How the Model Works">
+    <p
+      class="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base"
+      data-reveal
+    >
+      <span>Funding</span><span class="text-brand-accent">+</span>
+      <span>Parts</span><span class="text-brand-accent">+</span>
+      <span>Tools</span><span class="text-brand-accent">+</span>
+      <span>Facilities</span><span class="text-brand-accent">+</span>
+      <span>Training</span><span class="text-brand-accent">+</span>
+      <span>Systems</span><span class="text-brand-accent">+</span>
+      <span>Community</span><span class="text-brand-accent">=</span>
+      <span class="text-brand-accent">Stronger, More Sustainable Teams</span>
+    </p>
+  </SplitSection>
 
-  <section id="service-area" class="section-rule scroll-mt-6 section">
-    <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
-      <SectionHeading title="Where We Serve" align="left" />
-      <div class="mt-4 grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr] lg:items-start">
-        <div data-reveal>
-          <p class="max-w-2xl text-slate-600">
-            The REFINERY supports <First /> robotics teams across 12 counties in Northeast Indiana:
-          </p>
-          <ul class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
-            {
-              serviceCounties.map((county) => (
-                <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{county.name}</li>
-              ))
-            }
-          </ul>
-          {/* Coverage details and every incorporated town, behind a native disclosure so the section stays short.
-              Collapsed <details> content is still rendered, indexed page text — which is what
-              lets a search for a small town ("robotics Ossian") find this page, and what makes
-              these towns a published claim areaServed can repeat. Not hidden text: anyone can
-              open it, and it answers a question visitors actually have. */}
-          <details class="card group mt-6 overflow-hidden">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-heading text-xl font-bold text-slate-900">
-              Is my area/organization covered?
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-                class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-base group-open:rotate-180"
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </summary>
-            <div class="border-t border-slate-200 px-5 py-4">
-              {/* Coverage is defined by the county lines and the districts that cross them, not by
-                  this list — the towns are there so people can find themselves, and the copy says
-                  so, so an unlisted township or a district based next door doesn't read as excluded. */}
-              <p class="text-sm text-slate-600">
-                We support schools and organizations anywhere within these 12 counties, whether or
-                not your town appears below. That includes every school district that overlaps our
-                county boundaries, even if the district is based in a neighboring county.
-              </p>
-              <p class="mt-3 text-sm text-slate-600">Cities and towns in each county:</p>
-              <dl class="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
-                {
-                  serviceCounties.map((county) => (
-                    <div>
-                      <dt class="font-medium text-slate-700">{county.name} County</dt>
-                      <dd class="text-slate-500">{county.towns.join(', ')}</dd>
-                    </div>
-                  ))
-                }
-              </dl>
-            </div>
-          </details>
-          <p class="mt-6 max-w-2xl text-slate-600">
-            No team at your school or in your town yet? We help schools and community groups
-            anywhere in these counties start one.{' '}
-            <a href={withBase('get-involved/#start-or-host-a-team')} class="font-medium text-brand-accent underline hover:no-underline">
-              Talk with us about starting a team
-            </a>.
-          </p>
-        </div>
-        <div data-reveal>
-          <ServiceAreaMap markers={serviceAreaMarkers} />
-        </div>
-      </div>
+  <SplitSection id="service-area" title="Where We Serve" wide>
+    <p class="max-w-2xl" data-reveal>
+      The REFINERY supports <First /> robotics teams across 12 counties in Northeast Indiana:
+    </p>
+    <RuleList columns={3} items={serviceCounties.map((county) => county.name)} />
+    <div data-reveal>
+      <ServiceAreaMap markers={serviceAreaMarkers} />
     </div>
-  </section>
-
-  <section id="teams" class="section-rule scroll-mt-6 section">
-    <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
-      <SectionHeading title="Meet the Teams" align="left" />
-      <RandomTeamsTeaser teams={allTeams} />
-      <div class="mt-8" data-reveal>
-        <CTAButton href={withBase('about/teams/')} variant="secondary">See All Teams</CTAButton>
+    {/* Coverage details and every incorporated town, behind a native disclosure so the section stays short.
+        Collapsed <details> content is still rendered, indexed page text — which is what
+        lets a search for a small town ("robotics Ossian") find this page, and what makes
+        these towns a published claim areaServed can repeat. Not hidden text: anyone can
+        open it, and it answers a question visitors actually have. */}
+    <details class="group border-y border-slate-300" data-reveal>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-heading text-2xl font-bold text-slate-900">
+        Is my area/organization covered?
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          class="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-base group-open:rotate-180"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </summary>
+      <div class="pb-5">
+        {/* Coverage is defined by the county lines and the districts that cross them, not by
+            this list — the towns are there so people can find themselves, and the copy says
+            so, so an unlisted township or a district based next door doesn't read as excluded. */}
+        <p class="text-base text-slate-600">
+          We support schools and organizations anywhere within these 12 counties, whether or
+          not your town appears below. That includes every school district that overlaps our
+          county boundaries, even if the district is based in a neighboring county.
+        </p>
+        <p class="mt-3 text-base text-slate-600">Cities and towns in each county:</p>
+        <dl class="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-base sm:grid-cols-2">
+          {
+            serviceCounties.map((county) => (
+              <div>
+                <dt class="font-medium text-slate-700">{county.name} County</dt>
+                <dd class="text-slate-500">{county.towns.join(', ')}</dd>
+              </div>
+            ))
+          }
+        </dl>
       </div>
+    </details>
+    <p class="max-w-2xl" data-reveal>
+      No team at your school or in your town yet? We help schools and community groups
+      anywhere in these counties start one.{' '}
+      <a href={withBase('get-involved/#start-or-host-a-team')} class="font-medium text-brand-accent underline hover:no-underline">
+        Talk with us about starting a team
+      </a>.
+    </p>
+  </SplitSection>
+
+  <SplitSection id="teams" title="Meet the Teams" wide>
+    <RandomTeamsTeaser teams={allTeams} />
+    <div data-reveal>
+      <CTAButton href={withBase('about/teams/')} variant="secondary">See All Teams</CTAButton>
     </div>
-  </section>
+  </SplitSection>
 
-  <section id="impact" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-split">
-      <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
-        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Impact</h2>
-      </div>
-      <div>
-        <ImpactStats>
-        </ImpactStats>
-      </div>
-    </div>
-  </section>
+  <SplitSection id="impact" title="Impact" wide>
+    <ImpactStats />
+  </SplitSection>
 
-  <section id="people" class="section-rule scroll-mt-6 section">
-    <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
-      <SectionHeading title="People & Leadership" align="left" />
-      <PeopleBios people={people} />
-    </div>
-  </section>
+  <SplitSection id="people" title="People & Leadership" wide>
+    <PeopleBios people={people} />
+  </SplitSection>
 
-  <section id="facility" class="section-rule scroll-mt-6 section">
-    <div class="section-inner section-split">
-      <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>08</p>
-        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Facility</h2>
-      </div>
-      <div>
-      <p class="text-slate-600" data-reveal>
-        The REFINERY doesn't keep regular hours, so every visit is by appointment, including
-        visits from teams outside The REFINERY. Get in touch and we'll find a time.
-      </p>
+  <SplitSection id="facility" title="Facility">
+    <p data-reveal>
+      The REFINERY doesn't keep regular hours, so every visit is by appointment, including
+      visits from teams outside The REFINERY. Get in touch and we'll find a time.
+    </p>
+    <div data-reveal>
       <a
         href="mailto:info@refineryrobotics.org?subject=Visiting%20The%20REFINERY"
         data-contact-open="contact"
-        class="mt-3 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
-        data-reveal
+        class="inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
       >
         Request a visit &rarr;
       </a>
+    </div>
 
-      <h3 class="mt-8 font-heading text-2xl font-bold text-slate-900" data-reveal>In the shop</h3>
-      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-reveal>
-        {
-          [
-            'Full practice field',
-            'CNC router',
-            'Drill press',
-            'Hydraulic press',
-            'Shear, press brake, and slip roll combo',
-            '14" vertical bandsaw',
-          ].map((item) => (
-            <li class="rounded-r-control border-l-2 border-brand-accent py-1 pl-4 text-sm text-slate-600">{item}</li>
-          ))
-        }
-      </ul>
+    <h3 class="mt-4 font-heading text-2xl font-bold text-slate-900" data-reveal>In the shop</h3>
+    <RuleList
+      items={[
+        'Full practice field',
+        'CNC router',
+        'Drill press',
+        'Hydraulic press',
+        'Shear, press brake, and slip roll combo',
+        '14" vertical bandsaw',
+      ]}
+    />
 
-      <h3 class="mt-8 font-heading text-2xl font-bold text-slate-900" data-reveal>Parking</h3>
-      <p class="mt-2 text-slate-600" data-reveal>
-        Parking is free on either side of Broadway, and there's a loading zone the size of two
-        spaces directly outside our door. If you need somewhere else to put a trailer or a team's
-        worth of cars, Electric Works publishes a{' '}
-        <a
-          href="https://fortwayneelectricworks.com/parking-map/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-brand-accent underline hover:no-underline"
-        >
-          parking map
-        </a>{' '}
-        with more options.
-      </p>
-
-      <div class="card mt-8 overflow-hidden" data-reveal>
-        <iframe
-          src={facilityMapEmbedUrl}
-          title="Map showing The REFINERY's location"
-          class="h-[400px] w-full"
-          style="border: 0"
-          loading="lazy"
-        />
-      </div>
+    <h3 class="mt-4 font-heading text-2xl font-bold text-slate-900" data-reveal>Parking</h3>
+    <p data-reveal>
+      Parking is free on either side of Broadway, and there's a loading zone the size of two
+      spaces directly outside our door. If you need somewhere else to put a trailer or a team's
+      worth of cars, Electric Works publishes a{' '}
       <a
-        href={facilityMapLinkUrl}
-        data-map-link
-        data-map-address={facilityAddress}
+        href="https://fortwayneelectricworks.com/parking-map/"
         target="_blank"
         rel="noopener noreferrer"
-        class="mt-4 inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+        class="text-brand-accent underline hover:no-underline"
       >
-        {facilityAddress}
-      </a>
-      </div>
-    </div>
-  </section>
+        parking map
+      </a>{' '}
+      with more options.
+    </p>
 
-  <section id="partners" class="section-rule scroll-mt-6 section">
-    <div class="section-inner">
-      <p class="eyebrow-tag text-brand-accent" data-reveal>09</p>
-      <SectionHeading title="Partners" align="left" />
-      {/* A CSS grid, not flex-wrap, is what makes the two-line case land as an even, centered
-          2-per-row block instead of however many logos a greedy flex-wrap happens to fit on
-          the first line (3-then-1 at some widths, for four logos of these widths). Below sm
-          even a pair doesn't reliably fit, so it's one logo per row; from xl there's room for
-          every logo on one line, so the grid gives way to a single flex row. justify-center
-          there (not justify-start) matters whenever the logos don't fill that whole line —
-          fewer partners than today, or a wider viewport — so they land centered rather than
-          flush left with dead space trailing them. */}
+    <div class="card mt-2 overflow-hidden" data-reveal>
+      <iframe
+        src={facilityMapEmbedUrl}
+        title="Map showing The REFINERY's location"
+        class="h-[400px] w-full"
+        style="border: 0"
+        loading="lazy"
+      />
+    </div>
+    <a
+      href={facilityMapLinkUrl}
+      data-map-link
+      data-map-address={facilityAddress}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-block font-mono text-sm font-semibold text-brand-accent hover:underline"
+    >
+      {facilityAddress}
+    </a>
+  </SplitSection>
+
+  <SplitSection id="partners" title="Partners" wide>
+      {/* A plain two-up grid, left-aligned in the content column. The row used to flip to one
+          flex line from xl, which assumed the full 72rem container; in the narrower column beside
+          a heading rail four logos of these widths would overflow, so it stays a grid. */}
       {
         partners.length > 0 ? (
           <div
-            class="partner-row mx-auto mt-8 grid w-fit grid-cols-1 place-items-center gap-8 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-nowrap xl:justify-center"
+            class="partner-row grid grid-cols-1 place-items-start gap-8 sm:grid-cols-2"
             data-reveal-group
           >
-            {partners.map((partner, i) => {
+            {partners.map((partner) => {
               // A partner with no url gets a non-interactive wrapper, not a link to nowhere —
               // a real <a href="#"> was a focusable, "activatable" element that did nothing.
               const Tag = partner.data.url ? 'a' : 'div';
@@ -358,9 +291,6 @@ const aboutSchema = [
                   rel={partner.data.url ? 'noopener noreferrer' : undefined}
                   class:list={[
                     'transition duration-base ease-out-soft hover:-translate-y-0.5',
-                    // An odd logo out spans both grid columns so it centers under the pair
-                    // above it instead of sitting alone in the left column beside an empty cell.
-                    i === partners.length - 1 && partners.length % 2 !== 0 && 'col-span-2 xl:col-span-1',
                   ]}
                   title={firstPlain(partner.data.name)}
                   data-reveal
@@ -379,46 +309,37 @@ const aboutSchema = [
             })}
           </div>
         ) : (
-          <p class="mt-8 text-sm text-slate-500">Partner list coming soon.</p>
+          <p class="text-sm text-slate-500">Partner list coming soon.</p>
         )
       }
-    </div>
-  </section>
+  </SplitSection>
 
-  <section id="contact" class="section-rule section-loose scroll-mt-6 section">
-    <div class="section-inner section-split">
-      <div>
-        <p class="eyebrow-tag text-brand-accent" data-reveal>10</p>
-        <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Policies</h2>
-      </div>
-      <div>
-      <p class="text-slate-600" data-reveal>
-        The REFINERY follows the{' '}
-        <a
-          href="https://www.firstinspires.org/programs/youth-protection-program"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-brand-accent underline hover:no-underline"
-        >
-          <First /> Youth Protection Policy
-        </a>{' '}
-        to keep every student, mentor, and volunteer safe.
-      </p>
-      <p class="mt-4 text-slate-600" data-reveal>
-        Everyone using our facility follows The REFINERY's{' '}
-        <a
-          href="https://docs.google.com/document/d/1pEaRoxklMtsgSpg7-C6rHYIKlMl5dpkPGC4xDISE974/edit?tab=t.0#heading=h.ptazkv4428co"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-brand-accent underline hover:no-underline"
-        >
-          Space Use Rules
-        </a>
-        , covering safety, supervision, tool use, and facility conduct.
-      </p>
-      </div>
-    </div>
-  </section>
+  <SplitSection id="contact" title="Policies" loose>
+    <p data-reveal>
+      The REFINERY follows the{' '}
+      <a
+        href="https://www.firstinspires.org/programs/youth-protection-program"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-brand-accent underline hover:no-underline"
+      >
+        <First /> Youth Protection Policy
+      </a>{' '}
+      to keep every student, mentor, and volunteer safe.
+    </p>
+    <p data-reveal>
+      Everyone using our facility follows The REFINERY's{' '}
+      <a
+        href="https://docs.google.com/document/d/1pEaRoxklMtsgSpg7-C6rHYIKlMl5dpkPGC4xDISE974/edit?tab=t.0#heading=h.ptazkv4428co"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-brand-accent underline hover:no-underline"
+      >
+        Space Use Rules
+      </a>
+      , covering safety, supervision, tool use, and facility conduct.
+    </p>
+  </SplitSection>
 </MarketingLayout>
 
 <script>

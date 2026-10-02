@@ -8,16 +8,18 @@
  *
  * Pass the heading as `title`, or use the `title` slot when it carries markup (e.g. a
  * <First /> mark). `rule` draws the hairline above the section; leave it off for the first
- * section under a PageHeader, which already supplies the gap.
+ * section under a PageHeader, which already supplies the gap. `wide` lifts the prose measure
+ * for content that needs the room (card grids, maps, embeds, logo rows).
  */
 interface Props {
   id?: string;
   title?: string;
   rule?: boolean;
   loose?: boolean;
+  wide?: boolean;
 }
 
-const { id, title, rule = true, loose = false } = Astro.props;
+const { id, title, rule = true, loose = false, wide = false } = Astro.props;
 ---
 
 <section id={id} class:list={['scroll-mt-6', 'section', rule && 'section-rule', loose && 'section-loose']}>
@@ -27,7 +29,7 @@ const { id, title, rule = true, loose = false } = Astro.props;
         {title ?? <slot name="title" />}
       </h2>
     </div>
-    <div class="flex max-w-2xl flex-col gap-4 text-lg text-slate-700">
+    <div class:list={['flex min-w-0 flex-col text-lg text-slate-700', wide ? 'gap-6' : 'max-w-2xl gap-4']}>
       <slot />
     </div>
   </div>
