@@ -1,7 +1,9 @@
 ---
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import CTAButton from '../../components/marketing/CTAButton.astro';
+import EventSponsors from '../../components/marketing/EventSponsors.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import { firstPlain } from '../../utils/first';
 import { event as eventSchema } from '../../utils/schema';
 import { withBase } from '../../utils/base';
@@ -18,8 +20,26 @@ export async function getStaticPaths() {
 }
 
 const { event } = Astro.props;
-const { title, summary, dateStart, dateEnd, location, venueAddress, registrationUrl, isFree, draft } =
-  event.data;
+const {
+  title,
+  summary,
+  dateStart,
+  dateEnd,
+  startTime,
+  endTime,
+  location,
+  venueAddress,
+  registrationUrl,
+  registrationLabel,
+  registrationNote,
+  isFree,
+  sponsors,
+  seekingSponsors,
+  heroImage,
+  heroImageAlt,
+  heroCredit,
+  draft,
+} = event.data;
 const { Content } = await render(event);
 
 // Only events with a structured venue address get Event schema — see src/utils/schema.ts.
@@ -30,10 +50,15 @@ const jsonLd = venueAddress
       url: new URL(Astro.url.pathname, Astro.site).href,
       startDate: dateStart,
       endDate: dateEnd,
+      startTime,
+      endTime,
       venueName: location,
       venueAddress,
       isFree,
       registrationUrl,
+      image: heroImage
+        ? new URL((await getImage({ src: heroImage, width: 1200 })).src, Astro.site).href
+        : undefined,
     })
   : undefined;
 
@@ -49,6 +74,9 @@ const formattedEndDate =
   summary={summary}
   pubDate={dateStart}
   author={location}
+  heroImage={heroImage}
+  heroImageAlt={heroImageAlt}
+  heroCredit={heroCredit}
   isDraft={draft}
   jsonLd={jsonLd}
   breadcrumbs={[
@@ -63,14 +91,27 @@ const formattedEndDate =
     )
   }
   <Content />
+  <EventSponsors sponsors={sponsors} seekingSponsors={seekingSponsors} />
   {
-    (registrationUrl || isFree) && (
-      <div class="not-prose mt-8 flex flex-wrap items-center gap-4">
-        {registrationUrl && <CTAButton href={registrationUrl}>Register</CTAButton>}
-        {/* Stated on the page, not just in the Event structured data — markup shouldn't
-            claim free admission where a reader can't see it. */}
-        {isFree && <p class="font-mono text-sm font-medium text-brand-accent">Free to attend</p>}
+    registrationNote && registrationUrl ? (
+      // The participant handoff for an event pitched at spectators: set apart at the foot of
+      // the page so the public copy above doesn't read as a sign-up page.
+      <div class="not-prose mt-12 rounded-card border border-slate-200 bg-slate-50 p-6 sm:p-8" data-reveal>
+        <p class="text-slate-700">{registrationNote}</p>
+        <div class="mt-5 flex flex-wrap items-center gap-4">
+          <CTAButton href={registrationUrl}>{registrationLabel ?? 'Register'}</CTAButton>
+          {isFree && <p class="font-mono text-sm font-medium text-brand-accent">Free to attend</p>}
+        </div>
       </div>
+    ) : (
+      (registrationUrl || isFree) && (
+        <div class="not-prose mt-8 flex flex-wrap items-center gap-4">
+          {registrationUrl && <CTAButton href={registrationUrl}>{registrationLabel ?? 'Register'}</CTAButton>}
+          {/* Stated on the page, not just in the Event structured data — markup shouldn't
+              claim free admission where a reader can't see it. */}
+          {isFree && <p class="font-mono text-sm font-medium text-brand-accent">Free to attend</p>}
+        </div>
+      )
     )
   }
 </ArticleLayout>

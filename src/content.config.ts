@@ -363,7 +363,7 @@ const programs = defineCollection({
 
 const events = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
-  schema: () =>
+  schema: ({ image }) =>
     z.object({
       title: z.string(),
       // A short, punchy hook for promotional placements like the homepage banner, where the
@@ -373,6 +373,11 @@ const events = defineCollection({
       summary: z.string(),
       dateStart: z.coerce.date(),
       dateEnd: z.coerce.date().optional(),
+      // Local wall-clock times at the venue, 24-hour "HH:MM". Optional: an event with no
+      // published hours leaves these off and its Event schema stays date-only rather than
+      // inventing a time. Only feed the structured data; say the hours in the body copy.
+      startTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use 24-hour HH:MM').optional(),
+      endTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use 24-hour HH:MM').optional(),
       // Display name of the venue, shown on the card and the detail page.
       location: z.string(),
       // Structured street address for the venue. Optional, but Google requires a full
@@ -394,7 +399,52 @@ const events = defineCollection({
       // detail page then says nothing about cost and the Event schema omits `offers`, rather
       // than either of them guessing. See src/utils/schema.ts.
       isFree: z.boolean().optional(),
+      // The call to action beside `registrationUrl`. An event pitched at spectators still
+      // needs a way for teams, volunteers, and exhibitors to find their sign-up, so the
+      // page can frame that link for them instead of a bare "Register" that reads as if
+      // the public needs to sign up too. Both fall back to the plain Register button.
+      registrationLabel: z.string().optional(),
+      registrationNote: z.string().optional(),
+      // Event-specific sponsors, separate from the org-wide `partners` collection: a
+      // business that sponsors one event isn't a REFINERY partner. Listed in display
+      // order. `tier` is free text ("Presenting Sponsor", "Candy Sponsor") and groups the
+      // logos under a heading in the order each tier first appears; untiered sponsors
+      // share one unheaded group. Logos go in src/assets/events/<event-id>/sponsors/.
+      sponsors: z
+        .array(
+          z.object({
+            name: z.string(),
+            logo: image(),
+            // Describes the logo's imagery for screen readers; falls back to `name`.
+            logoAlt: z.string().optional(),
+            // Same override as partners.logoHeight, for a logo that reads too big or small
+            // at the shared height.
+            logoHeight: z.number().int().positive().optional(),
+            url: z.string().url().optional(),
+            tier: z.string().optional(),
+          }),
+        )
+        .default([]),
+      // Shows the sponsor section, with a "sponsors coming soon" line, before any sponsor
+      // has signed on. Sponsorship sign-up itself lives on the event's registration site.
+      seekingSponsors: z.boolean().default(false),
+      // Header photo, shown full width under the title and used as the social share card.
+      // Same alt-text rule as news.heroImage. `heroCredit` renders as a visible caption:
+      // required in practice for FIRST Indiana Flickr photos (see docs/placeholder-images.md),
+      // optional here because a REFINERY-shot photo may not need one.
+      heroImage: image().optional(),
+      heroImageAlt: z.string().optional(),
+      heroCredit: z.object({ text: z.string(), url: z.string().url().optional() }).optional(),
       draft: z.boolean().default(false),
+    })
+    .superRefine((data, ctx) => {
+      if (data.heroImage && !data.heroImageAlt) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['heroImageAlt'],
+          message: 'heroImageAlt is required whenever heroImage is set.',
+        });
+      }
     }),
 });
 

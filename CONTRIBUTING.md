@@ -377,6 +377,8 @@ title: "Event name"
 summary: "One or two sentences."
 dateStart: 2026-09-12
 dateEnd: 2026-09-13             # optional
+startTime: "08:15"              # optional, venue-local 24-hour HH:MM — see note below
+endTime: "18:00"                # optional
 location: "Venue name"          # display name, shown on the card and detail page
 venueAddress:                   # optional, but see note below
   streetAddress: "9100 Winchester Rd"
@@ -386,7 +388,23 @@ venueAddress:                   # optional, but see note below
 audience: [students, teams]     # optional; students | mentors | teams | volunteers | public
 featured: false                 # set true to give this event its own detail page
 registrationUrl: "https://..."  # optional, renders a Register button on featured event pages
+registrationLabel: "Participant info"  # optional, replaces the button's "Register" text
+registrationNote: >-            # optional, frames the button in a box at the foot of the page
+  Competing or volunteering? Registration and schedules live on the event site.
 isFree: true                    # optional — see note below
+heroImage: ../../assets/events/<event-id>/hero.jpg  # optional header photo
+heroImageAlt: "What the photo shows"                # required whenever heroImage is set
+heroCredit:                     # optional visible caption; required for FIRST Indiana photos
+  text: "Photo: FIRST Indiana Robotics"
+  url: "https://www.flickr.com/photos/indianafirst/"   # optional
+sponsors:                       # optional, in display order — see note below
+  - name: "Example Co."
+    logo: ../../assets/events/<event-id>/sponsors/example-co.png
+    logoAlt: "Describe the logo's imagery"   # optional, falls back to name
+    logoHeight: 130                          # optional, overrides the shared 80px
+    url: "https://example.com"               # optional, makes the logo a link
+    tier: "Cornerstone"                      # optional, groups logos under a heading
+seekingSponsors: false          # optional, shows the sponsor section before any are listed
 draft: false
 ---
 
@@ -411,10 +429,28 @@ when you don't know the admission terms — the page then says nothing about cos
 omitted, rather than guessing. Setting `false` claims the event is paid without saying a price,
 so prefer omitting it until you know.
 
-Two things worth knowing when you add an event: dates are published date-only, because
-frontmatter carries no time of day and inventing one would tell search engines the wrong start
-time. And there's no `image` field on events yet, so nothing event-specific appears in the
-structured data or the social card.
+**Times are optional, and only for the structured data.** Without `startTime`, the `Event`
+schema is published date-only, because inventing a time would tell search engines the wrong
+start. With it, the schema gets full timestamps carrying the venue's UTC offset for that date
+(daylight saving is handled for you). An `endTime` with no `dateEnd` ends on the start date.
+The times don't appear on the page by themselves, so state the hours in the body copy too and
+keep the two in step.
+
+**Pitching an event at the public.** `registrationLabel` and `registrationNote` let a
+spectator-facing page point participants to their sign-up without reading like a sign-up page:
+with a note set, the button moves into a box at the foot of the page under that text.
+
+**Header photos.** `heroImage` shows full width under the title and becomes the social share
+card and the `Event` schema's `image`. Save it in `src/assets/events/<event-id>/`, never
+hotlink. A FIRST Indiana Flickr photo must carry a visible `heroCredit` (see
+`docs/placeholder-images.md`).
+
+**Sponsors are per event,** separate from the org-wide partners collection. Logos render in
+the order listed. Tiers are free text and appear in the order each tier first shows up, so list
+the top tier first; untiered sponsors share one group with no heading. Use `logoHeight` to
+make a top-tier logo larger, or to shrink a long one-line wordmark so it reads at a size
+comparable to stacked logos. Save logos in `src/assets/events/<event-id>/sponsors/`, ideally
+transparent PNG or SVG.
 
 ### Partner — `src/content/partners/*.mdx`
 
