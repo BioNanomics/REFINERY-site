@@ -43,13 +43,13 @@ const href = teamPath(team);
     tile leading exactly where the heading already leads. `.card-link` supplies the hover
     lift; its own comment in marketing.css scopes it to cards that ARE or CONTAIN a link. */}
 <div
-  class="tile tile-rule tile-link group cursor-pointer"
+  class="tile tile-link group cursor-pointer"
   data-reveal
   data-team-card-link={href}
 >
   {
     newTeam && (
-      <span class="absolute -top-2.5 right-0 border border-brand-accent-fill bg-brand-accent-fill px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-wide text-slate-900">
+      <span class="absolute -top-2.5 right-4 border border-brand-accent-fill bg-brand-accent-fill px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-wide text-slate-900">
         New!
       </span>
     )

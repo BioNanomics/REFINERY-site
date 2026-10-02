@@ -20,7 +20,7 @@ const Tag = href ? 'a' : 'div';
 
 <Tag
   href={href}
-  class:list={['tile tile-rule', href && 'tile-link']}
+  class:list={['tile', href && 'tile-link']}
   data-reveal
 >
   <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">

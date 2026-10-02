@@ -35,7 +35,7 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
   {
     featuredEvents.length > 0 && (
       <SplitSection title="Featured Events" rule={false} wide>
-        <div class="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2" data-reveal-group>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
           {featuredEvents.map((event) => <EventCard event={event} />)}
         </div>
       </SplitSection>
@@ -69,7 +69,7 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
   <SplitSection title="Ongoing Programs" loose wide>
     {
       allPrograms.length > 0 ? (
-        <div class="grid grid-cols-1 items-start gap-x-8 gap-y-10 sm:grid-cols-2" data-reveal-group>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
           {allPrograms.map((program) => <ProgramCard program={program} />)}
         </div>
       ) : (

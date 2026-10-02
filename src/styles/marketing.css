@@ -296,34 +296,37 @@
   }
 
   /* ── Tile: the content-card primitive ────────────────────────────────
-     News, event, program and team entries. No frame, fill or shadow: a tile with a photo is
-     the photo (rounded) with its text underneath, and a text-only tile opens with a hairline
-     — a heavier cousin of the ruled lists' hairline — so the page reads as one system. `.card` stays for
-     things that genuinely are panels (donation CTA, embeds, the season accordion).
+     News, event, program and team entries. A 1px slate outline on a white fill, with no
+     shadow and no lift: enough edge to read as separate items, without the stacked-card look
+     `.card` has. `.card` stays for things that are panels in their own right (donation CTA,
+     embeds, the season accordion).
 
-     .tile-link is for a tile that is or contains a link: hover/focus colors the title and
-     zooms the photo, with no lift or border change to animate. Same "contains a link"
-     scoping .card-link has. */
+     .tile-link is for a tile that is or contains a link: hover/focus turns the outline green
+     and colors the title, and the photo zooms. Same "contains a link" scoping .card-link has.
+     .tile-flush is for a tile whose photo runs edge to edge across the top; the padding then
+     lives on .card-body instead of the tile itself. */
   .tile {
     position: relative;
     display: flex;
     flex-direction: column;
+    padding: 1.25rem;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-card);
+    background-color: #fff;
+    transition: border-color var(--transition-duration-base) var(--ease-out-soft);
   }
-  /* A 2px brand-navy rule: heavier than the slate hairlines in the ruled lists, so a tile
-     reads as a unit and a list item reads as a row. It turns green on a linked tile's hover. */
-  .tile-rule {
-    border-top: 2px solid var(--color-brand);
-    padding-top: 1rem;
-    transition: border-color var(--transition-duration-fast) var(--ease-out-soft);
+  .tile-flush {
+    padding: 0;
+  }
+  .tile-flush .card-body {
+    padding: 1.25rem;
+  }
+  .tile-flush .card-media {
+    border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
   }
   .tile-link:hover,
   .tile-link:focus-within {
-    border-top-color: var(--color-brand-accent);
-  }
-  /* The photo carries its own rounding now that there's no card frame to clip it. */
-  .tile .card-media {
-    border-radius: var(--radius-media);
-    margin-bottom: 1rem;
+    border-color: var(--color-brand-accent);
   }
   .tile-link:hover .tile-title,
   .tile-link:focus-visible .tile-title {
@@ -347,8 +350,7 @@
   }
   .tile-link:focus-visible {
     outline: 2px solid var(--color-brand-accent);
-    outline-offset: 4px;
-    border-radius: var(--radius-control);
+    outline-offset: 3px;
   }
 
   /* ── Buttons ──────────────────────────────────────────────────────────
