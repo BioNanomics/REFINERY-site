@@ -31,8 +31,8 @@
      each family's full stack (family name + optimized metric fallbacks) as the cssVariable
      named there. Referencing those here keeps one source of truth, so weights, subsets, and
      fallbacks are configured in exactly one place. */
-  --font-heading: var(--font-inter);
-  --font-body: var(--font-inter);
+  --font-heading: var(--font-barlow-semi-condensed);
+  --font-body: var(--font-atkinson);
   --font-mono: var(--font-jetbrains-mono);
 
   /* Radius — semantic names so cards/controls/media can move together

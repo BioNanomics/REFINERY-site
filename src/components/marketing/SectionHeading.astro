@@ -21,7 +21,7 @@ const { eyebrow, title, description, align = 'left', as: Tag = 'h2' } = Astro.pr
 
 <div class:list={['max-w-2xl', align === 'center' && 'mx-auto text-center']} data-reveal>
   {eyebrow && <p class="eyebrow-tag text-brand-accent"><FirstText text={eyebrow} context="heading" /></p>}
-  <Tag class="mt-2 font-heading text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+  <Tag class="mt-2 font-heading text-4xl font-bold tracking-normal text-slate-900 text-balance sm:text-5xl">
     <FirstText text={title} context="heading" />
   </Tag>
   {description && <p class="mt-3 text-base text-slate-600"><FirstText text={description} /></p>}

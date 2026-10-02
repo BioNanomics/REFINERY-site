@@ -19,6 +19,9 @@ export default defineConfig({
   // fonts.googleapis.com on every page. The families are consumed through @theme in
   // src/styles/marketing.css and rendered by <Font> in src/layouts/BaseHead.astro.
   //
+  // Barlow Semi Condensed is the heading face and Atkinson Hyperlegible Next the body face (the
+  // latter chosen for legibility). JetBrains Mono stays for the technical labels.
+  //
   // `weights` lists what the codebase actually uses — Astro defaults to 400 only, and the
   // old Google Fonts URL was wrong in both directions (it requested Inter 400-800 correctly
   // but only mono 500/700, while the CSS also asks for mono 400 and 600).
@@ -31,8 +34,17 @@ export default defineConfig({
   // mono at weight 700 and hosts a FirstText in both Hero and SectionHeading.
   fonts: [
     {
-      name: 'Inter',
-      cssVariable: '--font-inter',
+      name: 'Barlow Semi Condensed',
+      cssVariable: '--font-barlow-semi-condensed',
+      provider: fontProviders.fontsource(),
+      weights: [600, 700, 800],
+      styles: ['normal', 'italic'],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      name: 'Atkinson Hyperlegible Next',
+      cssVariable: '--font-atkinson',
       provider: fontProviders.fontsource(),
       weights: [400, 500, 600, 700, 800],
       styles: ['normal', 'italic'],

@@ -27,12 +27,17 @@ const {
 } = Astro.props;
 ---
 
-<section class="relative overflow-hidden">
-  <div class="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:py-24">
-    <div class="flex flex-col items-start gap-6" data-reveal-group>
+<section class="relative overflow-hidden pt-6 pb-10 lg:py-12">
+  {/* Text column aligns to the shared 72rem container; the photo runs off the right edge
+      of the viewport and fills the hero's full height. Stacks photo-first below lg. */}
+  <div class="grid grid-cols-1 lg:grid-cols-2">
+    <div
+      class="flex flex-col items-start justify-center gap-6 px-6 py-10 sm:py-12 lg:py-14 lg:pr-12 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]"
+      data-reveal-group
+    >
       {eyebrow && <p class="eyebrow-tag text-brand-accent" data-reveal><FirstText text={eyebrow} context="heading" /></p>}
       <h1
-        class="font-heading text-3xl font-extrabold leading-[0.95] tracking-tight text-slate-900 break-words sm:text-6xl lg:text-7xl"
+        class="font-heading text-6xl font-extrabold leading-[0.9] tracking-tight text-slate-900 text-balance sm:text-7xl lg:text-[clamp(4rem,5.6vw,6rem)]"
         data-reveal
       >
         <FirstText text={title} context="heading" />
@@ -45,13 +50,13 @@ const {
       <slot name="footnote" />
     </div>
 
-    <div class="corner-brackets order-first overflow-hidden rounded-card lg:order-none" data-reveal style="--bracket-inset: -10px">
+    <div class="order-first lg:order-none" data-reveal>
       <Image
         src={image}
         alt={firstPlain(imageAlt)}
-        class="aspect-[4/3] w-full object-cover"
-        widths={[400, 800, 1200]}
-        sizes="(min-width: 1024px) 40vw, 100vw"
+        class="aspect-[4/3] h-full w-full object-cover lg:aspect-auto lg:rounded-l-card"
+        widths={[640, 960, 1400]}
+        sizes="(min-width: 1024px) 50vw, 100vw"
         loading="eager"
         fetchpriority="high"
       />

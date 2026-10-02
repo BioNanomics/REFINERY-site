@@ -114,16 +114,16 @@ const documentTitle = fullTitle
 {/*
   Self-hosted — families are declared in astro.config.mjs. Preloads are limited to the faces
   that actually render above the fold, since preloading every weight and style would be ~18
-  files and defeat the point: Inter 400 (body), 600 (.btn and the nav), 800 (the h1), and
+  files and defeat the point: Atkinson 400 (body) and 700 (.btn and the nav), Barlow Semi Condensed 800 (the h1), and
   JetBrains Mono 400 (nav numerals) and 700 (.eyebrow-tag). Everything else, italics
   included, arrives via display: swap.
 */}
+<Font cssVariable="--font-barlow-semi-condensed" preload={[{ weight: 800, style: 'normal' }]} />
 <Font
-  cssVariable="--font-inter"
+  cssVariable="--font-atkinson"
   preload={[
     { weight: 400, style: 'normal' },
-    { weight: 600, style: 'normal' },
-    { weight: 800, style: 'normal' },
+    { weight: 700, style: 'normal' },
   ]}
 />
 <Font

@@ -2,8 +2,8 @@
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import Hero from '../components/marketing/Hero.astro';
 import SectionHeading from '../components/marketing/SectionHeading.astro';
-import SummaryCard from '../components/marketing/SummaryCard.astro';
-import Carousel from '../components/marketing/Carousel.astro';
+import Icon from '../components/marketing/Icon.astro';
+import FirstText from '../components/brand/FirstText.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
 import EventBanner from '../components/marketing/EventBanner.astro';
@@ -187,52 +187,64 @@ const beyondNortheastIndiana = [
   <section class="section-rule section">
     <div class="section-inner">
       <SectionHeading eyebrow="What We Provide" title="How The REFINERY helps teams" align="left" />
-      <div class="mt-8" data-reveal-group>
-        <Carousel ariaLabel="How The REFINERY helps teams">
-          {whatWeProvide.map((item) => <SummaryCard {...item} class="w-[85%] flex-none sm:w-72 lg:w-80" />)}
-        </Carousel>
-      </div>
+      {/* An open ruled list, not a carousel or a card grid: all seven are visible at once on
+          every screen, and the hairlines do the separating that card borders used to. The odd
+          seventh row spans both columns instead of leaving a hole beside it. */}
+      <ul class="mt-10 grid grid-cols-1 gap-x-12 md:grid-cols-2" data-reveal-group>
+        {
+          whatWeProvide.map((item, i) => (
+            <li
+              class:list={['border-t border-slate-300', i === whatWeProvide.length - 1 && i % 2 === 0 && 'md:col-span-2']}
+              data-reveal
+            >
+              <a href={item.href} class="group flex gap-4 py-6">
+                <span class="mt-1 flex h-10 w-10 flex-none items-center justify-center rounded-control bg-brand-accent-fill/10 text-brand-accent">
+                  <Icon name={item.icon} class="h-5 w-5" />
+                </span>
+                <span class="flex flex-col">
+                  <span class="font-heading text-2xl font-bold leading-tight text-slate-900 group-hover:text-brand-accent">
+                    <FirstText text={item.title} context="heading" />
+                  </span>
+                  <span class="mt-1 max-w-md text-base text-slate-600"><FirstText text={item.description} /></span>
+                  <span class="mt-3 font-mono text-sm font-semibold text-brand-accent group-hover:underline">Explore &rarr;</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
   <!-- Beyond Northeast Indiana -->
   <section class="section-rule section">
-    <div class="section-inner">
-      <SectionHeading
-        eyebrow="Beyond Northeast Indiana"
-        title="Built here. Shared with FIRST."
-        description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community. We share what we build, document what we learn, and partner to solve challenges teams face everywhere."
-        align="left"
-      />
-      {/* Two 3/2 rows at lg on a 5-col track, with the wide card swapping sides
-          between them so the pair reads as a zigzag rather than one column of wide
-          cards beside a column of narrow ones. The odd fifth card then spans the full
-          track instead of sitting alone in a 2-col stub — same reason it spans both
-          columns at sm, and the same treatment it gets on What We Do. */}
-      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5" data-reveal-group>
+    <div class="section-inner grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+      <div class="flex flex-col items-start gap-8">
+        <SectionHeading
+          eyebrow="Beyond Northeast Indiana"
+          title="Built here. Shared with FIRST."
+          description="While rooted in Northeast Indiana, many of the systems and projects we develop are intended to support the broader FIRST community. We share what we build, document what we learn, and partner to solve challenges teams face everywhere."
+          align="left"
+        />
+        <div data-reveal>
+          <CTAButton href={withBase('what-we-do/#beyond-northeast-indiana')} variant="secondary">
+            See Our Contributions to the <First /> Community
+          </CTAButton>
+        </div>
+      </div>
+      <ul data-reveal-group class="self-start">
         {
-          beyondNortheastIndiana.map((item, i) => {
-            const isLastOdd = i === beyondNortheastIndiana.length - 1 && i % 2 === 0;
-            return (
-              <SummaryCard
-                {...item}
-                class={
-                  isLastOdd
-                    ? 'sm:col-span-2 lg:col-span-5'
-                    : i === 0 || i === 3
-                      ? 'lg:col-span-3'
-                      : 'lg:col-span-2'
-                }
-              />
-            );
-          })
+          beyondNortheastIndiana.map((item) => (
+            <li class="border-t border-slate-300 py-5 last:border-b" data-reveal>
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h3 class="font-heading text-2xl font-bold leading-tight text-slate-900">{item.title}</h3>
+                {'status' in item && <span class="status-tag">{item.status}</span>}
+              </div>
+              <p class="mt-1 max-w-lg text-base text-slate-600"><FirstText text={item.description} /></p>
+            </li>
+          ))
         }
-      </div>
-      <div class="mt-8" data-reveal>
-        <CTAButton href={withBase('what-we-do/#beyond-northeast-indiana')} variant="secondary">
-          See Our Contributions to the <First /> Community
-        </CTAButton>
-      </div>
+      </ul>
     </div>
   </section>
 
