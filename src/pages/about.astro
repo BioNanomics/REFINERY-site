@@ -115,18 +115,19 @@ const aboutSchema = [
   </SplitSection>
 
   <SplitSection id="model" title="How the Model Works">
+    <RuleList
+      columns={3}
+      items={['Funding', 'Parts', 'Tools', 'Facilities', 'Training', 'Systems', 'Community']}
+    />
+    {/* The sum, set apart: a heavier rule closes the list the way a total line closes a column
+        of figures. The "=" is the old equation's equals sign, kept visible; screen readers get
+        it as a word, since the glyph alone reads as nothing. */}
     <p
-      class="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-sm font-semibold text-brand sm:text-base"
+      class="border-t-2 border-brand pt-4 font-heading text-3xl font-bold leading-tight text-brand text-balance sm:text-4xl"
       data-reveal
     >
-      <span>Funding</span><span class="text-brand-accent">+</span>
-      <span>Parts</span><span class="text-brand-accent">+</span>
-      <span>Tools</span><span class="text-brand-accent">+</span>
-      <span>Facilities</span><span class="text-brand-accent">+</span>
-      <span>Training</span><span class="text-brand-accent">+</span>
-      <span>Systems</span><span class="text-brand-accent">+</span>
-      <span>Community</span><span class="text-brand-accent">=</span>
-      <span class="text-brand-accent">Stronger, More Sustainable Teams</span>
+      <span aria-hidden="true" class="mr-3 text-brand-accent">=</span><span class="sr-only">Equals </span>
+      Stronger, More Sustainable Teams
     </p>
   </SplitSection>
 
