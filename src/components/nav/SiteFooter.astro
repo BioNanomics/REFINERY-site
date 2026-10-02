@@ -43,7 +43,7 @@ const socials: { key: SocialKey; label: string; url: string }[] = [
               target="_blank"
               rel="noopener noreferrer"
               data-no-external-arrow
-              class="inline-flex rounded-sm transition-colors duration-base ease-out-soft hover:text-brand-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
+              class="-m-2 inline-flex rounded-sm p-2 transition-colors duration-base ease-out-soft hover:text-brand-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
               aria-label={social.label}
             >
               <SocialIcon name={social.key} class="h-5 w-5" />
@@ -54,22 +54,22 @@ const socials: { key: SocialKey; label: string; url: string }[] = [
     </div>
 
     <div class="flex flex-col gap-2 text-sm text-zinc-600 sm:items-end">
-      <a href="mailto:info@refineryrobotics.org" class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
+      <a href="mailto:info@refineryrobotics.org" class="py-1 transition-colors duration-base ease-out-soft hover:text-brand-accent">
         info@refineryrobotics.org
       </a>
       <a
         href="mailto:info@refineryrobotics.org"
         data-contact-open="contact"
-        class="transition-colors duration-base ease-out-soft hover:text-brand-accent"
+        class="py-1 transition-colors duration-base ease-out-soft hover:text-brand-accent"
       >
         Contact
       </a>
-      <a href="https://bionanomics.com" target="_blank" rel="noopener noreferrer" class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
+      <a href="https://bionanomics.com" target="_blank" rel="noopener noreferrer" class="py-1 transition-colors duration-base ease-out-soft hover:text-brand-accent">
         BioNanomics
       </a>
       {
         sourceUrl && (
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="py-1 transition-colors duration-base ease-out-soft hover:text-brand-accent">
             View this page on GitHub
           </a>
         )

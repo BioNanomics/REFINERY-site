@@ -362,6 +362,10 @@ const markersJson = JSON.stringify(markers);
         onEachFeature: (feature, layer) => {
           const name = feature.properties?.COUNTY_NAME as string | undefined;
           if (name) layer.bindTooltip(name, { className: 'county-tooltip', sticky: true });
+          // Hover-only: nothing happens for a keyboard user on a county, and the 12 counties
+          // are already listed as text above the map. Left focusable, each outline is a silent
+          // Tab stop a keyboard user must press through before reaching the pins that do work.
+          layer.once('add', () => (layer as L.Path).getElement()?.setAttribute('tabindex', '-1'));
         },
       }).addTo(map);
     }

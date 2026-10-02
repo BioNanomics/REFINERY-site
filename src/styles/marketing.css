@@ -697,6 +697,12 @@
   }
 }
 
+/* The header is sticky (~76px). Without this, anything scrolled into view by keyboard focus
+   or an in-page anchor can land underneath it. Unlayered so it applies everywhere. */
+html {
+  scroll-padding-top: 5rem;
+}
+
 /* Unlayered and last, so this one guard beats every transition/animation
    on the site — the card lift, the image zoom, the nav underline, the
    reveal — without touching each call site individually. */

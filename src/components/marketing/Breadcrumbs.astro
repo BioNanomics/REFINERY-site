@@ -44,7 +44,7 @@ const { items, narrow = false } = Astro.props;
                   <FirstText text={item.label} claim={false} reg={false} />
                 </span>
               ) : (
-                <a href={item.href} class="font-semibold text-brand-accent hover:underline">
+                <a href={item.href} class="-my-1.5 inline-block py-1.5 font-semibold text-brand-accent hover:underline">
                   <FirstText text={item.label} claim={false} reg={false} />
                 </a>
               )}
