@@ -6,10 +6,12 @@ import SummaryCard from '../components/marketing/SummaryCard.astro';
 import Carousel from '../components/marketing/Carousel.astro';
 import ImpactStats from '../components/marketing/ImpactStats.astro';
 import CTAButton from '../components/marketing/CTAButton.astro';
+import EventBanner from '../components/marketing/EventBanner.astro';
 import First from '../components/brand/First.astro';
 import { withBase } from '../utils/base';
 import { firstPlain } from '../utils/first';
 import { organization, website, personId } from '../utils/schema';
+import { isPastEvent } from '../utils/events';
 import { getCollection } from 'astro:content';
 import logoFullColor from '../assets/logo-full-color.svg';
 import heroImage from '../assets/refinery-shop-1.jpeg';
@@ -32,6 +34,13 @@ const orgSchema = organization({
     ? { name: founderEntry.data.name, id: personId(founderEntry.id) }
     : undefined,
 });
+
+// The soonest upcoming featured event, if any. Featured is the flag that gives an event a
+// detail page, so it's also what earns a homepage banner. Past events drop off at the next
+// build — see src/utils/events.ts — so the banner retires itself without a code change.
+const nextFeaturedEvent = (
+  await getCollection('events', ({ data }) => data.featured && !data.draft && !isPastEvent(data))
+).sort((a, b) => a.data.dateStart.valueOf() - b.data.dateStart.valueOf())[0];
 
 const whatWeProvide = [
   {
@@ -123,6 +132,8 @@ const beyondNortheastIndiana = [
   description={metaDescription}
   jsonLd={[orgSchema, website()]}
 >
+  {nextFeaturedEvent && <EventBanner event={nextFeaturedEvent} />}
+
   <Hero
     eyebrow="The REFINERY"
     title="Shared infrastructure for stronger robotics teams"
