@@ -115,20 +115,27 @@ const aboutSchema = [
   </SplitSection>
 
   <SplitSection id="model" title="How the Model Works">
-    <RuleList
-      columns={3}
-      items={['Funding', 'Parts', 'Tools', 'Facilities', 'Training', 'Systems', 'Community']}
-    />
-    {/* The sum, set apart: a heavier rule closes the list the way a total line closes a column
-        of figures. The "=" is the old equation's equals sign, kept visible; screen readers get
-        it as a word, since the glyph alone reads as nothing. */}
-    <p
-      class="border-t-2 border-brand pt-4 font-heading text-3xl font-bold leading-tight text-brand text-balance sm:text-4xl"
-      data-reveal
-    >
-      <span aria-hidden="true" class="mr-3 text-brand-accent">=</span><span class="sr-only">Equals </span>
-      Stronger, More Sustainable Teams
-    </p>
+    {/* Laid out as a sum on paper: a gutter of operators down the left, a ruled row per term, a
+        heavier rule, then the total. The operators are decoration for sighted readers (the list
+        already says "these add up"), so they're hidden from assistive tech; the total's "=" is
+        read as a word, since the glyph alone reads as nothing. */}
+    <div data-reveal>
+      <ul>
+        {
+          ['Funding', 'Parts', 'Tools', 'Facilities', 'Training', 'Systems', 'Community'].map((term, i) => (
+            <li class="flex items-baseline border-t border-slate-300 py-3 text-xl font-medium text-slate-800">
+              <span aria-hidden="true" class="w-10 shrink-0 font-heading text-3xl font-bold leading-none text-brand-accent">{i > 0 ? '+' : ''}</span>
+              {term}
+            </li>
+          ))
+        }
+      </ul>
+      <p class="flex items-baseline border-t-2 border-brand pt-4 font-heading text-3xl font-bold leading-tight text-brand sm:text-4xl">
+        <span aria-hidden="true" class="w-10 shrink-0 text-brand-accent">=</span>
+        <span class="sr-only">Equals </span>
+        <span class="text-balance">Stronger, More Sustainable Teams</span>
+      </p>
+    </div>
   </SplitSection>
 
   <SplitSection id="service-area" title="Where We Serve" wide>
