@@ -115,23 +115,28 @@ const aboutSchema = [
   </SplitSection>
 
   <SplitSection id="model" title="How the Model Works">
-    {/* Laid out as a sum on paper: a gutter of operators down the left, a ruled row per term, a
-        heavier rule, then the total. The operators are decoration for sighted readers (the list
-        already says "these add up"), so they're hidden from assistive tech; the total's "=" is
-        read as a word, since the glyph alone reads as nothing. */}
+    {/* A sum that wraps. Each "+" belongs to the term after it and the pair never splits, so a
+        wrapped line starts with an operator instead of ending on one, which is what stranded
+        the old run-on equation. The operators are decoration for sighted readers (the list
+        already says "these add up"), so they're hidden from assistive tech; the total's "="
+        is read as a word, since the glyph alone reads as nothing. */}
     <div data-reveal>
-      <ul>
+      <ul class="flex flex-wrap gap-x-5 gap-y-2 pb-5 font-heading text-3xl font-bold leading-tight text-slate-800">
         {
           ['Funding', 'Parts', 'Tools', 'Facilities', 'Training', 'Systems', 'Community'].map((term, i) => (
-            <li class="flex items-baseline border-t border-slate-300 py-3 text-xl font-medium text-slate-800">
-              <span aria-hidden="true" class="w-10 shrink-0 font-heading text-3xl font-bold leading-none text-brand-accent">{i > 0 ? '+' : ''}</span>
+            <li class="flex items-baseline gap-2 whitespace-nowrap">
+              {i > 0 && (
+                <span aria-hidden="true" class="text-brand-accent">
+                  +
+                </span>
+              )}
               {term}
             </li>
           ))
         }
       </ul>
-      <p class="flex items-baseline border-t-2 border-brand pt-4 font-heading text-3xl font-bold leading-tight text-brand sm:text-4xl">
-        <span aria-hidden="true" class="w-10 shrink-0 text-brand-accent">=</span>
+      <p class="flex items-baseline gap-3 border-t-2 border-brand pt-4 font-heading text-3xl font-bold leading-tight text-brand sm:text-4xl">
+        <span aria-hidden="true" class="text-brand-accent">=</span>
         <span class="sr-only">Equals </span>
         <span class="text-balance">Stronger, More Sustainable Teams</span>
       </p>
