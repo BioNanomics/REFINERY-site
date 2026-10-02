@@ -8,6 +8,13 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Content rules
+
+- **Students are never referred to by full name** — first name and last initial only
+  ("Maitlen B."), in body copy, frontmatter, alt text, filenames, and comments. The one
+  exception is a student staff member's own profile in `src/content/people/`. See "Naming
+  students" in `CONTRIBUTING.md`.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build

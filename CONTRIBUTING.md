@@ -509,6 +509,30 @@ Don't hotlink or reuse other organizations' photography without confirmed permis
 be added under `src/assets/{news,teams,people,partners}/` and referenced by relative path in
 frontmatter, so Astro can optimize them.
 
+## Naming students
+
+**Never publish a student's full name.** Refer to students by first name and last initial
+only, like "Maitlen B.", never the full surname. Most of the students we work with are
+minors, and a full name alongside a school, team, and photo is enough to identify them.
+
+This applies everywhere a name can appear, not just article bodies: frontmatter (`title`,
+`summary`, `metaDescription`, `heroImageAlt`), image alt text and captions, image filenames
+under `src/assets/`, team pages, and code comments. Alt text can describe a student without
+naming them at all ("a student holds up…"), which is usually the better choice.
+
+Adults (mentors, staff, volunteers, sponsors) can be named in full when there's a reason to,
+but in a story where many people contributed, consider leaving names out entirely so no one is
+accidentally left off.
+
+**Exception: student staff.** Students who work for The REFINERY (for example, our interns) may
+be listed by full name, with a photo and profile link, on their own entry in
+`src/content/people/`. That's a staff profile they've agreed to, not a mention in a story. The
+exception covers only that people entry. Anywhere else on the site (news stories, alt text,
+captions, team pages), the first-name-last-initial rule still applies to them.
+
+When a curated external story uses a student's full name, that's the publisher's call. Our own
+`title` and `summary` for the entry still follow the rule above.
+
 ## Writing FIRST and program names
 
 *FIRST* licenses its trademarks to registered teams on the condition that we follow the
