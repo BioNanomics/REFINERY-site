@@ -49,16 +49,6 @@ const markersJson = JSON.stringify(markers);
     isolation: isolate;
   }
 
-  /* At the same `lg` breakpoint about.astro switches this section to its two-column layout
-     (list beside map), shrink the map to roughly match the county list's own height instead
-     of towering over it — the taller default height stays for mobile/tablet, where the map
-     is full-width and stacked below the list rather than squeezed beside it. */
-  @media (width >= 64rem) {
-    .service-area-map {
-      min-height: 17rem;
-    }
-  }
-
   /* --- Leaflet chrome: default tile attribution/zoom controls, restyled to match the site's
      rounded, soft-shadow language instead of Leaflet's stock square panels. --- */
   .service-area-map .leaflet-control-zoom a {

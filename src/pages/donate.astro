@@ -45,7 +45,9 @@ const outcomes = [
   </SplitSection>
 
   <SplitSection title="Ready to give?" loose wide>
-      <div class="w-full" data-reveal>
+      {/* Capped at the width the form is designed for, so it sits flush with the text column
+          instead of floating in the middle of the wider one. */}
+      <div class="w-full max-w-lg" data-reveal>
         <div data-zeffy-embed data-form-url="/embed/donation-form/donate-to-support-our-future-engineers-and-entrepreneurs"></div>
         <div data-zeffy-embed-fallback style="display:none;">
           <div style="position:relative;overflow:hidden;height:450px;width:100%;">

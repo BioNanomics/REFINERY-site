@@ -191,7 +191,8 @@ const aboutSchema = [
   </SplitSection>
 
   <SplitSection id="teams" title="Meet the Teams" wide>
-    <RandomTeamsTeaser teams={allTeams} />
+    {/* Two across, so four cards (2 FRC + 2 FTC) fill the grid; three would leave one alone. */}
+    <RandomTeamsTeaser teams={allTeams} ftcCount={2} />
     <div data-reveal>
       <CTAButton href={withBase('about/teams/')} variant="secondary">See All Teams</CTAButton>
     </div>
