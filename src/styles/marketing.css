@@ -533,7 +533,10 @@
   .form-input {
     width: 100%;
     border-radius: var(--radius-control);
-    border: 1px solid var(--refinery-color-border);
+    /* slate-500: the edge of a text field has to reach 3:1 against what's behind it (WCAG
+       1.4.11) because the placeholder alone doesn't say "type here". The old slate-200
+       border was 1.2:1. This is 4.8:1 on white and 4.5:1 on the page tint. */
+    border: 1px solid #64748b;
     background-color: #fff;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;

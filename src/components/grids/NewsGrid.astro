@@ -51,7 +51,7 @@ const categoryChipOn = 'border-brand bg-brand text-brand-light';
 // grid-texture layer (MarketingLayout.astro) — an unfilled chip let it show straight
 // through. Solid slate-50 needs no color-mix (unlike the team chip's tinted "on" state
 // below): it's already an opaque color, not an alpha blend.
-const categoryChipOff = 'border-slate-300 bg-slate-50 text-slate-600 hover:border-brand';
+const categoryChipOff = 'border-slate-500 bg-slate-50 text-slate-600 hover:border-brand';
 
 const teamChip =
   'rounded-full border px-2.5 py-1 font-mono text-[0.65rem] font-medium uppercase tracking-wide transition-colors duration-fast ease-out-soft';
@@ -61,7 +61,7 @@ const teamChip =
 // of leaving it to composite at render time gives the same light tint with a uniform, solid
 // result regardless of what's behind it — see the identical fix on AwardSummary.astro's tiles.
 const teamChipOn = 'border-brand bg-[color-mix(in_srgb,var(--color-brand)_10%,var(--color-page))] text-brand';
-const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-brand hover:text-brand';
+const teamChipOff = 'border-slate-500 bg-slate-50 text-slate-500 hover:border-brand hover:text-brand';
 ---
 
 {

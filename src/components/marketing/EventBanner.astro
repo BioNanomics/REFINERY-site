@@ -48,7 +48,7 @@ const href = withBase(`programs-events/${event.id}/`);
     <div>
       <div class="flex flex-wrap items-center gap-3">
         <p class="eyebrow-tag text-brand-accent-light">Upcoming Event</p>
-        <p class="rounded-full border border-brand-accent-light/50 bg-brand-accent-light/10 px-3 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-wide text-brand-accent-light">
+        <p class="rounded-full border border-brand-accent-light/50 px-3 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-wide text-brand-accent-light">
           {countdown}
         </p>
       </div>
@@ -78,7 +78,7 @@ const href = withBase(`programs-events/${event.id}/`);
     </div>
 
     <div>
-      <a href={href} class="btn btn-secondary px-4 py-2">
+      <a href={href} class="btn btn-secondary px-4 py-2 focus-visible:outline-brand-accent-light">
         <span>See event details <span aria-hidden="true">&rarr;</span></span>
       </a>
     </div>
