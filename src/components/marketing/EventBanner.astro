@@ -1,0 +1,86 @@
+---
+import FirstText from '../brand/FirstText.astro';
+import type { CollectionEntry } from 'astro:content';
+import { withBase } from '../../utils/base';
+import { formatUtcDate } from '../../utils/dates';
+import { localDay } from '../../utils/events';
+
+interface Props {
+  event: CollectionEntry<'events'>;
+}
+
+const { event } = Astro.props;
+const { title, tagline, summary, dateStart, dateEnd, location, venueAddress, isFree } = event.data;
+
+const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+const formattedDate = formatUtcDate(dateStart, dateOptions);
+// Same different-day check as EventCard.astro.
+const formattedEndDate =
+  dateEnd && dateEnd.getTime() !== dateStart.getTime() ? formatUtcDate(dateEnd, dateOptions) : undefined;
+const place = venueAddress ? `${location}, ${venueAddress.addressLocality}` : location;
+
+// Days until the event, compared on Fort Wayne date strings for the same reason isPastEvent()
+// does — see src/utils/events.ts. Fixed at build time, which the nightly deploy keeps honest.
+// The homepage never passes a past event, so a negative count means a multi-day event is under way.
+const DAY_MS = 24 * 60 * 60 * 1000;
+const daysAway = Math.round(
+  (Date.parse(dateStart.toISOString().slice(0, 10)) - Date.parse(localDay())) / DAY_MS,
+);
+const countdown =
+  daysAway > 1 ? `${daysAway} days away` : daysAway === 1 ? 'Tomorrow' : daysAway === 0 ? 'Today' : 'Happening now';
+
+// Only featured events get a detail page, and the homepage only passes featured events.
+const href = withBase(`programs-events/${event.id}/`);
+---
+
+{/* Not a heading: this sits above the hero's h1, and an h2 there would break the outline.
+    The landmark label gives screen readers the same "this is a separate promo" cue. */}
+<aside aria-label="Upcoming event" class="relative overflow-hidden bg-brand text-brand-light">
+  {/* Faint oversized grid echoing the page background, so the band reads as part of the site
+      rather than a pasted-on ad. Purely decorative. */}
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(currentColor_1px,transparent_1px),linear-gradient(90deg,currentColor_1px,transparent_1px)] [background-size:32px_32px]"
+  >
+  </div>
+
+  <div class="relative mx-auto grid max-w-6xl grid-cols-1 gap-3 px-6 py-4 sm:grid-cols-[1fr_auto] sm:items-center sm:gap-10 lg:py-5">
+    <div>
+      <div class="flex flex-wrap items-center gap-3">
+        <p class="eyebrow-tag text-brand-accent-light">Upcoming Event</p>
+        <p class="rounded-full border border-brand-accent-light/50 bg-brand-accent-light/10 px-3 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-wide text-brand-accent-light">
+          {countdown}
+        </p>
+      </div>
+
+      {/* Every FirstText in the banner takes `reg claim={false}`: it shows its own ® but
+          leaves the page's once-per-page first-use ® for the content below. The banner
+          renders above the hero, so it would otherwise spend that claim, and on phones,
+          where the summary is hidden, the first FIRST anyone can see (the hero's) would
+          go out with no ®. Same idea as TeamCard's forceReg for hidden cards. */}
+      {/* Title and tagline share a line where there's room, to keep the band short. */}
+      <p class="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <span class="font-heading text-2xl font-extrabold leading-tight tracking-tight text-white">
+          <FirstText text={title} context="heading" reg claim={false} />
+        </span>
+        {tagline && <span class="font-heading text-base font-semibold text-brand-light"><FirstText text={tagline} reg claim={false} /></span>}
+      </p>
+      {/* Dropped on phones, where the band would otherwise push the hero below the fold. */}
+      <p class="mt-1 hidden max-w-3xl text-sm text-brand-light/80 sm:block"><FirstText text={summary} reg claim={false} /></p>
+
+      <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs font-medium uppercase tracking-wide text-brand-light/90">
+        <li>
+          <time datetime={dateStart.toISOString().slice(0, 10)}>{formattedDate}</time>{formattedEndDate && <> &ndash; {formattedEndDate}</>}
+        </li>
+        <li>{place}</li>
+        {isFree && <li class="text-brand-accent-light">Free to attend</li>}
+      </ul>
+    </div>
+
+    <div>
+      <a href={href} class="btn btn-secondary px-4 py-2">
+        <span>See event details <span aria-hidden="true">&rarr;</span></span>
+      </a>
+    </div>
+  </div>
+</aside>

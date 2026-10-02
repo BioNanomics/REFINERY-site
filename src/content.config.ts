@@ -51,6 +51,17 @@ const news = defineCollection({
       // instead of getting an internal detail page.
       sourceUrl: z.string().url().optional(),
       sourceName: z.string().optional(),
+      // The publisher's own share thumbnail (its og:image), loaded straight from their CDN
+      // rather than downloaded into src/assets/ — an exception to the download-never-hotlink
+      // rule in docs/placeholder-images.md, which is about photography we display as our
+      // own. This is the same preview a link unfurl shows, next to a visible "via
+      // {sourceName}" credit. `npm run news:thumbnails` finds these; review each before
+      // committing, since some publishers' og:image is only a logo or stock art.
+      //
+      // No alt field: NewsCard renders it as decorative (alt=""). The card's title already
+      // names the story inside the same link, and a description we wrote could go stale if
+      // the publisher swaps the image behind this URL.
+      sourceImage: z.string().url().startsWith('https://').optional(),
       draft: z.boolean().default(false),
     })
     // heroImage/heroImageAlt are two independently-optional fields, not the single optional
@@ -63,6 +74,13 @@ const news = defineCollection({
           code: z.ZodIssueCode.custom,
           path: ['heroImageAlt'],
           message: 'heroImageAlt is required whenever heroImage is set.',
+        });
+      }
+      if (data.sourceImage && !data.sourceUrl) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['sourceImage'],
+          message: 'sourceImage is only for curated external stories: set sourceUrl, or use heroImage.',
         });
       }
     }),
@@ -348,6 +366,10 @@ const events = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
+      // A short, punchy hook for promotional placements like the homepage banner, where the
+      // plain-spoken `summary` alone doesn't sell the event. Optional — the banner simply
+      // leads with the summary when it's unset.
+      tagline: z.string().optional(),
       summary: z.string(),
       dateStart: z.coerce.date(),
       dateEnd: z.coerce.date().optional(),

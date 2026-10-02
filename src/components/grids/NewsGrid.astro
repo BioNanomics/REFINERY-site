@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import NewsCard from '../cards/NewsCard.astro';
+import MasonryPack from './MasonryPack.astro';
 import { NEWS_CATEGORIES } from '../../utils/news-categories';
 import FirstText from '../brand/FirstText.astro';
 
@@ -110,13 +111,15 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
          data-team-search-count in about/teams.astro. Empty while no filter narrows the grid:
          there is nothing to report about the full, unfiltered list. */}
       <p class="mt-4 font-mono text-xs text-slate-500" role="status" aria-live="polite" data-news-filter-count />
-      <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+      <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group data-masonry>
         {posts.map((post, i) => (
           <div data-category={post.data.category.join(' ')} data-teams={post.data.teamRefs.join(' ')}>
             <NewsCard post={post} loading={i === 0 ? 'eager' : 'lazy'} />
           </div>
         ))}
       </div>
+      {/* Must directly follow the grid: packs it before first paint. */}
+      <MasonryPack />
     </div>
   ) : (
     <p class="text-sm text-slate-500">No news published yet. Check back soon.</p>
