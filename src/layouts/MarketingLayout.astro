@@ -6,6 +6,7 @@ import ContactDialogs from '../components/forms/ContactDialogs.astro';
 import Breadcrumbs from '../components/marketing/Breadcrumbs.astro';
 import { breadcrumbList } from '../utils/schema';
 import { firstPlain } from '../utils/first';
+import { githubSourceUrl, pageSourcePath } from '../utils/source';
 import type { Crumb } from '../utils/breadcrumbs';
 
 interface Props {
@@ -30,6 +31,8 @@ interface Props {
   breadcrumbs?: Crumb[];
   /** Narrower measure, to match ArticleLayout's prose column. Set by that layout, not by pages. */
   breadcrumbsNarrow?: boolean;
+  /** Repo-relative file behind this page (e.g. a content entry's `filePath`). Defaults to the route's file in src/pages. */
+  sourcePath?: string;
 }
 
 // Pass-through to BaseHead; see the prop docs there.
@@ -47,7 +50,11 @@ const {
   publishedTime,
   breadcrumbs,
   breadcrumbsNarrow = false,
+  sourcePath,
 } = Astro.props;
+
+const sourceFile = sourcePath ?? pageSourcePath(Astro.routePattern);
+const sourceUrl = sourceFile ? githubSourceUrl(sourceFile) : undefined;
 
 // Absolute URLs are resolved here rather than in schema.ts, matching how every other builder
 // is fed: the builders stay pure and URL-agnostic, callers own Astro.site. The last crumb
@@ -109,7 +116,7 @@ const jsonLdOut = nodes.length === 0 ? undefined : nodes.length === 1 ? nodes[0]
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} narrow={breadcrumbsNarrow} />}
       <slot />
     </main>
-    <SiteFooter />
+    <SiteFooter sourceUrl={sourceUrl} />
     <ContactDialogs />
     <script>
       function initReveal() {

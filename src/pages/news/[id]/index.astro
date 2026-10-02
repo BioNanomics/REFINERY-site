@@ -69,6 +69,7 @@ const articleSchema = article({
   jsonLd={articleSchema}
   type="article"
   publishedTime={pubDate}
+  sourcePath={post.filePath}
   breadcrumbs={[
     { label: 'Home', href: withBase('/') },
     { label: 'News', href: withBase('news/') },
