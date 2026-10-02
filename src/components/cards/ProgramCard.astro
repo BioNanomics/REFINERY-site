@@ -10,9 +10,9 @@ const { program } = Astro.props;
 const { title, summary, audience } = program.data;
 ---
 
-<div class="card card-pad" data-reveal>
-  <h3 class="font-heading text-xl font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
-  <p class="mt-2 text-sm text-slate-600"><FirstText text={summary} /></p>
+<div class="tile tile-rule" data-reveal>
+  <h3 class="font-heading text-2xl font-bold leading-tight text-slate-900"><FirstText text={title} context="heading" /></h3>
+  <p class="mt-2 text-base text-slate-600"><FirstText text={summary} /></p>
   {
     audience.length > 0 && (
       <ul class="mt-4 flex flex-wrap gap-1.5">

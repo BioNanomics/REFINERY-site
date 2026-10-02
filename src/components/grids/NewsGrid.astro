@@ -111,7 +111,7 @@ const teamChipOff = 'border-slate-200 bg-slate-50 text-slate-500 hover:border-br
          data-team-search-count in about/teams.astro. Empty while no filter narrows the grid:
          there is nothing to report about the full, unfiltered list. */}
       <p class="mt-4 font-mono text-xs text-slate-500" role="status" aria-live="polite" data-news-filter-count />
-      <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group data-masonry>
+      <div class="mt-4 grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group data-masonry>
         {posts.map((post, i) => (
           <div data-category={post.data.category.join(' ')} data-teams={post.data.teamRefs.join(' ')}>
             <NewsCard post={post} loading={i === 0 ? 'eager' : 'lazy'} />

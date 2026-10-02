@@ -268,7 +268,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
                   application that builds its own category and team chips and rewrites
                   location.search, which would put a redundant team filter on a page that is
                   already scoped to one team. */}
-              <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group data-masonry>
+              <div class="mt-6 grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2" data-reveal-group data-masonry>
                 {teamNews.slice(0, 4).map((post) => (
                   <NewsCard post={post} />
                 ))}
@@ -297,7 +297,7 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
                     surfacing. */}
                 Related teams
               </h2>
-              <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2" data-reveal-group>
+              <div class="mt-6 grid grid-cols-1 items-start gap-x-8 gap-y-10 sm:grid-cols-2" data-reveal-group>
                 {related.map((sibling) => (
                   <TeamCard team={sibling} />
                 ))}

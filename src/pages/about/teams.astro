@@ -36,7 +36,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
     <div class="section-inner">
       {
         allTeams.length === 0 && (
-          <p class="mt-10 text-center text-sm text-slate-500">Team directory coming soon.</p>
+          <p class="mt-10 text-sm text-slate-500">Team directory coming soon.</p>
         )
       }
       <p class="max-w-2xl text-slate-600" data-reveal>
@@ -46,7 +46,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
 
       {/* Progressive enhancement: with JS off this control never appears (the script
           unhides it) and every team stays on the page, exactly as before. */}
-      <div class="mx-auto mt-8 hidden max-w-md" data-team-search-wrap>
+      <div class="mt-8 hidden max-w-md" data-team-search-wrap>
         <label for="team-search" class="sr-only">Search teams</label>
         <input
           type="search"
@@ -56,7 +56,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
           autocomplete="off"
           data-team-search
         />
-        <p class="mt-2 text-center font-mono text-xs text-slate-500" role="status" aria-live="polite" data-team-search-count></p>
+        <p class="mt-2 font-mono text-xs text-slate-500" role="status" aria-live="polite" data-team-search-count></p>
       </div>
     </div>
   </section>
@@ -66,7 +66,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
       <section class="section">
         <div class="section-inner">
           <h2 class="font-heading text-2xl font-bold text-slate-900" data-reveal><First context="heading" /> Robotics Competition</h2>
-          <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+          <div class="mt-6 grid grid-cols-1 items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {frcTeams.map((team) => (
               <div data-team-item data-haystack={searchText(team)}>
                 <TeamCard team={team} />
@@ -86,7 +86,7 @@ const searchText = (team: (typeof allTeams)[number]) =>
       <section class="section-rule section-loose section">
         <div class="section-inner">
           <h2 class="font-heading text-2xl font-bold text-slate-900" data-reveal><First context="heading" /> Tech Challenge</h2>
-          <div class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
+          <div class="mt-6 grid grid-cols-1 items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
             {ftcTeams.map((team) => (
               <div data-team-item data-haystack={searchText(team)}>
                 <TeamCard team={team} />

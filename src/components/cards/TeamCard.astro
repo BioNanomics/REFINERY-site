@@ -43,13 +43,13 @@ const href = teamPath(team);
     tile leading exactly where the heading already leads. `.card-link` supplies the hover
     lift; its own comment in marketing.css scopes it to cards that ARE or CONTAIN a link. */}
 <div
-  class="card card-link card-pad group cursor-pointer"
+  class="tile tile-rule tile-link group cursor-pointer"
   data-reveal
   data-team-card-link={href}
 >
   {
     newTeam && (
-      <span class="absolute -top-2.5 right-4 border border-brand-accent-fill bg-brand-accent-fill px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-wide text-slate-900">
+      <span class="absolute -top-2.5 right-0 border border-brand-accent-fill bg-brand-accent-fill px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-wide text-slate-900">
         New!
       </span>
     )
@@ -68,7 +68,7 @@ const href = teamPath(team);
       <p class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">
         <FirstText text={PROGRAM_NAMES[program]} reg={forceReg} /> {number}
       </p>
-      <h3 class="font-heading text-xl font-bold text-slate-900">
+      <h3 class="font-heading text-2xl font-bold leading-tight text-slate-900">
         <a
           href={href}
           class="rounded-sm transition-colors duration-fast ease-out-soft group-hover:text-brand-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
@@ -78,8 +78,8 @@ const href = teamPath(team);
       </h3>
     </div>
   </div>
-  <p class="mt-2 text-xs text-slate-500">{organization} &middot; {community}</p>
-  <p class="mt-2 text-sm text-slate-600"><FirstText text={description} reg={forceReg} /></p>
+  <p class="mt-2 text-sm text-slate-500">{organization} &middot; {community}</p>
+  <p class="mt-2 text-base text-slate-600"><FirstText text={description} reg={forceReg} /></p>
   {highlight && <p class="mt-2 font-mono text-xs text-brand-accent"><FirstText text={highlight} reg={forceReg} /></p>}
   {/* TBA/FTC Events/FTCScout and the News deep link used to live here, but every one of
       them is now front and center on the team's own detail page (Team History section and
