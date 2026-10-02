@@ -38,6 +38,9 @@ sourceUrl: "https://..."      # optional — if set, the card links straight to 
                                # curated external/regional coverage)
 sourceName: "The Example Gazette"  # optional, shown on the card as "via {sourceName}"
                                      # when sourceUrl is set
+sourceImage: "https://..."    # optional, sourceUrl entries only — the publisher's og:image,
+                               # loaded from their site as the card's banner. Find with
+                               # `npm run news:thumbnails` (see below)
 draft: false                  # set true to hide from the live site until ready
 ---
 
@@ -85,9 +88,19 @@ pubDate: 2026-08-01
 category: regional   # refinery | teams | regional | partnerships | events | first-community
 sourceUrl: "https://example.com/the-actual-article"
 sourceName: "Publisher Name"   # shown on the card as "via Publisher Name"
+sourceImage: "https://..."     # optional — the publisher's thumbnail, see below
 draft: false
 ---
 ```
+
+To give the card a banner, run `npm run news:thumbnails`. It reads each external story's
+source page and reports the publisher's share image (its `og:image`). Then
+`npm run news:thumbnails -- --write` adds the images it found as `sourceImage`. The image is
+loaded straight from the publisher and never copied into this repo. If the publisher later
+removes it, the card quietly goes back to text only. Look at each one before committing:
+some publishers' share image is just their logo or a stock photo, and those are better left
+off. Some sites (WANE, for example) block the script. For those, copy the `og:image` URL
+from the page source by hand.
 
 See `src/content/news/example-external-story.mdx` for a working (draft) example.
 

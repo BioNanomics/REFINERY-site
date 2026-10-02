@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { post, loading = 'lazy' } = Astro.props;
-const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, sourceName } = post.data;
+const { title, summary, pubDate, category, heroImage, heroImageAlt, sourceUrl, sourceName, sourceImage } = post.data;
 const formattedDate = formatUtcDate(pubDate);
 const href = sourceUrl ?? withBase(`news/${post.id}/`);
 // data-no-external-arrow: the whole card is the anchor, so the automatic ::after would
@@ -32,6 +32,27 @@ const linkProps = sourceUrl
           widths={[400, 800]}
           sizes="(min-width: 768px) 400px, 100vw"
           loading={loading}
+        />
+      </div>
+    )
+  }
+  {
+    /* A curated story's thumbnail is the publisher's og:image, hotlinked on purpose (see
+       sourceImage in src/content.config.ts), so a plain <img> rather than <Image>, which
+       would download and rehost it at build. Decorative alt: the title below, inside the
+       same link, already names the story. no-referrer so a CDN that blocks foreign
+       referrers still serves it and no visitor's page URL is sent along. If the publisher
+       later moves or deletes the image, onerror drops the frame and the card falls back
+       to its text-only layout instead of showing a broken-image box. */
+    !heroImage && sourceImage && (
+      <div class="card-media aspect-[16/9]">
+        <img
+          src={sourceImage}
+          alt=""
+          loading={loading}
+          decoding="async"
+          referrerpolicy="no-referrer"
+          onerror="this.parentElement.remove()"
         />
       </div>
     )

@@ -34,6 +34,15 @@ banner:
 Photography shot by the team or by The REFINERY uses the same shape and still carries a
 credit — the field is required for everything, not just Flickr sources.
 
+## External news thumbnails — the one hotlinking exception
+
+Curated external news stories may show the publisher's own share thumbnail (`sourceImage`
+in the news collection), loaded straight from the publisher's CDN. This is deliberate. That
+image is the same preview any link unfurl shows, it sits beside a visible "via {publisher}"
+credit, and the card links to the publisher's article. We are pointing at their story, not
+republishing their photography. Download-never-hotlink still applies to every photo we
+display as our own. See `CONTRIBUTING.md` for how to find these thumbnails.
+
 ## Placeholder imagery — licensing note
 
 **Superseded by the section above** for FIRST Indiana photography — permission has since been

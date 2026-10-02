@@ -3,6 +3,7 @@ import MarketingLayout from '../../layouts/MarketingLayout.astro';
 import TeamMasthead from '../../components/teams/TeamMasthead.astro';
 import TeamNav from '../../components/teams/TeamNav.astro';
 import NewsCard from '../../components/cards/NewsCard.astro';
+import MasonryPack from '../../components/grids/MasonryPack.astro';
 import SocialLinks from '../../components/marketing/SocialLinks.astro';
 import FirstText from '../../components/brand/FirstText.astro';
 import { getCollection, render } from 'astro:content';
@@ -266,11 +267,14 @@ const factLabel = 'font-mono text-xs uppercase tracking-wide text-slate-500';
                   application that builds its own category and team chips and rewrites
                   location.search, which would put a redundant team filter on a page that is
                   already scoped to one team. */}
-              <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group>
+              <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2" data-reveal-group data-masonry>
                 {teamNews.slice(0, 4).map((post) => (
                   <NewsCard post={post} />
                 ))}
               </div>
+              {/* Must directly follow the grid: packs it before first paint, and only when a
+                  story card has an image (text-only cards are left in aligned rows). */}
+              <MasonryPack />
               {teamNews.length > 4 && (
                 <p class="mt-6" data-reveal>
                   <a
