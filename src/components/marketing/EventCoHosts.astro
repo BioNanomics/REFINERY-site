@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  coHosts: CollectionEntry<'events'>['data']['coHosts'];
+}
+
+const { coHosts } = Astro.props;
+---
+
+{
+  coHosts.length > 0 && (
+    <section class="not-prose mt-12 border-t border-slate-200 pt-10" aria-labelledby="event-cohosts-heading">
+      <h2 id="event-cohosts-heading" class="font-heading text-2xl font-bold text-slate-900" data-reveal>
+        Co-hosted with
+      </h2>
+      <ul class="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-6" data-reveal-group>
+        {coHosts.map((host) => {
+          // A logo, when there is one, stands in for the name; otherwise the name is the
+          // content. Either way it links out only when there is a url to link to.
+          const content = host.logo ? (
+            <Image
+              src={host.logo}
+              alt={host.logoAlt ?? host.name}
+              class="w-auto max-w-full object-contain"
+              style={`height: ${host.logoHeight ?? 80}px`}
+            />
+          ) : (
+            <span class="font-heading text-lg font-semibold">{host.name}</span>
+          );
+          return (
+            <li data-reveal>
+              {host.url ? (
+                <a
+                  href={host.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-no-external-arrow
+                  title={host.name}
+                  class="inline-block text-brand-accent underline-offset-4 transition duration-base ease-out-soft hover:-translate-y-0.5 hover:underline"
+                >
+                  {content}
+                </a>
+              ) : (
+                <span class="text-slate-900">{content}</span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
