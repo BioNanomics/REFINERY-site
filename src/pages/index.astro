@@ -35,8 +35,8 @@ const orgSchema = organization({
     : undefined,
 });
 
-// The soonest upcoming featured event, if any. Featured is the flag that gives an event a
-// detail page, so it's also what earns a homepage banner. Past events drop off at the next
+// The soonest upcoming featured event, if any. Featured is the flag that earns an event a
+// homepage banner (and a badge on /programs-events). Past events drop off at the next
 // build — see src/utils/events.ts — so the banner retires itself without a code change.
 const nextFeaturedEvent = (
   await getCollection('events', ({ data }) => data.featured && !data.draft && !isPastEvent(data))

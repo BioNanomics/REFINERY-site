@@ -29,7 +29,7 @@ const daysAway = Math.round(
 const countdown =
   daysAway > 1 ? `${daysAway} days away` : daysAway === 1 ? 'Tomorrow' : daysAway === 0 ? 'Today' : 'Happening now';
 
-// Only featured events get a detail page, and the homepage only passes featured events.
+// Every event has a detail page; the homepage only passes featured events.
 const href = withBase(`programs-events/${event.id}/`);
 ---
 
