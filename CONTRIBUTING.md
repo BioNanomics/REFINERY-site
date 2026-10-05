@@ -153,8 +153,8 @@ banner:                       # optional photo across the top of the team page
   credit:
     text: "Photo: FIRST Indiana Robotics"
     url: "https://www.flickr.com/photos/indianafirst/"   # optional
-    focalPoint: "center 20%"  # optional CSS object-position for a tall photo's crop
-    logoInBanner: true        # optional — banner already shows the logo, so skip the plaque
+  focalPoint: "center 20%"    # optional CSS object-position for a tall photo's crop
+  logoInBanner: true          # optional — banner already shows the logo, so skip the plaque
 awards: []                    # optional — see "Team awards" below
 robots: []                    # optional — see "Robots" below
 seasons: []                   # optional — see "Seasons" below
