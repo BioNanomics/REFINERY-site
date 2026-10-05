@@ -1,6 +1,7 @@
 ---
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import CTAButton from '../../components/marketing/CTAButton.astro';
+import EventCoHosts from '../../components/marketing/EventCoHosts.astro';
 import EventSponsors from '../../components/marketing/EventSponsors.astro';
 import { getCollection, render } from 'astro:content';
 import { getImage } from 'astro:assets';
@@ -33,6 +34,7 @@ const {
   registrationLabel,
   registrationNote,
   isFree,
+  coHosts,
   sponsors,
   seekingSponsors,
   heroImage,
@@ -92,6 +94,7 @@ const formattedEndDate =
     )
   }
   <Content />
+  <EventCoHosts coHosts={coHosts} />
   <EventSponsors sponsors={sponsors} seekingSponsors={seekingSponsors} />
   {
     registrationNote && registrationUrl ? (

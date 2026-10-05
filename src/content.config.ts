@@ -405,6 +405,23 @@ const events = defineCollection({
       // the public needs to sign up too. Both fall back to the plain Register button.
       registrationLabel: z.string().optional(),
       registrationNote: z.string().optional(),
+      // Organizations that put the event on alongside The REFINERY. Shown in their own
+      // "Co-hosted with" section above the sponsors, in listed order: a co-host shares the
+      // work of running the event, which a sponsor's financial support doesn't. Most
+      // co-hosts have no logo to use, so they render as a text link (or plain text with no
+      // `url`); add a `logo` (in src/assets/events/<event-id>/cohosts/) when one exists.
+      coHosts: z
+        .array(
+          z.object({
+            name: z.string(),
+            url: z.string().url().optional(),
+            logo: image().optional(),
+            // Describes the logo's imagery for screen readers; falls back to `name`.
+            logoAlt: z.string().optional(),
+            logoHeight: z.number().int().positive().optional(),
+          }),
+        )
+        .default([]),
       // Event-specific sponsors, separate from the org-wide `partners` collection: a
       // business that sponsors one event isn't a REFINERY partner. Listed in display
       // order. `tier` is free text ("Presenting Sponsor", "Candy Sponsor") and groups the
