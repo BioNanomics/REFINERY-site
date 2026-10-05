@@ -13,7 +13,7 @@ import { formatUtcDate } from '../../utils/dates';
 export async function getStaticPaths() {
   // Deliberately no date filter. Past events stop appearing on the listing page, but keep
   // their URL — an indexed page or a shared link shouldn't turn into a 404 the morning after.
-  const events = await getCollection('events', ({ data }) => data.featured && !data.draft);
+  const events = await getCollection('events', ({ data }) => !data.draft);
   return events.map((event) => ({
     params: { id: event.id },
     props: { event },

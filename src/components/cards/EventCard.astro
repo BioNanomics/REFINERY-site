@@ -14,18 +14,22 @@ const formattedDate = formatUtcDate(dateStart);
 // Only shown when it's actually a different day — a single-day event's dateEnd (when set at
 // all) is either absent or equal to dateStart, and "Jun 10 – Jun 10" would just be noise.
 const formattedEndDate = dateEnd && dateEnd.getTime() !== dateStart.getTime() ? formatUtcDate(dateEnd) : undefined;
-const href = featured ? withBase(`programs-events/${event.id}/`) : undefined;
-const Tag = href ? 'a' : 'div';
+const href = withBase(`programs-events/${event.id}/`);
 ---
 
-<Tag
-  href={href}
-  class:list={['card card-pad', href && 'card-link']}
-  data-reveal
->
-  <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">
-    {formattedDate}{formattedEndDate && <> &ndash; {formattedEndDate}</>}
-  </time>
+<a href={href} class:list={['card card-pad card-link', featured && 'card-featured']} data-reveal>
+  <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+    <time datetime={dateStart.toISOString()} class="font-mono text-[0.7rem] font-medium uppercase tracking-wide text-slate-500">
+      {formattedDate}{formattedEndDate && <> &ndash; {formattedEndDate}</>}
+    </time>
+    {
+      featured && (
+        <span class="border border-brand-accent/40 bg-brand-accent/10 px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wide text-brand-accent">
+          Featured
+        </span>
+      )
+    }
+  </div>
   <h3 class="mt-1 font-heading text-base font-bold text-slate-900"><FirstText text={title} context="heading" /></h3>
   <p class="mt-1 text-xs text-slate-500">{location}</p>
   <p class="mt-2 text-sm text-slate-600"><FirstText text={summary} /></p>
@@ -38,4 +42,4 @@ const Tag = href ? 'a' : 'div';
       </ul>
     )
   }
-</Tag>
+</a>

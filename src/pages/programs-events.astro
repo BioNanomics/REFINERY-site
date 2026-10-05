@@ -6,16 +6,16 @@ import ProgramCard from '../components/cards/ProgramCard.astro';
 import { getCollection } from 'astro:content';
 import { SITE_TIMEZONE, isPastEvent } from '../utils/events';
 
-// Past events drop off this listing at the next build, but keep their detail page — see
-// programs-events/[id].astro.
+// Every event has a detail page; `featured` only adds a badge on its card here and the
+// homepage banner. Past events drop off this listing at the next build, but keep their
+// detail page — see programs-events/[id].astro.
 const allEvents = await getCollection('events', ({ data }) => !data.draft && !isPastEvent(data));
 const upcomingEvents = allEvents.sort((a, b) => a.data.dateStart.valueOf() - b.data.dateStart.valueOf());
-const featuredEvents = upcomingEvents.filter((e) => e.data.featured);
 
 const allPrograms = await getCollection('programs', ({ data }) => !data.draft);
 
 // Public REFINERY events calendar — managed directly in Google Calendar, not
-// in the `events` content collection. Featured events (above) still come
+// in the `events` content collection. The event cards (above) still come
 // from `events` since those need their own detail pages/registration CTAs.
 const GOOGLE_CALENDAR_ID = 'c_e4ec5bdacbab2baa6d08664ad32fc45136f38c763f265b9fdd1f9dc24bb2085f@group.calendar.google.com';
 const calendarEmbedUrl = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(GOOGLE_CALENDAR_ID)}&ctz=${encodeURIComponent(SITE_TIMEZONE)}`;
@@ -24,11 +24,11 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
 
 <MarketingLayout
   title="Robotics Events & Programs in Fort Wayne"
-  description="Upcoming events, ongoing programs, and featured happenings from The REFINERY."
+  description="Upcoming events and ongoing programs from The REFINERY."
 >
   <section class="section-tight section">
     <div class="section-inner">
-      {/* Describes both halves of this page — events (featured + calendar) and ongoing
+      {/* Describes both halves of this page — events (cards + calendar) and ongoing
           programs. The previous title ("Get involved with what's happening") pointed readers
           at /get-involved/ instead. */}
       <SectionHeading as="h1" eyebrow="Programs & Events" title="Events and programs at The REFINERY" align="center" />
@@ -36,23 +36,23 @@ const calendarSubscribeUrl = `https://calendar.google.com/calendar/u/0/r?cid=${e
   </section>
 
   {
-    featuredEvents.length > 0 && (
+    upcomingEvents.length > 0 && (
       <section class="section">
         <div class="section-inner">
-          <SectionHeading eyebrow="Featured" title="Featured Events" align="left" />
+          <SectionHeading eyebrow="Events" title="Upcoming Events" align="left" />
           <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal-group>
-            {featuredEvents.map((event) => <EventCard event={event} />)}
+            {upcomingEvents.map((event) => <EventCard event={event} />)}
           </div>
         </div>
       </section>
     )
   }
 
-  {/* Featured is conditional, so this is the first content section whenever there are no
-      featured events — and the first content section on every page goes without a rule. */}
-  <section class:list={['section', featuredEvents.length > 0 && 'section-rule']}>
+  {/* The event cards are conditional, so this is the first content section whenever there
+      are no upcoming events — and the first content section on every page goes without a rule. */}
+  <section class:list={['section', upcomingEvents.length > 0 && 'section-rule']}>
     <div class="section-inner">
-      <SectionHeading eyebrow="Calendar" title="Upcoming Events" align="left" />
+      <SectionHeading eyebrow="Calendar" title="Events Calendar" align="left" />
       <div class="card mt-8 overflow-hidden" data-reveal>
         <iframe
           src={calendarEmbedUrl}

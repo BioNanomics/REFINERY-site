@@ -386,8 +386,8 @@ venueAddress:                   # optional, but see note below
   addressRegion: "IN"
   postalCode: "46819"
 audience: [students, teams]     # optional; students | mentors | teams | volunteers | public
-featured: false                 # set true to give this event its own detail page
-registrationUrl: "https://..."  # optional, renders a Register button on featured event pages
+featured: false                 # set true for a "Featured" badge on /programs-events and the homepage banner
+registrationUrl: "https://..."  # optional, renders a Register button on the event page
 registrationLabel: "Participant info"  # optional, replaces the button's "Register" text
 registrationNote: >-            # optional, frames the button in a box at the foot of the page
   Competing or volunteering? Registration and schedules live on the event site.
@@ -408,7 +408,7 @@ seekingSponsors: false          # optional, shows the sponsor section before any
 draft: false
 ---
 
-Body content in Markdown/MDX — only used if `featured: true`.
+Body content in Markdown/MDX — shown on the event's detail page (every event gets one).
 ```
 
 **Past events hide themselves.** Once `dateEnd` (or `dateStart`, if there's no `dateEnd`) is
@@ -418,8 +418,8 @@ don't turn into 404s. Because the site is static, this takes effect at the next 
 nightly schedule in `.github/workflows/deploy.yml` is there so that happens on its own.
 
 **Fill in `venueAddress` for any public event.** Google won't consider an event for rich
-results (the date/venue card in search results) without a complete street address, so a
-featured event that omits it gets no `Event` structured data at all — see
+results (the date/venue card in search results) without a complete street address, so an
+event that omits it gets no `Event` structured data at all — see
 `src/utils/schema.ts`. Don't repeat the venue name inside `venueAddress`; `location` above is
 the single source for it.
 
