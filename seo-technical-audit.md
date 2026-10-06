@@ -1,5 +1,7 @@
 # Technical SEO Audit — The REFINERY (refineryrobotics.org)
 
+> **Status note (2026-10-05):** This audit is a snapshot from 2026-09-19, taken in pre-launch review mode. The launch switches it describes (`CNAME`, `site`, `SITE_INDEXABLE`, `robots.txt`) have since been flipped on `main`, so the "blocked by design" findings no longer apply. The Cloudflare, Search Console, and Rich Results steps are still tracked in the README's launch checklist. `npm run check:seo` now automates the indexing-agreement check raised here.
+
 **Site:** The REFINERY (nonprofit robotics makerspace, program of BioNanomics)
 **Reviewed as:** Astro v7 static site, source in this repo, currently building to `dist/`
 **Current deployment:** `https://bionanomics.github.io/REFINERY-site/` (GitHub Pages, **pre-launch review mode**)

@@ -65,7 +65,7 @@ photography isn't available yet. Every usage includes descriptive alt text and a
 and swap out later — search the codebase for `placeholder` or `TODO: replace`.
 
 **Update:** the client has since supplied the real logo (`src/assets/logo-full-color.svg` and
-`src/assets/logo-reversed.svg`, used site-wide in the header, footer, and Starlight docs) and
+`src/assets/logo-reversed.svg`, used site-wide in the header and footer) and
 one shop photo (`src/assets/refinery-shop-1.jpeg`, used as the homepage hero and default
 social-share image). The project/blog card images below still use gradient placeholders since
 no photos specific to those entries have been supplied yet.

@@ -1,5 +1,7 @@
 # Project Brief: The REFINERY Website Development
 
+> **Historical document.** This is the original project brief. The built site differs from it: it does not use Starlight, and the page set changed after `rewrite.md`. See `README.md` and `CONTRIBUTING.md` for current guidance.
+
 ## 1. Executive Summary
 **Project:** A brand-new static website for **The REFINERY**, a nonprofit makerspace centered around FIRST Robotics. 
 **Objective:** To create an impressive, high-performance static site that showcases the makerspace, highlights engineering projects, provides resources for FRC mentors, and hosts a technical blog. The site must serve as a visual showcase while remaining easy to update via Markdown/MDX in a Git-based workflow.

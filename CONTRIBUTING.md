@@ -6,13 +6,30 @@ touching any code.
 
 ## Local development
 
+Requires Node 24 (`.nvmrc` pins the version CI uses).
+
 ```sh
 npm install
 npm run dev       # http://localhost:4321
+npm test          # vitest suite — also the first job in the deploy workflow
 npm run build      # production build to ./dist, catches base-path/type errors dev doesn't
 npm run preview    # serve the production build locally
 npm run astro check  # type-check
+npm run check:seo  # after a build: robots.txt/noindex agreement + live smoke check
+npm run news:thumbnails  # find publisher thumbnails for external news — see "News post"
 ```
+
+If you're using Claude Code, run the dev server in the background (`astro dev --background`);
+`CLAUDE.md` has the details.
+
+Optional: copy `.env.example` to `.env` and set `PUBLIC_CARTO_API_KEY` to remove the "API KEY
+REQUIRED" watermark from the About page's service-area map tiles. Everything else works
+without it.
+
+Merging to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`): tests run, then the
+build, then publish. The same workflow also rebuilds nightly so past events drop off the
+listing on their own (see "Event"). A separate scheduled check (`seo-monitor.yml`) runs
+`npm run check:seo` against the live site.
 
 ## Adding content
 
@@ -26,8 +43,10 @@ appears on the site automatically — no code changes needed.
 ---
 title: "Post title"
 summary: "One or two sentences, shown on the news index card."   # max 280 characters
+metaDescription: "Shorter copy for search results."   # optional, max 160 chars — see note below
 pubDate: 2026-08-01
 author: "The REFINERY"        # optional, defaults to "The REFINERY"
+authorType: organization      # optional: organization (default) | person — see note below
 heroImage: ../../assets/news/my-post.svg   # optional
 heroImageAlt: "Alt text"                    # set whenever heroImage is set — see note below
 category: refinery   # refinery | teams | regional | partnerships | events | first-community
@@ -46,6 +65,15 @@ draft: false                  # set true to hide from the live site until ready
 
 Body content in Markdown/MDX. Omit the body entirely for sourceUrl entries.
 ```
+
+`summary` is sized for the news card; search results cut off near 160 characters. If your
+summary runs longer, add `metaDescription` and it is used for the page's meta description and
+`Article` structured data instead. `authorType` tells the structured data whether `author` is
+an organization or a person — set `person` when a staffer is credited by name. Neither applies
+to `sourceUrl` entries, which have no detail page.
+
+Setting `heroImage` without `heroImageAlt` (or `sourceImage` without `sourceUrl`) fails the
+build.
 
 #### Categories
 
@@ -67,10 +95,9 @@ Use one of them per file, not all three.
 
 #### Hero image alt text
 
-`heroImageAlt` isn't schema-enforced, but write one whenever you set `heroImage`. With it
-missing, `NewsCard.astro` and `ArticleLayout.astro` both fall back to `alt=""`, which tells a
-screen reader the image is decorative — fine for a gradient placeholder, wrong for a photo of
-a team.
+`heroImageAlt` is required whenever `heroImage` is set — the build fails without it, rather
+than quietly rendering `alt=""` (which tells a screen reader the image is decorative — wrong
+for a photo of a team). Describe the image, and don't name students (see "Naming students").
 
 #### Featuring an external story
 
@@ -115,6 +142,7 @@ organization: "Parent organization — school, 4-H club, nonprofit, etc."
 community: "City, State"
 location: { lat: 41.05, lng: -85.30 }  # optional — see "Map location" below
 logo: ../../assets/teams/1501.svg   # optional
+logoAlt: "Describe the logo's imagery"   # optional, falls back to "{name} logo"
 description: "One or two sentences about the team."
 metaDescription: "Shorter copy for search results."  # optional, max 160 chars
 highlight: "2026 Regional Finalist"  # optional recent highlight
@@ -125,8 +153,11 @@ banner:                       # optional photo across the top of the team page
   credit:
     text: "Photo: FIRST Indiana Robotics"
     url: "https://www.flickr.com/photos/indianafirst/"   # optional
+  focalPoint: "center 20%"    # optional CSS object-position for a tall photo's crop
+  logoInBanner: true          # optional — banner already shows the logo, so skip the plaque
 awards: []                    # optional — see "Team awards" below
 robots: []                    # optional — see "Robots" below
+seasons: []                   # optional — see "Seasons" below
 relatedTeams: []              # optional — see "Related teams" below
 links:                        # optional, defaults to none
   - label: "Team Website"
@@ -166,8 +197,9 @@ Where each field surfaces:
 | `banner` | no | yes |
 | `rookieYear` | no | yes (facts list) + `foundingDate` in JSON-LD |
 | `highlight` | yes | yes |
-| `awards` | no | yes (banners + award history) |
-| `robots` | no | yes |
+| `awards` | no | yes (banners + Team History) |
+| `robots` | no | yes (Team History) |
+| `seasons` | no | yes (Team History) |
 | `relatedTeams` | no | yes |
 | `links`, `socials` | yes | yes |
 | `zeffyFundName` | no | yes (Donate card) |
@@ -200,6 +232,13 @@ while that conversation is outstanding — a draft gets no page and no URL to in
 enforced by the schema because The REFINERY's permission to use FIRST Indiana's photography
 depends on attribution the reader can see — `docs/placeholder-images.md` has the full terms
 and the download-not-hotlink rule.
+
+`focalPoint` and `logoInBanner` are the two optional escape hatches. The band shows the photo
+at its own aspect ratio down to a floor of 5:3, centered; a taller photo (a group shot, say)
+gets cropped, and `focalPoint` — any CSS `object-position`, passed through unvalidated, so
+preview it — moves where that crop centers. `logoInBanner: true` is for a banner that already
+carries the team's logo baked in (a pit-banner graphic), so the masthead doesn't show the mark
+twice; `logo` should stay set regardless, since it feeds the page's structured data.
 
 The masthead is a band with the logo plaque overlapping its lower edge. The band is the
 `banner` photo when there is one and a brand-navy panel otherwise, which is a designed state
@@ -293,7 +332,7 @@ without the other.
 robots:
   - name: "Wave Ryder"
     year: 2025
-    game: "Reefscape"                      # optional, the season's name
+    showGame: true                         # optional, default false — see below
     description: "One or two sentences."   # optional, max 280 chars
     image: ../../assets/teams/1501-wave-ryder.jpg   # optional
     imageAlt: "Describe the robot"                  # optional, but supply it with an image
@@ -302,11 +341,36 @@ robots:
 Newest season first — the list is sorted for you, so frontmatter order doesn't matter. `year`
 rather than a free-text season is what makes that sort possible.
 
-Two things worth knowing. FIRST **game** names are trademarks in their own right, but they are
-not in `FIRST_TOKENS` (`src/utils/first.ts`), so `game` renders exactly as you type it and
-never picks up a ® — that is correct, not a gap. And `imageAlt` is optional in the schema but
-should always accompany an `image`: without it the photo is treated as decorative, which is
-the right default for a missing value but the wrong outcome for a real robot photo.
+Two things worth knowing. Game names aren't typed per team: `src/utils/games.ts` is the one
+directory of each season's official game name, mark (™/℠/®) and presenting sponsor, keyed by
+program and `year` (for FTC, the later year of the two-year season). `showGame: true` opts a
+robot into showing whatever that directory has for its year; a year missing from the directory
+simply renders nothing. To add a season, edit `games.ts`, not the team files. And `imageAlt`
+is **required** whenever an `image` is set — the build fails without it.
+
+#### Seasons
+
+```yaml
+seasons:
+  - year: 2025
+    events:                                   # every event attended, award or not
+      - name: "FIN District Kokomo Event"
+        eventLevel: district
+        source: "https://www.thebluealliance.com/event/2025inkok"
+    record: { wins: 14, losses: 6, ties: 0 }  # optional — see below
+    districtRank: 12                          # optional, FRC only
+    districtPoints: 58                        # optional
+    districtRankSource: "https://..."         # REQUIRED whenever districtRank is set
+```
+
+Awards say what a team won, robots say what it built; `seasons` says it showed up and played.
+Awards, robots and seasons are merged by `year` into the collapsible Team History on the team
+page (`src/utils/teamHistory.ts`), so a season can appear there with only some of the three.
+`record` is this site's sum of that season's **qualification** matches across every listed
+event — not a per-event figure (The Blue Alliance and FTCScout already show those), and
+playoff results are left out because Winner/Finalist awards already represent them. Every
+event carries a `source`, and `districtRank` demands its own citation, for the same reason an
+award does.
 
 #### Related teams
 
@@ -330,6 +394,8 @@ Drafts and self-references are dropped automatically.
 picks its teams at random in the browser on every visit, so `featured` only decides the
 server-rendered default set that a visitor without JavaScript sees (`RandomTeamsTeaser.astro`).
 It has no effect on the full teams list at `/about/teams/`, which sorts by program and number.
+The team page also links to its numeric neighbors in the same program (`TeamNav.astro`); that
+needs nothing from you.
 
 #### Map location
 
@@ -374,6 +440,7 @@ draft: false
 ```md
 ---
 title: "Event name"
+tagline: "A short, punchy hook."  # optional — leads the homepage banner; falls back to summary
 summary: "One or two sentences."
 dateStart: 2026-09-12
 dateEnd: 2026-09-13             # optional
@@ -405,11 +472,21 @@ sponsors:                       # optional, in display order — see note below
     url: "https://example.com"               # optional, makes the logo a link
     tier: "Cornerstone"                      # optional, groups logos under a heading
 seekingSponsors: false          # optional, shows the sponsor section before any are listed
+coHosts:                        # optional, in display order — see note below
+  - name: "Partner organization"
+    url: "https://example.org"               # optional, makes the name a link
+    logo: ../../assets/events/<event-id>/cohosts/example.png   # optional
+    logoAlt: "Describe the logo's imagery"   # optional, falls back to name
+    logoHeight: 80                           # optional
 draft: false
 ---
 
 Body content in Markdown/MDX — shown on the event's detail page (every event gets one).
 ```
+
+**Every event gets a detail page** at `/programs-events/<event-id>/`. `featured` doesn't gate
+that; it only adds the badge on the event's card and makes the soonest upcoming featured event
+the banner on the homepage (`EventBanner.astro`).
 
 **Past events hide themselves.** Once `dateEnd` (or `dateStart`, if there's no `dateEnd`) is
 behind us in Fort Wayne time, the event stops appearing on `/programs-events/` — no need to
@@ -445,6 +522,11 @@ card and the `Event` schema's `image`. Save it in `src/assets/events/<event-id>/
 hotlink. A FIRST Indiana Flickr photo must carry a visible `heroCredit` (see
 `docs/placeholder-images.md`).
 
+**Co-hosts** are organizations that share the work of running the event, which a sponsor's
+money doesn't, so they get their own "Co-hosted with" section above the sponsors. Most have no
+logo, so they render as a text link (or plain text with no `url`); save a logo in
+`src/assets/events/<event-id>/cohosts/` when one exists.
+
 **Sponsors are per event,** separate from the org-wide partners collection. Logos render in
 the order listed. Tiers are free text and appear in the order each tier first shows up, so list
 the top tier first; untiered sponsors share one group with no heading. Use `logoHeight` to
@@ -458,6 +540,8 @@ transparent PNG or SVG.
 ---
 name: "Partner name"
 logo: ../../assets/partners/example.svg   # required
+logoAlt: "Describe the logo's imagery"    # optional, falls back to the name
+logoHeight: 80                            # optional, overrides the shared logo height
 url: "https://..."       # optional
 description: "One sentence."  # optional
 draft: false
@@ -476,6 +560,8 @@ quote: "A sentence in their own words."  # optional, rendered as a pull quote
 linkedin: "https://linkedin.com/in/..."  # optional — see note below
 order: 1        # optional, defaults to 0; lower numbers sort first
 featured: false # optional, gives this person a larger bracketed card
+founder: false  # optional — marks a founder of The REFINERY; feeds the homepage's
+                # Organization structured data (not inferred from role or order)
 draft: false
 ---
 ```
@@ -506,7 +592,7 @@ Both normalize to a list internally, so existing single-URL entries need no chan
 
 Don't hotlink or reuse other organizations' photography without confirmed permission — see
 `docs/placeholder-images.md` for the current placeholder policy. Real photos should
-be added under `src/assets/{news,teams,people,partners}/` and referenced by relative path in
+be added under `src/assets/{news,teams,events,people,partners}/` and referenced by relative path in
 frontmatter, so Astro can optimize them.
 
 ## Naming students

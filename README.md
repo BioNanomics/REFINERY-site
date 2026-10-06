@@ -5,10 +5,15 @@ The public site for **The REFINERY**, a nonprofit robotics makerspace affiliated
 BioNanomics. Built with [Astro](https://astro.build) and
 [Tailwind CSS](https://tailwindcss.com); content lives in Markdown/MDX.
 
-See [`plan.md`](./plan.md) for the original project brief and
-[`CONTRIBUTING.md`](./CONTRIBUTING.md) for how to add a news story, team, program, or event.
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for how to add a news story, team, program, or event.
+[`plan.md`](./plan.md) and [`rewrite.md`](./rewrite.md) are the original project brief and the
+later content proposal; they are kept for history, and the site has since moved on (for
+example, it does not use Starlight). [`docs/placeholder-images.md`](./docs/placeholder-images.md)
+covers image sourcing and licensing.
 
 ## Development
+
+Requires Node 24 (`.nvmrc` pins the version).
 
 ```sh
 npm install
@@ -21,9 +26,12 @@ npm run dev       # http://localhost:4321
 | :------------------ | :--------------------------------------------------- |
 | `npm install`        | Install dependencies                                  |
 | `npm run dev`         | Start the local dev server                            |
+| `npm test`            | Run the vitest suite (also the first job in the deploy workflow) |
 | `npm run build`       | Build the production site to `./dist/`                |
 | `npm run preview`     | Preview the production build locally                  |
 | `npm run astro check` | Type-check the project                                |
+| `npm run check:seo`   | After a build: confirm `robots.txt` and `noindex` agree, then smoke-check the live site |
+| `npm run news:thumbnails` | Find publisher thumbnails for external news stories (see `CONTRIBUTING.md`) |
 
 ## Environment variables
 
@@ -54,63 +62,45 @@ The numbers are also repeated in prose in `public/llms.txt`, which is not genera
 
 ## Deployment
 
-**Currently in review mode, not launched.** The repo is public and GitHub Pages (Source:
-GitHub Actions) serves the site at `https://bionanomics.github.io/REFINERY-site/` so it can be
-reviewed before the real launch. `site` in `astro.config.mjs` is temporarily
-`https://bionanomics.github.io` with `base: '/REFINERY-site'`, `public/robots.txt` disallows
-all crawling, and `SITE_INDEXABLE` in `src/layouts/BaseHead.astro` is `false` (forces noindex
-on every page). `public/CNAME` is still deliberately absent, so nothing claims
-`refineryrobotics.org` — the repo's prior private visibility was the only thing protecting it
-from being publicly reachable, and that protection is now gone in exchange for a link anyone
-can view without a GitHub account.
+**Launched.** The site is live at `https://refineryrobotics.org`. Merging to `main` deploys it
+to GitHub Pages (Source: GitHub Actions) through `.github/workflows/deploy.yml`, which also
+rebuilds nightly so past events drop off the listing. `seo-monitor.yml` runs
+`npm run check:seo` against the live site every day.
 
-Reverting to the pre-review state (e.g. if review needs to pause): re-run
-`gh repo edit --visibility private`, restore `Allow: /` + the `Sitemap:` line in
-`public/robots.txt`, and drop the `base`/`site` review-mode change in `astro.config.mjs` back to
-`https://refineryrobotics.org` with no `base`.
+The launch switches in the repo are all in their live state, and must always move together:
 
-Launch order, when ready — this replaces review mode entirely: flip `SITE_INDEXABLE` to `true`,
-restore `astro.config.mjs`'s `site`/`base` to the apex-domain values above, and restore
-`public/robots.txt` to `Allow: /` plus its `Sitemap:` line. Then work through the domain steps
-below. `site` in `astro.config.mjs` is `https://refineryrobotics.org` and DNS already points
-there via Cloudflare, but `public/CNAME` is deliberately absent, so nothing claims the domain
-until step 1.
+- `public/CNAME` contains `refineryrobotics.org`; `site` in `astro.config.mjs` is the same
+  domain with no `base`. These two must always agree.
+- `SITE_INDEXABLE` in `src/layouts/BaseHead.astro` is `true`.
+- `public/robots.txt` is `Allow: /` plus the `Sitemap:` line.
 
-Launch order, when ready. Step 1 is the arming step: GitHub Pages reads `CNAME` from the
-deployed artifact and claims the custom domain from it, so don't enable Pages before it.
+`npm run check:seo` fails if `SITE_INDEXABLE` and `robots.txt` disagree. If review needs to
+pause (for example, to take the site out of search), flip all of them back together. The
+earlier review-mode setup was `site: https://bionanomics.github.io` with
+`base: '/REFINERY-site'`, `Disallow: /` in `robots.txt`, `SITE_INDEXABLE = false`, and no
+`CNAME`; commit `ed6a84f` shows it.
 
-Because step 1 arms launch, keep it out of any branch carrying unrelated work. Merging such a
-branch would go live early, before the redirect and headers below are in place. Commit `CNAME`
-on its own, when you are ready to work through steps 2–8 in one sitting. Bundle `CNAME` together
-with the `site`/`base`, `SITE_INDEXABLE`, and `robots.txt` changes above into that one commit —
-they're four independent switches that must all move together, and an unreviewed partial flip
-(e.g. crawling allowed while `SITE_INDEXABLE` is still `false`) is easy to miss because the site
-still renders fine either way. **Before starting**, on `main`: merge any outstanding PRs, run
-`npm test && npm run build` to confirm it's green, and run `npm audit` — don't launch on top of
-an unpatched vulnerability or a red build. Also check `git branch -a` for old branches that
-predate recent work (e.g. an abandoned launch-prep branch) — do not merge one just because its
-name suggests it's the "launch" branch; verify with `git log <branch>..main --oneline` that it
-isn't stale before touching it.
+The checklist below is the original launch order. The repo side (step 1) is done. Steps 2–8
+live in GitHub and Cloudflare settings, which nothing in this repo can verify, so treat them
+as a checklist to confirm rather than a record of what was done. The scheduled SEO check
+covers only part of step 6.
 
-Step 4 is the one step worth doing **before** step 1 rather than after. `www` and the apex both
-resolve today, so the moment the site serves content both hostnames serve identical pages with
-identical canonical tags, and canonicals are hints rather than directives. Redirecting first
-means Google never sees two live hostnames; redirecting after means a possible change-of-address
-and weeks of recovery. Nothing breaks if the redirect exists before there is a site to redirect
-to.
+Step 1 is the arming step: GitHub Pages reads `CNAME` from the deployed artifact and claims
+the custom domain from it.
 
-1. Create `public/CNAME` containing `refineryrobotics.org`, and merge to `main`.
+1. `public/CNAME` containing `refineryrobotics.org` is merged to `main` (done).
 2. Settings → Pages → Source: **GitHub Actions**. Not "Deploy from a branch" — that runs
    Jekyll against the repo root, which has no built HTML (`dist/` is gitignored), and it
    doesn't satisfy `actions/deploy-pages`, so the workflow keeps failing. This is an easy trap
    to fall into; it has already caught us once.
 3. Confirm the custom domain registered, then enable **Enforce HTTPS**.
-4. In Cloudflare, handle both redirects. Safe to do before step 1; see the note above.
+4. In Cloudflare, handle both redirects. Without the `www` redirect, both hostnames serve
+   identical pages with identical canonical tags, and canonicals are hints rather than
+   directives.
    - 301 `www.refineryrobotics.org/*` → `https://refineryrobotics.org/$1`, preserving path and
-     query (both hostnames currently resolve, and neither redirects).
-   - SSL/TLS → Edge Certificates → enable **Always Use HTTPS**. Plain `http://` currently
-     answers directly with no redirect. HSTS in step 5 only protects repeat visitors; this is
-     what covers first contact.
+     query.
+   - SSL/TLS → Edge Certificates → enable **Always Use HTTPS**. HSTS in step 5 only protects
+     repeat visitors; this is what covers first contact.
    - Verify both: `curl -I http://www.refineryrobotics.org` should 301 to the apex, and
      `curl -I http://refineryrobotics.org` should 301 to `https://`.
 5. Add security response headers. GitHub Pages can't set these, so Cloudflare is the only
@@ -166,14 +156,13 @@ launch:
 - Once the real domain is live, submit the form for real (not a local dev build) and confirm
   the email actually arrives at `info@refineryrobotics.org` before assuming it works.
 
-If something's visibly wrong after step 1 merges (broken build, bad redirect, wrong content
-live under the real domain): this isn't a domain migration with existing indexed traffic to
-protect, so the safe move is to fix forward on `main` and let the next deploy overwrite it,
-rather than trying to un-arm the domain. Reverting `public/CNAME` and `site`/`base` back to
-review mode is possible but leaves `refineryrobotics.org` pointed at Cloudflare with nothing
-behind it, which is worse than a broken-but-live site. Only go back to full review mode (see
-above) if launch needs to pause for more than a few minutes.
+If something is visibly wrong on the live domain (broken build, bad redirect, wrong content),
+fix forward on `main` and let the next deploy overwrite it. Reverting `public/CNAME` leaves
+`refineryrobotics.org` pointed at Cloudflare with nothing behind it, which is worse than a
+broken-but-live site. Only go back to review mode (see above) if the site needs to pause for
+more than a few minutes.
 
-After launch, nothing in this repo watches the live site — no uptime check, no recurring
-Search Console review. Decide who owns that (even just glancing at Search Console's coverage
-report weekly for the first month) before traffic exists to monitor.
+`seo-monitor.yml` checks daily that `robots.txt`, the sitemap, `llms.txt`, and a sample of pages
+still resolve, and that the indexing switches agree. It is not an uptime monitor and does not
+replace Search Console. Decide who owns a recurring look at Search Console's coverage report
+and at the monitor's workflow runs.
