@@ -6,10 +6,16 @@ import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import rehypeFirstMarks from './src/plugins/rehype-first-marks.mjs';
 import rehypeExternalLinks from './src/plugins/rehype-external-links.mjs';
+import rehypeBaseLinks from './src/plugins/rehype-base-links.mjs';
+
+// The site sits at the domain root. withBase() (src/utils/base.ts) and rehypeBaseLinks read
+// this, and do nothing while it's '/'; set a subpath here if the site ever needs one.
+const BASE = '/';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://refineryrobotics.org',
+  base: BASE,
 
   vite: {
     plugins: [tailwindcss()],
@@ -50,8 +56,10 @@ export default defineConfig({
     },
   ],
 
-  // Both run over every Markdown/MDX body; MDX inherits them via `extendMarkdownConfig`.
+  // All three run over every Markdown/MDX body; MDX inherits them via `extendMarkdownConfig`.
   // rehypeFirstMarks styles FIRST® trademarks, so authors just type FIRST in capitals.
+  // rehypeBaseLinks adds BASE to root-relative links ("/news/"), the way withBase() does in
+  // templates; scripts/check-content.mjs keeps body links root-relative.
   // rehypeExternalLinks marks absolute links as external, so a plain Markdown link picks up
   // the same new-tab behaviour and ↗ indicator as one written in an .astro template.
   //
@@ -60,7 +68,7 @@ export default defineConfig({
   // directly. `unified()` keeps GFM and SmartyPants on by default, matching prior behaviour.
   markdown: {
     processor: unified({
-      rehypePlugins: [rehypeFirstMarks, rehypeExternalLinks],
+      rehypePlugins: [rehypeFirstMarks, [rehypeBaseLinks, { base: BASE }], rehypeExternalLinks],
     }),
   },
 
