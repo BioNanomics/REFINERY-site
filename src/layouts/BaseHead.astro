@@ -109,7 +109,11 @@ const documentTitle = fullTitle
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image:alt" content={imageAlt} />
 
-{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />}
+{/* `<` is escaped so a "</script>" inside any string can't end the tag early. JSON reads
+    \u003c back as `<`, so the data is unchanged. */}
+{jsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} is:inline />
+)}
 
 {/*
   Self-hosted — families are declared in astro.config.mjs. Preloads are limited to the faces
