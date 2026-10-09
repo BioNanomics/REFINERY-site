@@ -651,12 +651,28 @@ line we wrote ourselves.
 
 ## Internal links inside Markdown/MDX body content
 
-**Internal links inside Markdown/MDX body text must be relative**, not root-absolute — write
-`../../news/` rather than `/news/`. The site currently sits at a domain root, so a
-root-absolute link would happen to work today, but relative links stay correct if it ever moves
-to a subpath, and this is the invariant `src/plugins/rehype-external-links.mjs` relies on to
-treat an absolute `http(s)` href as off-site. Links inside `.astro` component files should use
-the `withBase()` helper from `src/utils/base.ts` instead.
+**Internal links inside Markdown/MDX body text are written from the site root** — write
+`/news/` rather than `../../news/`, and never with the domain (`https://refineryrobotics.org/news/`).
+A relative link resolves against the current URL, so the same link can land somewhere different
+depending on whether the page was reached with a trailing slash; a root link means the same thing
+from every page. If the site ever moves to a subpath, `src/plugins/rehype-base-links.mjs` adds it,
+so no link in the content has to change. `src/plugins/rehype-external-links.mjs` relies on this
+rule to treat an absolute `http(s)` href as off-site. The docs site follows the same rule.
+
+`npm run build` fails on a relative link or one to this site written with the domain (see
+"Content check" below). Links inside `.astro` component files should use the `withBase()` helper
+from `src/utils/base.ts` instead.
+
+## Content check
+
+`scripts/check-content.mjs` runs before every build (and on its own with `npm run check`). It
+fails the build, with the file and line, on:
+
+- an image in body text with no alt text (`![](…)`, or an `<img>` / `<Image>` without `alt`),
+- an `<iframe>` (an embedded video or map) with no `title`,
+- a relative internal link, or a link to this site written with the domain.
+
+Code blocks are skipped. Names aren't checked: "Naming students" above is up to authors.
 
 ## Draft content
 

@@ -27,7 +27,8 @@ npm run dev       # http://localhost:4321
 | `npm install`        | Install dependencies                                  |
 | `npm run dev`         | Start the local dev server                            |
 | `npm test`            | Run the vitest suite (also the first job in the deploy workflow) |
-| `npm run build`       | Build the production site to `./dist/`                |
+| `npm run build`       | Run the content check, then build the production site to `./dist/` |
+| `npm run check`       | Run the content check on its own (see CONTRIBUTING.md) |
 | `npm run preview`     | Preview the production build locally                  |
 | `npm run astro check` | Type-check the project                                |
 | `npm run check:seo`   | After a build: confirm `robots.txt` and `noindex` agree, then smoke-check the live site |
