@@ -1,0 +1,431 @@
+---
+/**
+ * The press portal: everything a reporter needs to cover Monster Match and The REFINERY,
+ * served from this domain. The portal used to be a Google Drive folder, and some newsroom
+ * networks block Drive outright, so a reporter on deadline couldn't get a photo. GitHub
+ * Pages is not blocked, so the files live here now and Drive is the secondary link.
+ *
+ * Event facts (date, hours, venue, co-hosts, sponsors) are read from the events collection
+ * rather than typed again, so this page can't disagree with the Monster Match page or its
+ * Event structured data. Everything else comes from src/data/press.ts and
+ * src/data/press-photos.ts; see those files for how to add a document, logo or photo.
+ */
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import SectionHeading from '../components/marketing/SectionHeading.astro';
+import CTAButton from '../components/marketing/CTAButton.astro';
+import FirstText from '../components/brand/FirstText.astro';
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { getEntry } from 'astro:content';
+import { withBase } from '../utils/base';
+import { formatUtcDate } from '../utils/dates';
+import {
+  PRESS_DIR,
+  PRESS_CONTACT,
+  SPOKESPEOPLE,
+  USAGE_TERMS,
+  PRESS_DOCUMENTS,
+  PRESS_LOGOS,
+  PRESS_VIDEO,
+  PRESS_DRIVE_URL,
+  FIRST_SOURCES,
+  FIRST_MARKS_NOTE,
+} from '../data/press';
+import { PRESS_PHOTOS } from '../data/press-photos';
+
+// The event this portal is currently built around. When the next event has its own kit, add
+// a second block or switch this id; the rest of the page reads from the entry.
+const event = await getEntry('events', 'monster-match');
+if (!event) throw new Error('press.astro: events/monster-match entry not found');
+const { title, dateStart, startTime, endTime, location, venueAddress, isFree, coHosts, sponsors, registrationUrl } =
+  event.data;
+
+const eventDate = formatUtcDate(dateStart, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+// "08:15" -> "8:15 a.m.", AP style, so the hours read the way the release wrote them.
+function apTime(hhmm: string): string {
+  const [h, m] = hhmm.split(':').map(Number);
+  const suffix = h >= 12 ? 'p.m.' : 'a.m.';
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return m === 0 ? `${hour} ${suffix}` : `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
+}
+const hours = startTime && endTime ? `${apTime(startTime)} to ${apTime(endTime)}` : undefined;
+const address = venueAddress
+  ? `${venueAddress.streetAddress}, ${venueAddress.addressLocality}, ${venueAddress.addressRegion} ${venueAddress.postalCode}`
+  : undefined;
+
+// Photos: every file in src/assets/press/photos/, each resolved through the manifest for its
+// alt text and caption. The thumbnail is optimized; the download link is the full-size file,
+// re-encoded at a quality a photo desk won't notice. A file with no manifest entry is skipped
+// here and fails test/data/press.test.ts, so it can't ship silently.
+const photoModules = import.meta.glob<{ default: ImageMetadata }>('../assets/press/photos/*.{jpg,jpeg,png}', {
+  eager: true,
+});
+const photos = await Promise.all(
+  Object.entries(photoModules)
+    .map(([path, mod]) => ({ file: path.split('/').pop()!, src: mod.default }))
+    .filter(({ file }) => PRESS_PHOTOS[file])
+    .sort((a, b) => a.file.localeCompare(b.file))
+    .map(async ({ file, src }) => {
+      const meta = PRESS_PHOTOS[file];
+      const full = await getImage({ src, format: 'jpg', quality: 92 });
+      return {
+        file,
+        src,
+        alt: meta.alt,
+        caption: meta.caption,
+        credit: meta.credit ?? USAGE_TERMS.photoCredit,
+        downloadHref: full.src,
+        dimensions: `${src.width} × ${src.height}`,
+      };
+    }),
+);
+
+const pressPath = (file: string) => withBase(`${PRESS_DIR}/${file}`);
+const logoPath = (file: string) => withBase(`${PRESS_DIR}/logos/${file}`);
+
+const sections = [
+  { id: 'contact', label: 'Contact' },
+  { id: 'facts', label: 'Facts' },
+  { id: 'documents', label: 'Release and kit' },
+  { id: 'photos', label: 'Photos' },
+  { id: 'video', label: 'Video' },
+  { id: 'logos', label: 'Logos' },
+  { id: 'first', label: 'From FIRST' },
+];
+
+const description =
+  'Press materials for Monster Match and The REFINERY: press release, press kit, photos, video, logos and media contact, hosted on refineryrobotics.org.';
+---
+
+<MarketingLayout title="Press" description={description}>
+  <section class="section-tight section">
+    <div class="section-inner section-inner-narrow">
+      <SectionHeading as="h1" eyebrow="Press" title="Press portal" align="left" />
+      <p class="mt-4 max-w-2xl text-slate-600" data-reveal>
+        Everything on this page is hosted here, not on Google Drive, so it works from a newsroom
+        network that blocks file-sharing sites. Current event: <a
+          href={withBase('programs-events/monster-match/')}
+          class="font-medium text-brand-accent underline hover:no-underline">{title}</a>, {eventDate}.
+      </p>
+      <nav aria-label="On this page" class="mt-6" data-reveal>
+        <ul class="flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs">
+          {
+            sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`} class="text-brand-accent hover:underline">
+                  {s.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <section id="contact" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>01</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Media contact</h2>
+      <div class="card card-pad mt-6" data-reveal>
+        <p class="font-heading text-lg font-bold text-slate-900">{PRESS_CONTACT.name}</p>
+        <p class="text-sm text-slate-600">{PRESS_CONTACT.role}</p>
+        <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-1 font-mono text-sm">
+          <li><a href={`mailto:${PRESS_CONTACT.email}`} class="text-brand-accent underline hover:no-underline">{PRESS_CONTACT.email}</a></li>
+          <li><a href={PRESS_CONTACT.phoneHref} class="text-brand-accent underline hover:no-underline">{PRESS_CONTACT.phone}</a></li>
+        </ul>
+        <p class="mt-4 text-sm text-slate-600">
+          Coverage before the event is welcome. Teams are working on their robots now; shop visits, student and
+          mentor interviews, and live shots can be arranged ahead of the day. On the day, call or text and
+          someone from The REFINERY will meet you. Walk-ups are welcome; no credential is required.
+        </p>
+      </div>
+
+      <h3 class="mt-8 font-heading text-lg font-bold text-slate-900" data-reveal>Spokespeople</h3>
+      <p class="mt-1 text-sm text-slate-500" data-reveal>
+        Interviews are arranged through the media contact above. Student interviews with any competing team go
+        through the team's coach.
+      </p>
+      <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2" data-reveal-group>
+        {
+          SPOKESPEOPLE.map((person) => (
+            <li class="card rounded-r-control border-l-2 border-l-brand-accent py-3 pl-4 pr-4" data-reveal>
+              <p class="font-semibold text-slate-900">{person.name}</p>
+              <p class="text-sm text-slate-600">
+                <FirstText text={person.role} />
+              </p>
+              {'note' in person && person.note && (
+                <p class="mt-1 text-sm text-slate-500">
+                  <FirstText text={person.note} />
+                </p>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section id="facts" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>02</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>
+        <FirstText text={title} context="heading" /> at a glance
+      </h2>
+      <p class="mt-2 text-sm text-slate-500" data-reveal>
+        Read from the event listing, so these match the <a href={withBase('programs-events/monster-match/')} class="text-brand-accent underline hover:no-underline">public event page</a>.
+      </p>
+      <dl class="card mt-6 divide-y divide-slate-200" data-reveal>
+        <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">What</dt>
+          <dd class="text-slate-800">
+            <FirstText text="A FIRST Robotics Competition offseason event, college and career fair and costume contest" />
+          </dd>
+        </div>
+        <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">When</dt>
+          <dd class="text-slate-800">{eventDate}{hours && `. Matches ${hours}`}</dd>
+        </div>
+        <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Where</dt>
+          <dd class="text-slate-800">{location}{address && `, ${address}`}</dd>
+        </div>
+        {
+          isFree !== undefined && (
+            <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Admission</dt>
+              <dd class="text-slate-800">{isFree ? 'Free and open to the public' : 'Ticketed'}</dd>
+            </div>
+          )
+        }
+        {
+          coHosts.length > 0 && (
+            <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Co-hosts</dt>
+              <dd class="text-slate-800">
+                The REFINERY (a BioNanomics program)
+                {coHosts.map((host) => (
+                  <>
+                    {'; '}
+                    {host.url ? (
+                      <a href={host.url} target="_blank" rel="noopener noreferrer" class="text-brand-accent underline hover:no-underline">
+                        <FirstText text={host.name} />
+                      </a>
+                    ) : (
+                      <FirstText text={host.name} />
+                    )}
+                  </>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+        {
+          sponsors.length > 0 && (
+            <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Sponsors</dt>
+              <dd class="text-slate-800">
+                {sponsors.map((sponsor, i) => (
+                  <>
+                    {i > 0 && '; '}
+                    {sponsor.url ? (
+                      <a href={sponsor.url} target="_blank" rel="noopener noreferrer" class="text-brand-accent underline hover:no-underline">
+                        {sponsor.name}
+                      </a>
+                    ) : (
+                      sponsor.name
+                    )}
+                    {sponsor.tier && <span class="text-slate-500"> ({sponsor.tier})</span>}
+                  </>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+        {
+          registrationUrl && (
+            <div class="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Event site</dt>
+              <dd class="text-slate-800">
+                <a href={registrationUrl} target="_blank" rel="noopener noreferrer" class="text-brand-accent underline hover:no-underline">
+                  {registrationUrl.replace(/^https?:\/\//, '')}
+                </a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+      <p class="mt-3 text-sm text-slate-500" data-reveal>
+        Team count, game rules, the costume contest, the prize and the media advisory for the day are in the
+        press kit below.
+      </p>
+    </div>
+  </section>
+
+  <section id="documents" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>03</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Press release and kit</h2>
+      <ul class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2" data-reveal-group>
+        {
+          PRESS_DOCUMENTS.map((doc) => (
+            <li class="card card-pad flex flex-col" data-reveal>
+              <p class="font-heading font-bold text-slate-900">{doc.title}</p>
+              <p class="mt-1 flex-1 text-sm text-slate-600">
+                <FirstText text={doc.description} />
+              </p>
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <a href={pressPath(doc.file)} download class="btn btn-secondary">
+                  <span>Download</span>
+                </a>
+                <span class="font-mono text-xs text-slate-500">{doc.format}</span>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section id="photos" class="section-rule scroll-mt-6 section">
+    <div class="section-inner">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>04</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Photos</h2>
+      <p class="mt-2 max-w-2xl text-sm text-slate-600" data-reveal>
+        {USAGE_TERMS.allowed} {USAGE_TERMS.notAllowed} Credit: <span class="font-mono">{USAGE_TERMS.photoCredit}</span>.
+        Photos and video from the event itself will be posted here after Oct. 31 and are available on request.
+      </p>
+      {
+        photos.length > 0 ? (
+          <ul class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3" data-reveal-group>
+            {photos.map((photo) => (
+              <li class="card flex flex-col overflow-hidden" data-reveal>
+                <a href={photo.downloadHref} download={photo.file} class="card-media block" data-no-external-arrow>
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    class="h-auto w-full object-cover"
+                    style="aspect-ratio: 3 / 2"
+                    widths={[400, 800]}
+                    sizes="(min-width: 768px) 360px, 50vw"
+                  />
+                </a>
+                <div class="flex flex-1 flex-col gap-2 p-4">
+                  <p class="flex-1 text-sm text-slate-700">{photo.caption}</p>
+                  <p class="font-mono text-xs text-slate-500">{photo.credit}</p>
+                  <div class="flex items-center justify-between gap-3">
+                    <a href={photo.downloadHref} download={photo.file} class="text-sm font-semibold text-brand-accent hover:underline">
+                      Download full size
+                    </a>
+                    <span class="font-mono text-xs text-slate-500">{photo.dimensions}</span>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="card card-pad mt-8 max-w-2xl" data-reveal>
+            <p class="text-slate-700">
+              The photo set is being moved onto this page. Until it lands, email or text the media contact above
+              and the photos go out within the hour, or pull them from the{' '}
+              <a href={PRESS_DRIVE_URL} target="_blank" rel="noopener noreferrer" class="font-medium text-brand-accent underline hover:no-underline">
+                Google Drive press folder
+              </a>{' '}
+              if your network allows it.
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section id="video" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>05</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Video</h2>
+      <div class="card card-pad mt-6" data-reveal>
+        <p class="font-heading font-bold text-slate-900">{PRESS_VIDEO.title}</p>
+        <p class="mt-1 text-sm text-slate-600">{PRESS_VIDEO.description}</p>
+        <p class="mt-1 font-mono text-xs text-slate-500">Credit: {USAGE_TERMS.videoCredit}</p>
+        <div class="mt-4 flex flex-wrap items-center gap-4">
+          <CTAButton href={PRESS_VIDEO.channelUrl} variant="secondary">The REFINERY on YouTube</CTAButton>
+          <a href={PRESS_VIDEO.driveUrl} target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-brand-accent hover:underline">
+            Download the original from Drive
+          </a>
+          <span class="font-mono text-xs text-slate-500">{PRESS_VIDEO.driveFormat}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="logos" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>06</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>Logos</h2>
+      <p class="mt-2 text-sm text-slate-600" data-reveal>{USAGE_TERMS.logoNote}</p>
+      <ul class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2" data-reveal-group>
+        {
+          PRESS_LOGOS.map((logo) => (
+            <li class="card flex flex-col overflow-hidden" data-reveal>
+              <div class:list={['flex h-36 items-center justify-center p-6', logo.dark ? 'bg-surface-dark' : 'bg-white']}>
+                <img src={logoPath(logo.file)} alt={logo.description} class="max-h-full max-w-full" loading="lazy" />
+              </div>
+              <div class="flex flex-1 flex-col gap-2 border-t border-slate-200 p-4">
+                <p class="flex-1 font-semibold text-slate-900">{logo.name}</p>
+                <div class="flex items-center justify-between gap-3">
+                  <a href={logoPath(logo.file)} download class="text-sm font-semibold text-brand-accent hover:underline">
+                    Download
+                  </a>
+                  <span class="font-mono text-xs text-slate-500">{logo.format}</span>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section id="first" class="section-rule scroll-mt-6 section">
+    <div class="section-inner section-inner-narrow">
+      <p class="eyebrow-tag text-brand-accent" data-reveal>07</p>
+      <h2 class="mt-2 font-heading text-2xl font-bold text-slate-900 sm:text-3xl" data-reveal>
+        <FirstText text="From FIRST" context="heading" />
+      </h2>
+      <ul class="mt-6 grid grid-cols-1 gap-3" data-reveal-group>
+        {
+          FIRST_SOURCES.map((source) => (
+            <li class="card rounded-r-control border-l-2 border-l-brand-accent py-3 pl-4 pr-4" data-reveal>
+              <a href={source.url} target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-accent hover:underline">
+                <FirstText text={source.name} />
+              </a>
+              <p class="mt-1 text-sm text-slate-600">
+                <FirstText text={source.description} />
+              </p>
+              {'credit' in source && source.credit && (
+                <p class="mt-1 font-mono text-xs text-slate-500">
+                  Credit: <FirstText text={source.credit} />
+                </p>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-6 text-sm text-slate-500" data-reveal>
+        <FirstText text={FIRST_MARKS_NOTE} />
+      </p>
+    </div>
+  </section>
+
+  <section class="section-rule section">
+    <div class="section-inner section-inner-narrow">
+      <p class="text-sm text-slate-500" data-reveal>
+        The same files are mirrored in a{' '}
+        <a href={PRESS_DRIVE_URL} target="_blank" rel="noopener noreferrer" class="text-brand-accent underline hover:no-underline">
+          Google Drive folder
+        </a>. Something missing? <a href={`mailto:${PRESS_CONTACT.email}`} class="text-brand-accent underline hover:no-underline">Email {PRESS_CONTACT.name}</a>.
+      </p>
+    </div>
+  </section>
+</MarketingLayout>

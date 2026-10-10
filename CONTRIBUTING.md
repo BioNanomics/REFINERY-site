@@ -588,6 +588,28 @@ linkedin:
 
 Both normalize to a list internally, so existing single-URL entries need no change.
 
+## Press portal — `/press/`
+
+`src/pages/press.astro` is the media page: contact, event facts, and downloads. It exists
+because some newsroom networks block Google Drive, so press files are served from this domain.
+Event facts come from `src/content/events/monster-match.mdx` and need no separate edit.
+Everything else is data:
+
+- **Documents and logos** are listed in `src/data/press.ts` and the files live under
+  `public/press/` (PDFs at the top level, logos in `public/press/logos/`). `public/` serves
+  them byte for byte, which is what a reporter wants. Add the file, add the entry.
+- **Photos** go in `src/assets/press/photos/` with an entry in `src/data/press-photos.ts`
+  (alt text and a caption; `npm run press:stub` prints a starter entry for each new file). The page shows an optimized thumbnail and offers the full-size
+  file for download. `src/assets/press/photos/README.md` has the naming and size rules.
+- **Video** is linked, not hosted (the files are too large for the repository); the links are
+  in `src/data/press.ts`.
+
+`npm test` checks that every listed file exists and every photo has its metadata, so a
+missing upload or a typo in a filename fails before it reaches the live site. Only
+REFINERY- or BioNanomics-produced material, or material with written permission to
+redistribute, goes on this page; FIRST Indiana Flickr photos are linked, never re-hosted
+(see `docs/placeholder-images.md`).
+
 ## Images
 
 Don't hotlink or reuse other organizations' photography without confirmed permission — see
