@@ -588,7 +588,7 @@ linkedin:
 
 Both normalize to a list internally, so existing single-URL entries need no change.
 
-## Press portal — `/press/`
+## Press portal at `/press/`
 
 `src/pages/press.astro` is the media page: contact, event facts, and downloads. It exists
 because some newsroom networks block Google Drive, so press files are served from this domain.

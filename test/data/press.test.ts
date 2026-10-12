@@ -48,6 +48,12 @@ describe('press portal logos', () => {
     }
   });
 
+  it('logo filenames are URL-safe', () => {
+    for (const logo of PRESS_LOGOS) {
+      expect(logo.file).toMatch(/^[\w.-]+$/);
+    }
+  });
+
   it('declared format matches the file extension', () => {
     for (const logo of PRESS_LOGOS) {
       expect(logo.file.toLowerCase().endsWith(`.${logo.format.toLowerCase()}`)).toBe(true);

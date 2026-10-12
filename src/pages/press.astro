@@ -40,7 +40,10 @@ if (!event) throw new Error('press.astro: events/monster-match entry not found')
 const { title, dateStart, startTime, endTime, location, venueAddress, isFree, coHosts, sponsors, registrationUrl } =
   event.data;
 
-const eventDate = formatUtcDate(dateStart, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+// AP style: "Saturday, Oct. 31, 2026". AP abbreviates Jan., Feb., Aug., Sept., Oct., Nov. and
+// Dec. before a date and spells out March through July, which no Intl month style does.
+const AP_MONTHS = ['Jan.', 'Feb.', 'March', 'April', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
+const eventDate = `${formatUtcDate(dateStart, { weekday: 'long' })}, ${AP_MONTHS[dateStart.getUTCMonth()]} ${dateStart.getUTCDate()}, ${dateStart.getUTCFullYear()}`;
 
 // "08:15" -> "8:15 a.m.", AP style, so the hours read the way the release wrote them.
 function apTime(hhmm: string): string {
