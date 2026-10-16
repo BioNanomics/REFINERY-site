@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { withBase } from '../../utils/base';
 import SocialIcon from '../marketing/SocialIcon.astro';
 import type { SocialKey } from '../../utils/socials';
 import logoFullColor from '../../assets/logo-full-color.svg';
@@ -66,6 +67,11 @@ const socials: { key: SocialKey; label: string; url: string }[] = [
       </a>
       <a href="https://bionanomics.com" target="_blank" rel="noopener noreferrer" class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
         BioNanomics
+      </a>
+      {/* Press lives in the footer, not the primary nav: it serves a few dozen reporters a
+          year, and the nav's numbered six are the public's routes through the site. */}
+      <a href={withBase('press/')} class="transition-colors duration-base ease-out-soft hover:text-brand-accent">
+        Press
       </a>
       {
         sourceUrl && (
