@@ -446,6 +446,8 @@ dateStart: 2026-09-12
 dateEnd: 2026-09-13             # optional
 startTime: "08:15"              # optional, venue-local 24-hour HH:MM — see note below
 endTime: "18:00"                # optional
+fairStartTime: "10:00"          # optional, hours of a college and career fair held alongside;
+fairEndTime: "14:00"            # read by the press page's facts table (same HH:MM format)
 location: "Venue name"          # display name, shown on the card and detail page
 venueAddress:                   # optional, but see note below
   streetAddress: "9100 Winchester Rd"
@@ -598,15 +600,22 @@ Everything else is data:
 - **Documents and logos** are listed in `src/data/press.ts` and the files live under
   `public/press/` (PDFs at the top level, logos in `public/press/logos/`). `public/` serves
   them byte for byte, which is what a reporter wants. Add the file, add the entry.
-- **Photos** go in `src/assets/press/photos/` with an entry in `src/data/press-photos.ts`
+- **Photos** (JPEG only, lowercase extension, 10 MB or less) go in `src/assets/press/photos/`
+  with an entry in `src/data/press-photos.ts`
   (alt text and a caption; `npm run press:stub` prints a starter entry for each new file). The page shows an optimized thumbnail and offers the full-size
   file for download. `src/assets/press/photos/README.md` has the naming and size rules.
+- **The press release and press kit PDFs** are printed from HTML sources in `docs/press-kit/`;
+  its README has the print command. Edit the source and re-print rather than editing a PDF.
 - **Video** is linked, not hosted (the files are too large for the repository); the links are
   in `src/data/press.ts`.
 
+Press copy, on the page and in the PDFs, uses AP style for dates and times, never uses em dashes
+or exclamation points, says "nonprofit" rather than "501(c)(3)", and never calls Monster Match
+the largest or the first event of its kind.
+
 `npm test` checks that every listed file exists and every photo has its metadata, so a
 missing upload or a typo in a filename fails before it reaches the live site. Only
-REFINERY- or BioNanomics-produced material, or material with written permission to
+material produced by The REFINERY or BioNanomics, or material with written permission to
 redistribute, goes on this page; FIRST Indiana Flickr photos are linked, never re-hosted
 (see `docs/placeholder-images.md`).
 

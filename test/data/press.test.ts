@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   PRESS_DIR,
@@ -17,7 +17,12 @@ import { PRESS_PHOTOS } from '../../src/data/press-photos';
 const PUBLIC_PRESS = join('public', PRESS_DIR);
 const PHOTO_DIR = join('src', 'assets', 'press', 'photos');
 
-const PHOTO_EXTENSIONS = /\.(jpe?g|png)$/i;
+// Lowercase JPEG only. The page's import.meta.glob is case-sensitive, so a .JPG would pass a
+// case-insensitive test and still drop off the page; and the full-size download is always
+// re-encoded as JPEG, so a PNG would save as a JPEG under a .png name.
+const PHOTO_EXTENSIONS = /\.jpe?g$/;
+// The limit in src/assets/press/photos/README.md.
+const MAX_PHOTO_BYTES = 10 * 1000 * 1000;
 
 describe('press portal documents', () => {
   it('every listed document exists under public/press/', () => {
@@ -68,7 +73,21 @@ describe('press portal logos', () => {
 });
 
 describe('press portal photos', () => {
-  const files = existsSync(PHOTO_DIR) ? readdirSync(PHOTO_DIR).filter((f) => PHOTO_EXTENSIONS.test(f)) : [];
+  const all = existsSync(PHOTO_DIR) ? readdirSync(PHOTO_DIR).filter((f) => !f.startsWith('.') && f !== 'README.md') : [];
+  const files = all.filter((f) => PHOTO_EXTENSIONS.test(f));
+
+  it('the photos folder holds only .jpg or .jpeg files (lowercase)', () => {
+    for (const file of all) {
+      expect(file, `${file}: re-save as a JPEG with a lowercase .jpg extension`).toMatch(PHOTO_EXTENSIONS);
+    }
+  });
+
+  it('every photo is 10 MB or smaller', () => {
+    for (const file of files) {
+      const bytes = statSync(join(PHOTO_DIR, file)).size;
+      expect(bytes, `${file} is ${(bytes / 1e6).toFixed(1)} MB; re-export at 3,000 px on the long edge, JPEG quality 90`).toBeLessThanOrEqual(MAX_PHOTO_BYTES);
+    }
+  });
 
   it('every photo file has a manifest entry with alt text and a caption', () => {
     for (const file of files) {

@@ -84,7 +84,7 @@ export const PRESS_DOCUMENTS: PressDocument[] = [
   {
     title: 'Monster Match 2026 press release',
     file: 'Monster_Match_2026_Press_Release.pdf',
-    description: 'Issued Oct. 5, 2026. Who, what, when, where, and the fact table.',
+    description: 'Issued Oct. 5, 2026; updated Oct. 16 with the college and career fair hours. Who, what, when, where, and the fact table.',
     format: 'PDF',
   },
   {

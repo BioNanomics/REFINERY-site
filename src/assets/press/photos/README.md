@@ -7,8 +7,10 @@ the page skips any photo without one.
 To add a photo:
 
 1. Save the JPEG here, full size, named `WHO_YYYY-MM-DD_NN.jpg` (for example
-   `REFINERY_2026-07-28_01.jpg`). Keep each file under 10 MB; re-export anything larger at
-   3,000 px on the long edge, JPEG quality 90.
+   `REFINERY_2026-07-28_01.jpg`). JPEG only, with a lowercase `.jpg` or `.jpeg` extension;
+   rename a camera's `.JPG` and re-save a PNG as JPEG. Keep each file at 10 MB or less;
+   re-export anything larger at 3,000 px on the long edge, JPEG quality 90. `npm test`
+   checks all three.
 2. Run `npm run press:stub`; it prints an entry for each new file. Paste the block into
    `src/data/press-photos.ts` and write the alt text (what is in the frame).
 3. Run `npm test`.

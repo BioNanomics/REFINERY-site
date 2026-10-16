@@ -13,8 +13,10 @@ const DIR = 'src/assets/press/photos';
 const MANIFEST = 'src/data/press-photos.ts';
 // Comments stripped first: the manifest's own example entry names a real-looking file.
 const manifest = readFileSync(MANIFEST, 'utf8').replace(/\/\/.*$/gm, '');
-const files = readdirSync(DIR).filter((f) => /\.(jpe?g|png)$/i.test(f)).sort();
-const missing = files.filter((f) => !manifest.includes(`'${f}'`));
+// Same rule as test/data/press.test.ts: lowercase .jpg or .jpeg only.
+const files = readdirSync(DIR).filter((f) => /\.jpe?g$/.test(f)).sort();
+// Keys may be written in single or double quotes.
+const missing = files.filter((f) => !manifest.includes(`'${f}'`) && !manifest.includes(`"${f}"`));
 
 if (missing.length === 0) {
   console.log(`All ${files.length} photo(s) in ${DIR} have manifest entries.`);
