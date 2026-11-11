@@ -20,9 +20,9 @@ export interface ImpactClause {
 export const impactStatement: { opening: string; clauses: ImpactClause[] } = {
   opening: 'Across Northeast Indiana',
   clauses: [
-    { lead: "we've backed", value: '15', noun: 'robotics teams' },
+    { lead: "we've backed", value: '16', noun: 'robotics teams' },
     { lead: 'put tools and mentors in front of', value: '~200', noun: 'students' },
-    { lead: 'helped launch', value: '5', noun: 'new teams', tail: 'from scratch' },
+    { lead: 'helped launch', value: '6', noun: 'new teams', tail: 'from scratch' },
     { lead: 'and moved', value: '$75,000', noun: 'in funding', tail: 'to the teams that needed it' },
   ],
 };
