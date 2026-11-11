@@ -378,6 +378,10 @@ const events = defineCollection({
       // inventing a time. Only feed the structured data; say the hours in the body copy.
       startTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use 24-hour HH:MM').optional(),
       endTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use 24-hour HH:MM').optional(),
+      // Hours of a college and career fair held alongside the event, same format. Read by the
+      // press page's facts table; say them in the body copy too and keep the two in step.
+      fairStartTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use 24-hour HH:MM').optional(),
+      fairEndTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use 24-hour HH:MM').optional(),
       // Display name of the venue, shown on the card and the detail page.
       location: z.string(),
       // Structured street address for the venue. Optional, but Google requires a full
