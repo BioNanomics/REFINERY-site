@@ -1,0 +1,149 @@
+/* Shared print styles for the press release and press kit PDFs. See README.md. */
+@page {
+  size: Letter;
+  margin: 1.05in 1.07in;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Liberation Sans', Arial, Helvetica, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.55;
+  color: #111;
+}
+
+body {
+  margin: 0;
+}
+
+p {
+  margin: 0 0 0.75em;
+}
+
+a {
+  color: inherit;
+}
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  line-height: 1.5;
+  margin-bottom: 2.2em;
+}
+
+.masthead .right {
+  text-align: right;
+}
+
+h1 {
+  font-size: 14pt;
+  line-height: 1.32;
+  margin: 0 0 0.6em;
+}
+
+.deck {
+  font-style: italic;
+  margin-bottom: 1.1em;
+}
+
+h2 {
+  font-size: 11pt;
+  margin: 1.6em 0 0.7em;
+  padding-bottom: 0.45em;
+  border-bottom: 1.5px solid #333;
+}
+
+h3 {
+  font-size: 10.5pt;
+  margin: 1em 0 0.2em;
+}
+
+h3 + p {
+  margin-top: 0;
+}
+
+.page-break {
+  break-before: page;
+}
+
+.page-break > h2:first-child {
+  margin-top: 0;
+}
+
+table.facts {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.4em;
+  font-size: 9.5pt;
+}
+
+table.facts th,
+table.facts td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.55em 0.6em;
+  border-bottom: 1px solid #bbb;
+}
+
+table.facts tr:first-child th,
+table.facts tr:first-child td {
+  border-top: 1.5px solid #333;
+}
+
+table.facts tr:last-child th,
+table.facts tr:last-child td {
+  border-bottom: 1.5px solid #333;
+}
+
+table.facts th {
+  width: 27%;
+  font-weight: bold;
+}
+
+table.facts.caps th {
+  text-transform: uppercase;
+  font-size: 8.5pt;
+}
+
+h2 + table.facts {
+  margin-top: 0;
+}
+
+h2 + table.facts tr:first-child th,
+h2 + table.facts tr:first-child td {
+  border-top: 0;
+}
+
+.end {
+  text-align: center;
+  letter-spacing: 1.2em;
+  margin: 1.4em 0;
+}
+
+.cover h1 {
+  font-size: 20pt;
+  margin: 1.4em 0 0.2em;
+}
+
+.cover .subtitle {
+  font-size: 11pt;
+  margin-bottom: 1.6em;
+}
+
+.cover h3 {
+  margin-top: 1.2em;
+}
+
+.cover ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.small {
+  font-size: 8pt;
+}
